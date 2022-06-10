@@ -6,6 +6,67 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  username  String   @unique
+  email     String   @unique
+  auth0sub  String   @unique
+  name      String
+  picture   String?
+  companyId Int?
+  company   Company? @relation(name: "Employees", fields: [companyId], references: [id])
+  adminOfId Int?
+  adminOf   Company? @relation(name: "Admins", fields: [adminOfId], references: [id])
+}
+
+model Company {
+  id                       Int       @id @default(autoincrement())
+  createdAt                DateTime  @default(now())
+  name                     String    @unique
+  logo                     String?
+  paidMembership           Boolean   @default(false)
+  lastPaymentDate          DateTime?
+  paypalSubscriptionId     String?   @unique
+  employees                User[]    @relation(name: "Employees")
+  admins                   User[]    @relation(name: "Admins")
+  benefits                 Benefit[] @relation(name: "Suppliers")
+  benefitsFrom             Benefit[] @relation(name: "Beneficiaries")
+  privateBenefitsAvailable Benefit[] @relation(name: "AvailableFor")
+}
+
+model Benefit {
+  id            Int        @id @default(autoincrement())
+  createdAt     DateTime   @default(now())
+  name          String
+  description   Json
+  categories    Category[]
+  photos        Photo[]
+  supplierId    Int
+  supplier      Company    @relation(name: "Suppliers", fields: [supplierId], references: [id])
+  beneficiaries Company[]  @relation(name: "Beneficiaries")
+  startsAt      DateTime   @default(now())
+  finishesAt    DateTime?
+  isPrivate     Boolean    @default(false)
+  availableFor  Company[]  @relation(name: "AvailableFor")
+  isActive Boolean @default(true)
+  // TODO: add limit per user, and limit of uses
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  name      String    @unique
+  benefits  Benefit[] @relation(references: [id])
+}
+
+model Photo {
+  id        Int     @id @default(autoincrement())
+  url       String
+  benefitId Int
+  benefit   Benefit @relation(fields: [benefitId], references: [id])
 }
