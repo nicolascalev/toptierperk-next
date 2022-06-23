@@ -1,15 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse,  } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next";
+import isAuthenticated from "../../helpers/isAuthenticated";
+import { getSession } from "@auth0/nextjs-auth0";
 
-type Data = {
-  name: string
-}
-
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>,
-  session: any,
+  res: NextApiResponse
 ) {
-  console.log('from hello', session)
-  res.status(200).json({ name: 'John Doe' })
+  await isAuthenticated(req, res)
+  let session = getSession(req, res)
+  return res.status(200).json(session);
 }
