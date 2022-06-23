@@ -1,7 +1,7 @@
 import prisma from "../prisma.client";
 import { Prisma } from "@prisma/client";
 
-type search = {
+export type UserSearchParams = {
   searchString?: string;
   skip?: number;
   take?: number;
@@ -68,7 +68,7 @@ const User = {
     }
   },
 
-  find: async (query: search) => {
+  find: async (query: UserSearchParams) => {
     try {
       const {
         searchString = "",
