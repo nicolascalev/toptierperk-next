@@ -17,7 +17,7 @@ model User {
   email     String   @unique
   auth0sub  String   @unique
   name      String
-  picture   String?
+  picture   Photo?
   companyId Int?
   company   Company? @relation(name: "Employees", fields: [companyId], references: [id])
   adminOfId Int?
@@ -28,7 +28,7 @@ model Company {
   id                       Int       @id @default(autoincrement())
   createdAt                DateTime  @default(now())
   name                     String    @unique
-  logo                     String?
+  logo                     Photo?
   paidMembership           Boolean   @default(false)
   lastPaymentDate          DateTime?
   paypalSubscriptionId     String?   @unique
@@ -53,7 +53,7 @@ model Benefit {
   finishesAt    DateTime?
   isPrivate     Boolean    @default(false)
   availableFor  Company[]  @relation(name: "AvailableFor")
-  isActive Boolean @default(true)
+  isActive      Boolean    @default(true)
   // TODO: add limit per user, and limit of uses
 }
 
@@ -65,8 +65,12 @@ model Category {
 }
 
 model Photo {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   url       String
-  benefitId Int
-  benefit   Benefit @relation(fields: [benefitId], references: [id])
+  benefitId Int?
+  benefit   Benefit? @relation(fields: [benefitId], references: [id])
+  userId    Int?     @unique
+  user      User?    @relation(fields: [userId], references: [id])
+  companyId Int?     @unique
+  company   Company? @relation(fields: [companyId], references: [id])
 }
