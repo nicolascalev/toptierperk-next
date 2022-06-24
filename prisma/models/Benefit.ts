@@ -5,7 +5,7 @@ export type BenefitCreateParams = {
   name: string;
   description: string;
   categories: string[];
-  photos: number[];
+  photos?: Prisma.Enumerable<Prisma.PhotoCreateManyBenefitInput>;
   supplier: number;
   beneficiaries: number[];
   startsAt?: Date | string;
@@ -52,8 +52,6 @@ const Benefit = {
       where: { name: category },
       create: { name: category },
     }));
-    // TODO: somehow change to connect or create, or just create
-    const connectPhotos = photos.map((photo) => ({ id: photo }));
     // this should be always empty because when it is created it has not been acquired yet, includes functionality just in case
     const connectBeneficiaries = beneficiaries.map((beneficiary) => ({
       id: beneficiary,
@@ -74,7 +72,9 @@ const Benefit = {
           connectOrCreate: connectOrCreateCategories,
         },
         photos: {
-          connect: connectPhotos,
+          createMany: {
+            data: photos,
+          },
         },
         beneficiaries: {
           connect: connectBeneficiaries,
@@ -86,7 +86,6 @@ const Benefit = {
           connect: connectAvailableFor,
         },
       };
-      console.log(data.availableFor)
       const newBenefit = await prisma.benefit.create({
         data,
         include: {
@@ -373,7 +372,7 @@ const Benefit = {
 
       const queryDateTime = new Date();
 
-      const filters : Prisma.BenefitFindManyArgs = {
+      const filters: Prisma.BenefitFindManyArgs = {
         where: {
           name: { contains: searchString },
           isPrivate,
