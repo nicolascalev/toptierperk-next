@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 
 export type CompanyCreateArgs = {
   name: string;
-  logo: string | null;
+  logo: Prisma.PhotoCreateWithoutCompanyInput;
   employees: number[];
   admins: number[];
 };
@@ -32,7 +32,9 @@ const Company = {
     try {
       const data: Prisma.CompanyCreateInput = {
         name,
-        logo,
+        logo: logo ? {
+          create: logo
+        } : undefined,
         employees: {
           connect: connectEmployees,
         },
@@ -43,6 +45,7 @@ const Company = {
       const newCompany = await prisma.company.create(<Prisma.CompanyCreateArgs>{
         data,
         include: {
+          logo: true,
           admins: true,
           employees: true,
         },
@@ -69,6 +72,9 @@ const Company = {
         orderBy: {
           createdAt: orderBy,
         },
+        include: {
+          logo: true,
+        }
       });
       return companies;
     } catch (err) {
