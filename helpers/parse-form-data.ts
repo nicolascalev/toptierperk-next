@@ -19,6 +19,7 @@ async function parse(req: FilesNextApiRequest, res: NextApiResponse, next: any) 
 }
 
 export default async function parseFormData(req: NextApiRequest, res: NextApiResponse) {
+  console.warn("Since you are using parseFormData() middleware remember to disable next body parser.")
   try {
     await runMiddleware(req, res, parse)
   } catch (err) {
