@@ -14,32 +14,44 @@ const User = {
     name,
     email,
     auth0sub,
+    picture,
   }: Prisma.UserCreateInput) => {
     try {
-      const data = { username, name, email, auth0sub };
-      const newUser = await prisma.user.create({ data });
+      const newUser = await prisma.user.create({
+        data: {
+          username,
+          name,
+          email,
+          auth0sub,
+          picture: {
+            create: <Prisma.PhotoCreateWithoutUserInput>picture,
+          },
+        },
+        include: {
+          company: true,
+          adminOf: true,
+          picture: true,
+        },
+      });
       return newUser;
     } catch (err) {
       return Promise.reject(err);
     }
   },
 
-  upsert: async ({
-    username,
-    name,
-    email,
-    auth0sub,
-    picture,
-  }: Prisma.UserCreateInput) => {
+  findByAuth0Sub: async (sub: string) => {
+    if (!sub) {
+      throw new Error(
+        "at least one parameter is required and it should be an auth0 sub"
+      );
+    }
     try {
-      const data = { username, name, email, auth0sub, picture };
-      const user = await prisma.user.upsert({
-        where: { email },
-        update: { picture },
-        create: data,
+      const user = await prisma.user.findUnique({
+        where: { auth0sub: sub },
         include: {
           company: true,
           adminOf: true,
+          picture: true,
         },
       });
       return user;
@@ -60,6 +72,7 @@ const User = {
         include: {
           company: true,
           adminOf: true,
+          picture: true,
         },
       });
       return user;

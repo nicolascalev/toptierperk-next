@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { handleAuth, handleCallback } from "@auth0/nextjs-auth0";
+import { handleAuth, handleCallback, Session } from "@auth0/nextjs-auth0";
 import User from "../../../prisma/models/User";
 
 const afterCallback = async (
@@ -12,7 +12,15 @@ const afterCallback = async (
     const [nickname] = auth0User.email.split("@");
     auth0User.username = nickname + Date.now();
     auth0User.auth0sub = auth0User.sub;
-    session.user = await User.upsert(auth0User);
+
+    const existingUser = await User.findByAuth0Sub(auth0User.auth0sub)
+    session.user = existingUser ? existingUser : null;
+
+    if (!session.user) {
+      auth0User.picture = auth0User.picture ? { url: auth0User.picture } : undefined;
+      session.user = await User.create(auth0User)
+    }
+
     return session;
   } catch (err) {
     throw err;
