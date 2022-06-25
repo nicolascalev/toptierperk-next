@@ -42,7 +42,7 @@ export default async function userHandler(
         name: body.name,
         description: body.description,
         categories: body.categories ? body.categories.split(",") : [],
-        supplier: session!.user.id,
+        supplier: session!.user.adminOf.id,
         beneficiaries: body.beneficiaries
           ? body.beneficiaries.split(",").map((id: string) => Number(id))
           : [],
