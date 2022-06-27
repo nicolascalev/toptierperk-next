@@ -28,8 +28,12 @@ const User = {
           },
         },
         include: {
-          company: true,
-          adminOf: true,
+          company: {
+            include: { logo: true }
+          },
+          adminOf: {
+            include: { logo: true }
+          },
           picture: true,
         },
       });
@@ -46,11 +50,15 @@ const User = {
       );
     }
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.user.findUnique(<Prisma.UserFindUniqueArgs>{
         where: { auth0sub: sub },
         include: {
-          company: true,
-          adminOf: true,
+          company: {
+            include: { logo: true }
+          },
+          adminOf: {
+            include: { logo: true }
+          },
           picture: true,
         },
       });
