@@ -15,7 +15,12 @@ export default function BottomNavigation(props: any) {
   };
 
   const router = useRouter();
-  const [activeLink, setActiveLink] = useState("/");
+  const initialActiveRoute = ["/", "/scan", "/company", "/profile"].includes(
+    router.pathname
+  )
+    ? router.pathname
+    : "";
+  const [activeLink, setActiveLink] = useState(initialActiveRoute);
   function navigate(to: string) {
     router.push(to);
     setActiveLink(to);
