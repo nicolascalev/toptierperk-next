@@ -8,23 +8,22 @@ import {
   Tabs,
   SimpleGrid,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useWindowScroll } from "react-use";
 import { debounce } from "lodash";
+
+const debounceScrollHandle = debounce((y, setShowCompanyInfo) => {
+  if (y <= 5) {
+    setShowCompanyInfo(true);
+  } else {
+    setShowCompanyInfo(false);
+  }
+}, 200);
 
 const useDisplayProfile = () => {
   const [showCompanyInfo, setShowCompanyInfo] = useState(true);
   const { y } = useWindowScroll();
-  const scrollHandle = debounce(() => {
-    if (y <= 5) {
-      setShowCompanyInfo(true);
-    } else {
-      setShowCompanyInfo(false);
-    }
-  }, 200);
-  useEffect(() => {
-    scrollHandle();
-  }, [scrollHandle]);
+  debounceScrollHandle(y, setShowCompanyInfo)
   const detailsOpacity = showCompanyInfo ? 1 : 0;
 
   const logoClass = showCompanyInfo ? "logo" : "logo logo__shrink";
@@ -42,8 +41,6 @@ const Company: NextPage<Props> = ({ user }) => {
   if (!user.company) {
     return <div>You have to be a part of a company or create one</div>;
   }
-
-  console.log(user)
 
   return (
     <div style={{ position: "relative", height: "200vh" }}>
