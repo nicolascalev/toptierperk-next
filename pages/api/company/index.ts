@@ -8,6 +8,7 @@ import uploadFile from "../../../helpers/upload-file";
 
 const createCompanySchema = Joi.object({
   name: Joi.string().required(),
+  about: Joi.string(),
   employees: Joi.array().items(Joi.number().required()),
   admins: Joi.array().items(Joi.number().required()),
 });
@@ -52,6 +53,7 @@ export default async function companyHandler(
 
       let data = {
         name: body.name,
+        about: body.about,
         // make sure the current user id is on the list
         employees: [...employees, ...[session!.user.id]],
         admins: [...admins, ...[session!.user.id]],
