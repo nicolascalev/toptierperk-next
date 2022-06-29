@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 
 export type CompanyCreateArgs = {
   name: string;
+  about?: string;
   logo: Prisma.PhotoCreateWithoutCompanyInput;
   employees: number[];
   admins: number[];
@@ -18,6 +19,7 @@ export type CompanyFindPublicSearchParams = {
 const Company = {
   create: async ({
     name,
+    about,
     logo,
     employees = [],
     admins = [],
@@ -32,6 +34,7 @@ const Company = {
     try {
       const data: Prisma.CompanyCreateInput = {
         name,
+        about,
         logo: logo ? {
           create: logo
         } : undefined,
@@ -77,6 +80,19 @@ const Company = {
         }
       });
       return companies;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  findOneByName: async (name: string) => {
+    try {
+      const company = await prisma.company.findUnique(<Prisma.CompanyFindUniqueArgs>{
+        where: {
+          name: name
+        }
+      })
+      return company
     } catch (err) {
       return Promise.reject(err);
     }
