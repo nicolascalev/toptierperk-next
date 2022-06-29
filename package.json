@@ -20,6 +20,8 @@
     "@tiptap/react": "^2.0.0-beta.109",
     "@tiptap/starter-kit": "^2.0.0-beta.185",
     "aws-sdk": "^2.1161.0",
+    "axios": "^0.27.2",
+    "canvas-confetti": "^1.5.1",
     "dayjs": "^1.11.0",
     "formidable": "^2.0.1",
     "joi": "^17.6.0",
@@ -31,6 +33,7 @@
     "tabler-icons-react": "^1.44.0"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.4.2",
     "@types/formidable": "^2.0.5",
     "@types/lodash": "^4.14.182",
     "@types/node": "17.0.23",
