@@ -1,4 +1,4 @@
-import "../styles/globals.css"
+import "../styles/globals.css";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { useState } from "react";
@@ -14,10 +14,16 @@ import {
   Anchor,
   createStyles,
   ScrollArea,
-  ActionIcon,
   useMantineTheme,
 } from "@mantine/core";
-import { User, Sun, MoonStars } from "tabler-icons-react";
+import { NotificationsProvider } from "@mantine/notifications";
+import {
+  Scan,
+  Sun,
+  MoonStars,
+  Logout,
+  BuildingSkyscraper,
+} from "tabler-icons-react";
 
 import BottomNavigation from "../components/BottomNavigation";
 
@@ -26,7 +32,8 @@ import { UserProvider } from "@auth0/nextjs-auth0";
 const useStyles = createStyles((theme) => ({
   collectionLink: {
     display: "block",
-    padding: `8px ${theme.spacing.xs}px`,
+    paddingTop: theme.spacing.xs,
+    paddingBottom: theme.spacing.xs,
     textDecoration: "none",
     borderRadius: theme.radius.sm,
     color:
@@ -34,7 +41,6 @@ const useStyles = createStyles((theme) => ({
         ? theme.colors.dark[0]
         : theme.colors.gray[7],
     lineHeight: 1,
-    fontWeight: 500,
 
     "&:hover": {
       backgroundColor:
@@ -94,66 +100,81 @@ export default function App(props: AppProps) {
             },
           }}
         >
-          <AppShell
-            styles={{
-              body: { minHeight: "100vh", paddingTop: "50px" },
-            }}
-            padding={0}
-            header={
-              <Header height={50} p="xs" style={{ borderBottom: "none" }} fixed>
-                <Burger
-                  size={14}
-                  opened={opened}
-                  onClick={() => setOpened((o) => !o)}
-                  title={title}
-                />
-              </Header>
-            }
-          >
-            <Component {...pageProps} />
-          </AppShell>
-          <BottomNavigation />
-          <Drawer
-            position="bottom"
-            opened={opened}
-            onClose={() => setOpened(false)}
-            title="Toptierperk"
-            padding="xl"
-          >
-            <ScrollArea style={{ height: 250 }}>
-              <Stack justify="flex-start" spacing="xs">
-                <Anchor
-                  href="https://mantine.dev/"
-                  target="_blank"
-                  component="a"
-                  underline={false}
-                  className={classes.collectionLink}
+          <NotificationsProvider position="bottom-center">
+            <AppShell
+              styles={{
+                body: { minHeight: "100vh", paddingTop: "50px" },
+              }}
+              padding={0}
+              header={
+                <Header
+                  height={50}
+                  p="xs"
+                  style={{ borderBottom: "none" }}
+                  fixed
                 >
-                  <User size={14} style={{ marginRight: 9 }} />
-                  Home
-                </Anchor>
-                <Anchor
-                  href="https://mantine.dev/"
-                  target="_blank"
-                  component="a"
-                  underline={false}
-                  className={classes.collectionLink}
-                >
-                  <User size={14} style={{ marginRight: 9 }} />
-                  Casa
-                </Anchor>
-
-                <ActionIcon
-                  variant="outline"
-                  color={dark ? "yellow" : "blue"}
-                  onClick={() => toggleColorScheme()}
-                  title="Toggle color scheme"
-                >
-                  {dark ? <Sun size={18} /> : <MoonStars size={18} />}
-                </ActionIcon>
-              </Stack>
-            </ScrollArea>
-          </Drawer>
+                  <Burger
+                    size={14}
+                    opened={opened}
+                    onClick={() => setOpened((o) => !o)}
+                    title={title}
+                  />
+                </Header>
+              }
+            >
+              <Component {...pageProps} />
+            </AppShell>
+            <BottomNavigation />
+            <Drawer
+              position="bottom"
+              opened={opened}
+              onClose={() => setOpened(false)}
+              title="Toptierperk"
+              padding="xl"
+            >
+              <ScrollArea style={{ height: 250 }}>
+                <Stack justify="flex-start" spacing="xs">
+                  <Anchor
+                    href="/company/admin"
+                    underline={false}
+                    className={classes.collectionLink}
+                  >
+                    <BuildingSkyscraper size={14} style={{ marginRight: 9 }} />
+                    Your company
+                  </Anchor>
+                  <Anchor
+                    href="/company/scan-costumer"
+                    underline={false}
+                    className={classes.collectionLink}
+                  >
+                    <Scan size={14} style={{ marginRight: 9 }} />
+                    Verify Costumer QR
+                  </Anchor>
+                  <Anchor
+                    underline={false}
+                    className={classes.collectionLink}
+                    onClick={() => toggleColorScheme()}
+                  >
+                    {dark ? (
+                      <Sun size={14} style={{ marginRight: 9 }} />
+                    ) : (
+                      <MoonStars size={14} style={{ marginRight: 9 }} />
+                    )}
+                    Toggle theme
+                  </Anchor>
+                  <Anchor
+                    href="/api/auth/logout"
+                    component="a"
+                    underline={false}
+                    className={classes.collectionLink}
+                  >
+                    <Logout size={14} style={{ marginRight: 9 }} />
+                    Logout
+                  </Anchor>
+                </Stack>
+              </ScrollArea>
+            </Drawer>
+          </NotificationsProvider>
         </MantineProvider>
       </ColorSchemeProvider>
     </UserProvider>
