@@ -1,11 +1,12 @@
 import { useMantineTheme, Card, Text, List, Title } from "@mantine/core";
 import { PayPalButtons } from "@paypal/react-paypal-js";
+import axios from "axios";
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
 function AppSubscriptionCard(props: any) {
   const theme = useMantineTheme();
-  if (!props.planid) {
-    throw new Error("planid for PayPal plan is required");
+  if (!props.planid || !props.companyid) {
+    throw new Error("planid and companyid for PayPal plan is required");
   }
   if (!PAYPAL_CLIENT_ID) {
     return (
@@ -23,8 +24,20 @@ function AppSubscriptionCard(props: any) {
   }
 
   async function onPaypalApprove(data: any) {
-    alert("You have successfully created subscription " + data.subscriptionID);
+    try {
+      const { data: updateData } = await axios.patch(`/api/company/${props.companyid}/subscription`, {
+        subscriptionId: data.subscriptionID
+      })
+      if (updateData) {
+        props.onSubscriptionApprove(updateData)
+        // TODO: show celebration animation
+      }
+    } catch (err) {
+      alert("You got a subscription but we could not store it in our system")
+    }
   }
+
+  // TODO: add on error or on reject handler
 
   return (
     <Card shadow="md">

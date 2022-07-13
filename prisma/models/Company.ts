@@ -25,7 +25,7 @@ const Company = {
     admins = [],
   }: CompanyCreateArgs) => {
     if (employees.length == 0 || admins.length == 0) {
-      throw new Error("Employees and admins must contain at least one item")
+      throw new Error("Employees and admins must contain at least one item");
     }
     const connectAdmins = admins.map((adminId) => ({ id: adminId }));
     const connectEmployees = employees.map((employeeId) => ({
@@ -35,9 +35,11 @@ const Company = {
       const data: Prisma.CompanyCreateInput = {
         name,
         about,
-        logo: logo ? {
-          create: logo
-        } : undefined,
+        logo: logo
+          ? {
+              create: logo,
+            }
+          : undefined,
         employees: {
           connect: connectEmployees,
         },
@@ -66,7 +68,9 @@ const Company = {
     orderBy = "desc",
   }: CompanyFindPublicSearchParams) => {
     try {
-      const companies = await prisma.company.findMany(<Prisma.CompanyFindManyArgs>{
+      const companies = await prisma.company.findMany(<
+        Prisma.CompanyFindManyArgs
+      >{
         where: {
           name: { contains: searchString },
         },
@@ -77,7 +81,7 @@ const Company = {
         },
         include: {
           logo: true,
-        }
+        },
       });
       return companies;
     } catch (err) {
@@ -87,26 +91,55 @@ const Company = {
 
   findOneByName: async (name: string) => {
     try {
-      const company = await prisma.company.findUnique(<Prisma.CompanyFindUniqueArgs>{
+      const company = await prisma.company.findUnique(<
+        Prisma.CompanyFindUniqueArgs
+      >{
         where: {
-          name: name
-        }
-      })
-      return company
+          name: name,
+        },
+      });
+      return company;
     } catch (err) {
       return Promise.reject(err);
     }
   },
 
   // PATCH: /company/:id
-  update: async (id:number, data: Prisma.CompanyUpdateInput) => {
+  update: async (id: number, data: Prisma.CompanyUpdateInput) => {
     if (!id) {
       throw new Error("id must be provided to use Company.update()");
     }
     try {
-      const updatedCompany = await prisma.company.update(<Prisma.CompanyUpdateArgs>{
+      const updatedCompany = await prisma.company.update(<
+        Prisma.CompanyUpdateArgs
+      >{
         data,
         where: { id },
+      });
+      return updatedCompany;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  updateSubscription: async (companyId: number, subscriptionId: string) => {
+    if (companyId === undefined || subscriptionId === undefined) {
+      throw new Error(
+        "Company.updateSubscription() required companyId and subscriptionId in the params"
+      );
+    }
+
+    try {
+      const updatedCompany = await prisma.company.update(<
+        Prisma.CompanyUpdateArgs
+      >{
+        data: { paypalSubscriptionId: subscriptionId, paidMembership: true },
+        where: { id: companyId },
+        include: {
+          logo: true,
+          admins: true,
+          employees: true,
+        },
       });
       return updatedCompany;
     } catch (err) {
