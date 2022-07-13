@@ -7,10 +7,13 @@ import {
   Paper,
   Tabs,
   SimpleGrid,
+  Alert,
 } from "@mantine/core";
 import { useState } from "react";
 import { useWindowScroll } from "react-use";
 import { debounce } from "lodash";
+import { AlertCircle } from "tabler-icons-react";
+import { useRouter } from "next/router";
 
 const debounceScrollHandle = debounce((y, setShowCompanyInfo) => {
   if (y <= 5) {
@@ -23,7 +26,7 @@ const debounceScrollHandle = debounce((y, setShowCompanyInfo) => {
 const useDisplayProfile = () => {
   const [showCompanyInfo, setShowCompanyInfo] = useState(true);
   const { y } = useWindowScroll();
-  debounceScrollHandle(y, setShowCompanyInfo)
+  debounceScrollHandle(y, setShowCompanyInfo);
   const detailsOpacity = showCompanyInfo ? 1 : 0;
 
   const logoClass = showCompanyInfo ? "logo" : "logo logo__shrink";
@@ -36,6 +39,7 @@ interface Props {
 
 const Company: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
+  const router = useRouter();
   const { logoClass, showCompanyInfo } = useDisplayProfile();
 
   if (!user.company) {
@@ -61,7 +65,7 @@ const Company: NextPage<Props> = ({ user }) => {
               width: "100%",
               height: "34px",
               position: "absolute",
-              top: "0px",
+              top: "-1px",
               backgroundColor:
                 theme.colorScheme === "dark"
                   ? theme.colors.dark[7]
@@ -80,12 +84,11 @@ const Company: NextPage<Props> = ({ user }) => {
         <div
           style={{
             padding: theme.spacing.md,
-            textAlign: "center",
             display: "flex",
             flexWrap: "wrap",
           }}
         >
-          <div style={{ width: "100%" }}>
+          <div style={{ width: "100%", textAlign: "center" }}>
             <Text size="xl" weight={500}>
               {user.company.name}
             </Text>
@@ -122,6 +125,20 @@ const Company: NextPage<Props> = ({ user }) => {
               </SimpleGrid>
             </Paper>
           </div>
+
+          {user.adminOf && user.company?.paidMembership == false && (
+            <Alert
+              icon={<AlertCircle size={16} />}
+              title="Subscription"
+              color="yellow"
+              radius="md"
+              style={{ marginTop: theme.spacing.md, position: "initial" }}
+              onClick={()=> router.push("/subscription")}
+            >
+              You need to get a subscription to show offers and get perks, click
+              here
+            </Alert>
+          )}
         </div>
       )}
       <div
