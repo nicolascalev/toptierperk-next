@@ -25,19 +25,22 @@ function AppSubscriptionCard(props: any) {
 
   async function onPaypalApprove(data: any) {
     try {
-      const { data: updateData } = await axios.patch(`/api/company/${props.companyid}/subscription`, {
-        subscriptionId: data.subscriptionID
-      })
+      const { data: updateData } = await axios.patch(
+        `/api/company/${props.companyid}/subscription`,
+        {
+          subscriptionId: data.subscriptionID,
+        }
+      );
       if (updateData) {
-        props.onSubscriptionApprove(updateData)
-        // TODO: show celebration animation
+        props.onSubscriptionApprove(updateData);
       }
     } catch (err) {
-      alert("You got a subscription but we could not store it in our system")
+      props.onSubscriptionError(data.subscriptionID);
     }
   }
 
   // TODO: add on error or on reject handler
+  // TODO: get plan info from props
 
   return (
     <Card shadow="md">
@@ -47,7 +50,12 @@ function AppSubscriptionCard(props: any) {
       <Text size="lg" weight={500} align="center">
         Basic Plan
       </Text>
-      <List style={{ paddingTop: theme.spacing.md, paddingBottom: theme.spacing.md }}>
+      <List
+        style={{
+          paddingTop: theme.spacing.md,
+          paddingBottom: theme.spacing.md,
+        }}
+      >
         <List.Item>Offer unlimited perks</List.Item>
         <List.Item>Get unlimited perks</List.Item>
         <List.Item>Have unlimited employees</List.Item>
