@@ -18,7 +18,7 @@ export default async function findCompanyByNameHandler(
     const companyId = Number(req.query.companyId);
     const subscriptionId = req.body.subscriptionId;
     // The user can't be trying to update a company who does not belong to them
-    if (subscriptionId !== session!.user.adminOf.id) {
+    if (companyId !== session!.user.adminOf.id) {
       return res.status(401).send("Unauthorized");
     }
     try {
