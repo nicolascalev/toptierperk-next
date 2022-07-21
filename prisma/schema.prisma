@@ -11,20 +11,21 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  username  String   @unique
-  email     String   @unique
-  auth0sub  String   @unique
-  name      String
-  picture   Photo?
-  companyId Int?
-  // TODO: add saved benefits
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  username      String    @unique
+  email         String    @unique
+  auth0sub      String    @unique
+  name          String
+  picture       Photo?
+  companyId     Int?
   // TODO: evaluate wether users should have multiple adminOf or companies
-  company   Company? @relation(name: "Employees", fields: [companyId], references: [id])
-  adminOfId Int?
-  adminOf   Company? @relation(name: "Admins", fields: [adminOfId], references: [id])
-  canVerify Boolean  @default(false)
+  company       Company?  @relation(name: "Employees", fields: [companyId], references: [id])
+  adminOfId     Int?
+  adminOf       Company?  @relation(name: "Admins", fields: [adminOfId], references: [id])
+  canVerify     Boolean   @default(false)
+  savedBenefits Benefit[]
+  claims        Claim[]
 }
 
 model Company {
@@ -41,31 +42,35 @@ model Company {
   benefits                 Benefit[] @relation(name: "Suppliers")
   benefitsFrom             Benefit[] @relation(name: "Beneficiaries")
   privateBenefitsAvailable Benefit[] @relation(name: "AvailableFor")
+  claims                   Claim[]
 }
 
 model Benefit {
-  id            Int        @id @default(autoincrement())
-  createdAt     DateTime   @default(now())
-  name          String
-  description   Json
-  categories    Category[]
-  photos        Photo[]
-  supplierId    Int
-  supplier      Company    @relation(name: "Suppliers", fields: [supplierId], references: [id])
-  beneficiaries Company[]  @relation(name: "Beneficiaries")
-  startsAt      DateTime   @default(now())
-  finishesAt    DateTime?
-  isPrivate     Boolean    @default(false)
-  availableFor  Company[]  @relation(name: "AvailableFor")
-  isActive      Boolean    @default(true)
-  // TODO: add limit per user, and limit of uses
+  id              Int        @id @default(autoincrement())
+  createdAt       DateTime   @default(now())
+  name            String
+  description     Json
+  categories      Category[]
+  photos          Photo[]
+  supplierId      Int
+  supplier        Company    @relation(name: "Suppliers", fields: [supplierId], references: [id])
+  beneficiaries   Company[]  @relation(name: "Beneficiaries")
+  startsAt        DateTime   @default(now())
+  finishesAt      DateTime?
+  isPrivate       Boolean    @default(false)
+  availableFor    Company[]  @relation(name: "AvailableFor")
+  isActive        Boolean    @default(true)
+  claims          Claim[]
+  savedBy         User[]
+  useLimit        Int?
+  useLimitPerUser Int?
 }
 
 model Category {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   name      String    @unique
-  benefits  Benefit[] @relation(references: [id])
+  benefits  Benefit[]
 }
 
 model Photo {
@@ -77,4 +82,15 @@ model Photo {
   user      User?    @relation(fields: [userId], references: [id])
   companyId Int?     @unique
   company   Company? @relation(fields: [companyId], references: [id])
+}
+
+model Claim {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  benefitId Int
+  benefit   Benefit  @relation(fields: [benefitId], references: [id])
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  companyId Int      @unique
+  company   Company  @relation(fields: [companyId], references: [id])
 }
