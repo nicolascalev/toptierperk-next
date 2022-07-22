@@ -13,6 +13,8 @@ export type BenefitCreateParams = {
   isPrivate?: boolean;
   availableFor?: number[];
   isActive?: boolean;
+  useLimit?: number;
+  useLimitPerUser?: number;
 };
 
 // TODO: change pagination to use cursor instead of take and skip https://www.prisma.io/docs/concepts/components/prisma-client/pagination
@@ -47,6 +49,8 @@ const Benefit = {
     finishesAt,
     isPrivate,
     availableFor = [],
+    useLimit,
+    useLimitPerUser,
   }: BenefitCreateParams) => {
     const connectOrCreateCategories = categories.map((category) => ({
       where: { name: category },
@@ -85,6 +89,8 @@ const Benefit = {
         availableFor: {
           connect: connectAvailableFor,
         },
+        useLimit,
+        useLimitPerUser,
       };
       const newBenefit = await prisma.benefit.create({
         data,
@@ -123,6 +129,7 @@ const Benefit = {
     }
   },
 
+  // TODO: in all searches make sure it filters by isActive=true
   // GET: /benefit
   // Find public benefits wether they have been acquired or not
   findPublicBenefits: async ({

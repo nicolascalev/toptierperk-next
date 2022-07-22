@@ -22,6 +22,10 @@ const createBenefitSchema = Joi.object({
   availableFor: Joi.array().items(Joi.number()),
   isPrivate: Joi.boolean(),
   isActive: Joi.boolean(),
+  useLimit: Joi.number().integer().min(1).allow(null).optional(),
+  useLimitPerUser: Joi.number().integer().min(1).allow(null).optional(),
+  startsAt: Joi.date().allow(null).optional(),
+  finishesAt: Joi.date().allow(null).optional(),
 });
 
 type FilesNextApiRequest = NextApiRequest & { files?: any };
@@ -38,6 +42,10 @@ export default async function userHandler(
       const { body, files } = req;
       const session = getSession(req, res);
 
+      if (!session!.user.adminOf) {
+        return res.status(401).send("Unauthorized")
+      }
+
       const data: BenefitCreateParams = {
         name: body.name,
         description: body.description,
@@ -51,6 +59,10 @@ export default async function userHandler(
           : [],
         isPrivate: body.isPrivate,
         isActive: body.isActive,
+        useLimit: body.useLimit,
+        useLimitPerUser: body.useLimitPerUser,
+        startsAt: body.startsAt,
+        finishesAt: body.finishesAt,
       };
 
       const { value: validatedData, error: validationError } =
@@ -59,12 +71,14 @@ export default async function userHandler(
         return res.status(400).json({ error: validationError });
       }
 
-      // make sure that photos is always an array even if empty
-      const photos = files.photos.length ? files.photos : [files.photos];
-      const today = new Date().toLocaleDateString().split("/").join("-");
-      const upload = await uploadFile(photos, `benefits/${today}/`);
-      const uploadedPhotos = upload.success.map((up) => ({ url: up.Location }));
-      validatedData.photos = uploadedPhotos;
+      if (files.photos) {
+        // make sure that photos is always an array even if empty
+        const photos = files.photos.length ? files.photos : [files.photos];
+        const today = new Date().toLocaleDateString().split("/").join("-");
+        const upload = await uploadFile(photos, `benefits/${today}/`);
+        const uploadedPhotos = upload.success.map((up) => ({ url: up.Location }));
+        validatedData.photos = uploadedPhotos;
+      }
 
       const result = await Benefit.create(validatedData);
       return res.status(200).json(result);
