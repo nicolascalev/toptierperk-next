@@ -48,6 +48,7 @@ const Benefit = {
     startsAt,
     finishesAt,
     isPrivate,
+    isActive,
     availableFor = [],
     useLimit,
     useLimitPerUser,
@@ -86,6 +87,7 @@ const Benefit = {
         startsAt,
         finishesAt,
         isPrivate,
+        isActive,
         availableFor: {
           connect: connectAvailableFor,
         },

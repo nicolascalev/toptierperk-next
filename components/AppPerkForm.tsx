@@ -98,8 +98,7 @@ export default function AppPerkForm(props: any) {
     setDisplayPhoto(displayPhoto + 1);
   }
 
-  async function onSubmit(e: any) {
-    e.preventDefault();
+  function beforeSubmit() {
     let validation = form.validate();
     if (validation.hasErrors) return;
     let data: any = { ...form.values };
@@ -108,20 +107,38 @@ export default function AppPerkForm(props: any) {
     let formData = new FormData();
     for (const [key, val] of Object.entries(data)) {
       if (!val) continue;
-      formData.append(key, val as any)
+      formData.append(key, val as any);
     }
     for (const photo of photos) {
-      formData.append('photos', photo, photo.name)
+      formData.append("photos", photo, photo.name);
     }
+    return formData;
+  }
+
+  const [loading, setLoading] = useState(false)
+  async function onSubmit(e: any) {
+    e.preventDefault();
+    const formData = beforeSubmit();
+    if (!formData) return;
+    await createPerk(formData);
+  }
+
+  async function saveDraft() {
+    const formData = beforeSubmit();
+    if (!formData) return;
+    formData.append('isActive', "false");
     await createPerk(formData)
   }
 
   async function createPerk(formData: FormData) {
     try {
-      const { data: createdPerk } = await axios.post('/api/benefit', formData)
-      console.log(createdPerk)
+      setLoading(true)
+      const { data: createdPerk } = await axios.post("/api/benefit", formData);
+      console.log(createdPerk);
     } catch (err) {
-      console.log((err as any).response.data)
+      console.log((err as any).response.data);
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -256,8 +273,8 @@ export default function AppPerkForm(props: any) {
           />
 
           <Group position="right">
-            <Button variant="default">Save for later</Button>
-            <Button type="submit">Create</Button>
+            <Button variant="default" loading={loading} onClick={saveDraft}>Save for later</Button>
+            <Button type="submit" loading={loading}>Create</Button>
           </Group>
         </Stack>
       </form>
