@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   useMantineTheme,
   Stack,
   InputWrapper,
+  NumberInput,
   TextInput,
   Textarea,
   Button,
@@ -19,7 +20,7 @@ import {
   Paper,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
-import { useForm } from "@mantine/form";
+import { useForm, joiResolver } from "@mantine/form";
 import AppDropzone from "./AppDropzone";
 import {
   ChevronLeft,
@@ -27,16 +28,32 @@ import {
   LayoutGrid,
   Photo,
 } from "tabler-icons-react";
+import Joi from "joi";
+import axios from "axios";
+
+const createBenefitSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().required(),
+  isPrivate: Joi.boolean(),
+  useLimit: Joi.number().integer().min(1).allow(null).optional(),
+  useLimitPerUser: Joi.number().integer().min(1).allow(null).optional(),
+  startsAt: Joi.date().allow(null).optional(),
+  finishesAt: Joi.date().allow(null).optional(),
+});
 
 export default function AppPerkForm(props: any) {
   const theme = useMantineTheme();
 
   const form = useForm({
+    schema: joiResolver(createBenefitSchema),
     initialValues: {
       name: "",
       description: "",
+      useLimit: null,
+      useLimitPerUser: null,
+      startsAt: new Date(),
+      finishesAt: null,
     },
-    validate: {},
   });
 
   const initialCategories: string[] = [];
@@ -70,20 +87,42 @@ export default function AppPerkForm(props: any) {
   const [displayPhoto, setDisplayPhoto] = useState(0);
   function carouselLeft() {
     if (displayPhoto == 0) {
-      return
+      return;
     }
-    setDisplayPhoto(displayPhoto - 1)
+    setDisplayPhoto(displayPhoto - 1);
   }
   function carouselRight() {
     if (displayPhoto == photos.length - 1) {
-      return
+      return;
     }
-    setDisplayPhoto(displayPhoto + 1)
+    setDisplayPhoto(displayPhoto + 1);
   }
 
-  function inputChange() {
-    form.validate();
-    console.log(form.errors);
+  async function onSubmit(e: any) {
+    e.preventDefault();
+    let validation = form.validate();
+    if (validation.hasErrors) return;
+    let data: any = { ...form.values };
+    data.isPrivate = isPrivate === "private" ? true : false;
+    data.categories = categories.join(",");
+    let formData = new FormData();
+    for (const [key, val] of Object.entries(data)) {
+      if (!val) continue;
+      formData.append(key, val as any)
+    }
+    for (const photo of photos) {
+      formData.append('photos', photo, photo.name)
+    }
+    await createPerk(formData)
+  }
+
+  async function createPerk(formData: FormData) {
+    try {
+      const { data: createdPerk } = await axios.post('/api/benefit', formData)
+      console.log(createdPerk)
+    } catch (err) {
+      console.log((err as any).response.data)
+    }
   }
 
   return (
@@ -148,10 +187,7 @@ export default function AppPerkForm(props: any) {
           </>
         )}
       </div>
-      <form
-        onSubmit={form.onSubmit((values) => console.log(values))}
-        style={{ padding: theme.spacing.md }}
-      >
+      <form onSubmit={onSubmit} style={{ padding: theme.spacing.md }}>
         <Stack>
           <InputWrapper>
             <SegmentedControl
@@ -180,13 +216,18 @@ export default function AppPerkForm(props: any) {
           />
           <DatePicker
             label="Available On"
+            description="If not specified, it defaults to now."
             placeholder="Pick start date"
+            defaultValue={new Date()}
             minDate={new Date()}
+            {...form.getInputProps("startsAt")}
           />
           <DatePicker
             label="Available By"
+            description="If not specified, there is no date limit."
             placeholder="Pick end date"
-            minDate={new Date()}
+            minDate={form.values.startsAt}
+            {...form.getInputProps("finishesAt")}
           />
           <MultiSelect
             label="Select Categories"
@@ -199,11 +240,23 @@ export default function AppPerkForm(props: any) {
               setCategories((current) => [...current, query])
             }
           />
+          <NumberInput
+            label="Use Limit"
+            placeholder="Amount of times this perk can be used"
+            description="If not specified, there is no use limit"
+            min={1}
+            {...form.getInputProps("useLimit")}
+          />
+          <NumberInput
+            label="Use Limit per User"
+            placeholder="Limit times the same user can claim this."
+            description="If not specified, there is no use limit"
+            min={1}
+            {...form.getInputProps("useLimitPerUser")}
+          />
 
           <Group position="right">
-            <Button type="submit" variant="default">
-              Save for later
-            </Button>
+            <Button variant="default">Save for later</Button>
             <Button type="submit">Create</Button>
           </Group>
         </Stack>
