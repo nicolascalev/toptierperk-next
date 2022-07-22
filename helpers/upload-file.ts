@@ -35,6 +35,7 @@ async function uploadFile(files: CustomFile[], folder = '') : Promise<Uploads> {
         success: []
       };
 
+      let times = 0;
       // recorremos el arreglo de archivos que debemos subir
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -54,8 +55,9 @@ async function uploadFile(files: CustomFile[], folder = '') : Promise<Uploads> {
             awsUpload.success.push(data);
           }
 
+          times++
           // si ya se recorrio todo el arreglo entonces devuelva el resultado
-          if (i === files.length - 1) {
+          if (times === files.length) {
             resolve(awsUpload);
           }
         });
