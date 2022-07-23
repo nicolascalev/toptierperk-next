@@ -21,7 +21,9 @@ import {
   ChevronRight,
   LayoutGrid,
   AlertCircle,
+  Bookmark,
 } from "tabler-icons-react";
+import formatDate from "../../helpers/formatDate";
 
 import Benefit from "../../prisma/models/Benefit";
 
@@ -69,45 +71,47 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
   return (
     // TODO: add seo fields
     <div style={{ minHeight: "100vh", marginBottom: "49px" }}>
-      <div style={{ width: "100%", position: "relative" }}>
-        <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
-          <Image
-            src={benefit.photos[displayPhoto].url}
-            alt={"Photo of " + benefit.name}
+      {benefit.photos.length > 0 && (
+        <div style={{ width: "100%", position: "relative" }}>
+          <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
+            <Image
+              src={benefit.photos[displayPhoto].url}
+              alt={"Photo of " + benefit.name}
+              onClick={openGallery}
+            />
+          </AspectRatio>
+          <Button
+            leftIcon={<LayoutGrid />}
+            color="dark"
+            variant="light"
+            size="xs"
             onClick={openGallery}
-          />
-        </AspectRatio>
-        <Button
-          leftIcon={<LayoutGrid />}
-          color="dark"
-          variant="light"
-          size="xs"
-          onClick={openGallery}
-          style={{
-            position: "absolute",
-            top: theme.spacing.md,
-            right: theme.spacing.md,
-          }}
-        >
-          Show All
-        </Button>
-        <Group
-          position="right"
-          spacing="xs"
-          style={{
-            position: "absolute",
-            bottom: theme.spacing.md,
-            right: theme.spacing.md,
-          }}
-        >
-          <ActionIcon color="dark" variant="light" onClick={carouselLeft}>
-            <ChevronLeft></ChevronLeft>
-          </ActionIcon>
-          <ActionIcon color="dark" variant="light" onClick={carouselRight}>
-            <ChevronRight></ChevronRight>
-          </ActionIcon>
-        </Group>
-      </div>
+            style={{
+              position: "absolute",
+              top: theme.spacing.md,
+              right: theme.spacing.md,
+            }}
+          >
+            Show All
+          </Button>
+          <Group
+            position="right"
+            spacing="xs"
+            style={{
+              position: "absolute",
+              bottom: theme.spacing.md,
+              right: theme.spacing.md,
+            }}
+          >
+            <ActionIcon color="dark" variant="light" onClick={carouselLeft}>
+              <ChevronLeft></ChevronLeft>
+            </ActionIcon>
+            <ActionIcon color="dark" variant="light" onClick={carouselRight}>
+              <ChevronRight></ChevronRight>
+            </ActionIcon>
+          </Group>
+        </div>
+      )}
       <div style={perkActionsStyles}>
         <Text size="xl" weight={500}>
           {benefit.name}
@@ -119,6 +123,7 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
         <Group mt="md">
           <Button variant="default">Acquire</Button>
           <Button variant="default">Claim</Button>
+          <Button variant="default">Save</Button>
         </Group>
       </div>
       <div style={{ padding: theme.spacing.md }}>
@@ -138,26 +143,29 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
         <Group grow mb="md">
           <div style={{ borderRight: startsAtBorder }}>
             <Text color="dimmed">Starts At</Text>
-            <Text>Apr 18th</Text>
+            <Text>{formatDate(benefit.startsAt, "SHORT_TEXT")}</Text>
           </div>
           <div>
             <Text color="dimmed">Finishes At</Text>
-            <Text>Apr 18th</Text>
+            <Text>
+              {benefit.finishesAt
+                ? formatDate(benefit.finishesAt, "SHORT_TEXT")
+                : "No date limit"}
+            </Text>
           </div>
         </Group>
         <Text color="dimmed">Use Limit</Text>
         <Text mb="md">Get use limit message it depends</Text>
         <Text color="dimmed">Categories</Text>
         <Group mb="md">
-          <Text weight={500} component="span">
-            Food
-          </Text>
-          <Text weight={500} component="span">
-            Sports
-          </Text>
-          <Text weight={500} component="span">
-            Family
-          </Text>
+          {benefit.categories.length === 0 && (
+            <Text>No categories for this perk</Text>
+          )}
+          {benefit.categories.map((category: any) => (
+            <Text key={category.id} weight={500} component="span">
+              {category.name}
+            </Text>
+          ))}
         </Group>
         <Text color="dimmed">Supplier</Text>
         <Card
