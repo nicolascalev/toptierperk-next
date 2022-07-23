@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { NextPage } from "next";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import { useMantineTheme, Title } from "@mantine/core";
 import {
+  useMantineTheme,
   AspectRatio,
   Image,
   Text,
@@ -12,9 +12,16 @@ import {
   Drawer,
   ScrollArea,
   SimpleGrid,
-  Divider,
+  Alert,
+  Card,
+  Center,
 } from "@mantine/core";
-import { ChevronLeft, ChevronRight, LayoutGrid } from "tabler-icons-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  LayoutGrid,
+  AlertCircle,
+} from "tabler-icons-react";
 
 import Benefit from "../../prisma/models/Benefit";
 
@@ -53,7 +60,11 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
     position: "sticky" as any,
     top: 49,
     borderBottom: "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da"),
+    zIndex: 10,
   };
+
+  const startsAtBorder =
+    "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
 
   return (
     // TODO: add seo fields
@@ -98,18 +109,82 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
         </Group>
       </div>
       <div style={perkActionsStyles}>
-        <Text size="xl">{benefit.name}</Text>
+        <Text size="xl" weight={500}>
+          {benefit.name}
+        </Text>
         <Text>
           Offer by{" "}
           <span style={{ fontWeight: 500 }}>{benefit.supplier.name}</span>
         </Text>
-        <Group style={{ marginTop: theme.spacing.md }}>
+        <Group mt="md">
           <Button variant="default">Acquire</Button>
+          <Button variant="default">Claim</Button>
         </Group>
       </div>
       <div style={{ padding: theme.spacing.md }}>
-        <Text>{benefit.description}</Text>
-        <pre>{JSON.stringify(benefit, null, 2)}</pre>
+        {benefit.isActive === false && (
+          <Alert
+            mb="md"
+            sx={{ zIndex: 1 }}
+            icon={<AlertCircle size={16} />}
+            title="Perk is not active"
+            color="red"
+          >
+            At this moment this perk can&apos;t be used
+          </Alert>
+        )}
+        <Text color="dimmed">Description</Text>
+        <Text mb="md">{benefit.description}</Text>
+        <Group grow mb="md">
+          <div style={{ borderRight: startsAtBorder }}>
+            <Text color="dimmed">Starts At</Text>
+            <Text>Apr 18th</Text>
+          </div>
+          <div>
+            <Text color="dimmed">Finishes At</Text>
+            <Text>Apr 18th</Text>
+          </div>
+        </Group>
+        <Text color="dimmed">Use Limit</Text>
+        <Text mb="md">Get use limit message it depends</Text>
+        <Text color="dimmed">Categories</Text>
+        <Group mb="md">
+          <Text weight={500} component="span">
+            Food
+          </Text>
+          <Text weight={500} component="span">
+            Sports
+          </Text>
+          <Text weight={500} component="span">
+            Family
+          </Text>
+        </Group>
+        <Text color="dimmed">Supplier</Text>
+        <Card
+          style={{
+            backgroundColor:
+              theme.colorScheme === "dark"
+                ? theme.colors.dark[6]
+                : theme.colors.gray[0],
+            marginTop: theme.spacing.md,
+          }}
+        >
+          {benefit.supplier.logo && (
+            <Center>
+              <Image
+                src={benefit.supplier.logo.url}
+                alt={benefit.supplier.name}
+                radius={100}
+                width={32}
+                height={32}
+              ></Image>
+            </Center>
+          )}
+          <Text weight={500} align="center">
+            {benefit.supplier.name}
+          </Text>
+          <Text align="center">{benefit.supplier.about}</Text>
+        </Card>
       </div>
 
       <Drawer
