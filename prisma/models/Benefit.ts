@@ -120,10 +120,15 @@ const Benefit = {
       const benefit = await prisma.benefit.findUnique({
         where: { id },
         include: {
-          categories: true,
+          categories: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           photos: true,
           supplier: {
-            include: { logo: true }
+            include: { logo: true },
           },
         },
       });
