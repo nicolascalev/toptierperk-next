@@ -122,7 +122,9 @@ const Benefit = {
         include: {
           categories: true,
           photos: true,
-          supplier: true,
+          supplier: {
+            include: { logo: true }
+          },
         },
       });
       return benefit;
