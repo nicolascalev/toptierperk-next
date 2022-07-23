@@ -295,7 +295,7 @@ export default function AppPerkForm(props: any) {
             size="sm"
             style={{ marginTop: theme.spacing.sm }}
           >
-            0 photos
+            {photos.length} photos
           </Text>
         </div>
 
