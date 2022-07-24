@@ -9,11 +9,12 @@ import {
   SimpleGrid,
   Alert,
 } from "@mantine/core";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWindowScroll } from "react-use";
 import { debounce } from "lodash";
 import { AlertCircle } from "tabler-icons-react";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 const debounceScrollHandle = debounce((y, setShowCompanyInfo) => {
   if (y <= 5) {
@@ -41,6 +42,25 @@ const Company: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const router = useRouter();
   const { logoClass, showCompanyInfo } = useDisplayProfile();
+
+  const [loadingOffers, setLoadingOffers] = useState(false)
+  const [offers, setOffers] = useState([])
+  useEffect(() => {
+    async function loadOffers() {
+      setLoadingOffers(true)
+      try {
+        const { data } = await axios.get(`/api/company/${user.company.id}/offers`)
+        console.log(data)
+        setOffers(data)
+      } catch (err) {
+        // TODO: do something with the error
+        console.log(err)
+      } finally {
+        setLoadingOffers(false)
+      }
+    }
+    loadOffers()
+  }, [setLoadingOffers, setOffers, user.company.id])
 
   if (!user.company) {
     return <div>You have to be a part of a company or create one</div>;
@@ -112,7 +132,7 @@ const Company: NextPage<Props> = ({ user }) => {
                 </div>
                 <div>
                   <Text weight="bold" size="lg">
-                    32
+                    {offers.length}
                   </Text>
                   <Text>Offers</Text>
                 </div>
@@ -153,8 +173,12 @@ const Company: NextPage<Props> = ({ user }) => {
           <Tabs.Tab label="Newest">
             <div>First tab content</div>
           </Tabs.Tab>
-          <Tabs.Tab label="Popular">Third tab content</Tabs.Tab>
-          <Tabs.Tab label="About">About tab content</Tabs.Tab>
+          <Tabs.Tab label="Offers">
+
+          </Tabs.Tab>
+          <Tabs.Tab label="About">
+            <Text>{user.company.about}</Text>
+          </Tabs.Tab>
         </Tabs>
       </div>
     </div>
