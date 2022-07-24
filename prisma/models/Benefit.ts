@@ -450,6 +450,56 @@ const Benefit = {
       return Promise.reject(err);
     }
   },
+
+  // GET: /company/:id/offers
+  // TODO: dont filter all and use a pointer for pagination
+  // TODO: add isActive filter if necessary
+  findCompanyOffers: async (supplierId: number) => {
+    try {
+      if (!supplierId) {
+        throw new Error("supplierId is necessary to filter offers");
+      }
+
+      const queryDateTime = new Date();
+
+      const filters: Prisma.BenefitFindManyArgs = {
+        where: {
+          isActive: true,
+          supplier: {
+            id: supplierId,
+            paidMembership: true,
+          },
+          startsAt: {
+            // where it started before now
+            lt: queryDateTime,
+          },
+          // where it hasn't finished or there isn't finish date
+          OR: [
+            { finishesAt: null },
+            {
+              finishesAt: {
+                gte: queryDateTime,
+              },
+            },
+          ],
+        },
+        include: {
+          supplier: { select: { id: true, name: true } },
+          categories: { select: { id: true, name: true } },
+          photos: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      };
+
+      const benefits = await prisma.benefit.findMany(filters);
+
+      return benefits;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
 };
 
 export default Benefit;
