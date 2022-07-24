@@ -15,6 +15,7 @@ import {
   Alert,
   Card,
   Center,
+  Badge,
 } from "@mantine/core";
 import {
   ChevronLeft,
@@ -68,6 +69,19 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
   const startsAtBorder =
     "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
 
+  function getUseLimitMessage() {
+    if (benefit.useLimit && benefit.useLimitPerUser) {
+      return `There are ${benefit.useLimit} available in total, and ${benefit.useLimitPerUser} allowed per user`;
+    }
+    if (benefit.useLimit) {
+      return `There are ${benefit.useLimit} available in total`;
+    }
+    if (benefit.useLimitPerUser) {
+      return `There is a limit of ${benefit.useLimitPerUser} allowed claims per user.`;
+    }
+    return "This perk offer is unlimited";
+  }
+
   return (
     // TODO: add seo fields
     <div style={{ minHeight: "100vh", marginBottom: "49px" }}>
@@ -110,6 +124,16 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
               <ChevronRight></ChevronRight>
             </ActionIcon>
           </Group>
+          <Badge
+            color="gray"
+            style={{
+              position: "absolute",
+              bottom: theme.spacing.md,
+              left: theme.spacing.md,
+            }}
+          >
+            {displayPhoto + 1} / {benefit.photos.length}
+          </Badge>
         </div>
       )}
       <div style={perkActionsStyles}>
@@ -155,7 +179,7 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
           </div>
         </Group>
         <Text color="dimmed">Use Limit</Text>
-        <Text mb="md">Get use limit message it depends</Text>
+        <Text mb="md">{getUseLimitMessage()}</Text>
         <Text color="dimmed">Categories</Text>
         <Group mb="md">
           {benefit.categories.length === 0 && (
