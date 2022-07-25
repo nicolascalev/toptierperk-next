@@ -94,20 +94,6 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
               onClick={openGallery}
             />
           </AspectRatio>
-          <Button
-            leftIcon={<LayoutGrid />}
-            color="dark"
-            variant="light"
-            size="xs"
-            onClick={openGallery}
-            style={{
-              position: "absolute",
-              top: theme.spacing.md,
-              right: theme.spacing.md,
-            }}
-          >
-            Show All
-          </Button>
           <Group
             position="right"
             spacing="xs"
