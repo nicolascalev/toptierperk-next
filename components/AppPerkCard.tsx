@@ -1,18 +1,24 @@
 import {
   Card,
-  BackgroundImage,
   Text,
-  Badge,
-  Button,
   Group,
   ActionIcon,
   useMantineTheme,
-  Divider,
+  AspectRatio,
+  Badge,
+  Image,
 } from "@mantine/core";
-import { ChevronLeft, ChevronRight, Award } from 'tabler-icons-react';
+import { useRouter } from "next/router"
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, Bookmark } from "tabler-icons-react";
 
 export default function AppPerkCard(props: any) {
   const theme = useMantineTheme();
+  const router = useRouter();
+
+  if (!props.perk) {
+    throw new Error("perk prop must be provided");
+  }
 
   const secondaryColor =
     theme.colorScheme === "dark" ? theme.colors.dark[1] : theme.colors.gray[7];
@@ -22,65 +28,104 @@ export default function AppPerkCard(props: any) {
     justifyContent: "space-between",
     marginTop: theme.spacing.sm,
     marginBottom: theme.spacing.sm,
-  }
+  };
 
-  const CardPriceStyles = {
-    alignSelf: "start",
+  const [displayPhoto, setDisplayPhoto] = useState(0);
+  function carouselLeft(e: any) {
+    e.stopPropagation();
+    if (displayPhoto == 0) {
+      return;
+    }
+    setDisplayPhoto(displayPhoto - 1);
+  }
+  function carouselRight(e: any) {
+    e.stopPropagation();
+    if (displayPhoto == props.perk.photos.length - 1) {
+      return;
+    }
+    setDisplayPhoto(displayPhoto + 1);
   }
 
   return (
-    <div style={{ width: 340, margin: "auto", paddingBottom: theme.spacing.md }}>
-      <Card p="sm">
+    <div
+      style={{
+        width: 340,
+        margin: "auto",
+        paddingBottom: theme.spacing.md,
+        zIndex: 1,
+      }}
+    >
+      <Card p="sm" onClick={() => router.push('/perk/' + props.perk.id)}>
         <Card.Section>
-          <BackgroundImage src="https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80">
-            <div style={{ height: 160, margin: "auto", position: "relative" }}>
-              {/* <ActionIcon variant="filled" color="bright-yellow" style={{ position: "absolute", left: theme.spacing.sm, bottom: theme.spacing.sm }}>
-                <Award />
-              </ActionIcon> */}
-              <div
+          {props.perk.photos.length > 0 && (
+            <div style={{ width: "100%", position: "relative" }}>
+              <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
+                <Image
+                  src={props.perk.photos[displayPhoto].url}
+                  alt={"Photo of " + props.perk.name}
+                />
+              </AspectRatio>
+              <Group
+                position="right"
+                spacing="xs"
                 style={{
                   position: "absolute",
-                  right: theme.spacing.sm,
-                  bottom: theme.spacing.sm,
+                  bottom: theme.spacing.md,
+                  right: theme.spacing.md,
                 }}
               >
-                <Group position="apart">
-                  <ActionIcon color="dark" variant="light">
-                    <ChevronLeft></ChevronLeft>
-                  </ActionIcon>
-                  <ActionIcon color="dark" variant="light">
-                    <ChevronRight></ChevronRight>
-                  </ActionIcon>
-                </Group>
-              </div>
+                <ActionIcon color="dark" variant="light" onClick={carouselLeft}>
+                  <ChevronLeft></ChevronLeft>
+                </ActionIcon>
+                <ActionIcon
+                  color="dark"
+                  variant="light"
+                  onClick={carouselRight}
+                >
+                  <ChevronRight></ChevronRight>
+                </ActionIcon>
+              </Group>
+              <Badge
+                color="gray"
+                style={{
+                  position: "absolute",
+                  bottom: theme.spacing.md,
+                  left: theme.spacing.md,
+                }}
+              >
+                {displayPhoto + 1} / {props.perk.photos.length}
+              </Badge>
             </div>
-          </BackgroundImage>
+          )}
         </Card.Section>
 
-
-        <div
-          style={CardHeaderStyles}
-        >
+        {/* TODO: add functionality like links and save button */}
+        <div style={CardHeaderStyles}>
           <div>
-            <Text weight={700} size="sm" color="blue">Mc Donalds</Text>
-            <Text weight={500}>Norway Fjord Adventures</Text>
+            <Text weight={500} size="sm">
+              {props.perk.supplier.name}
+            </Text>
+            <Text>{props.perk.name}</Text>
           </div>
-          <Badge color="gray" variant="light" style={CardPriceStyles}>
-            $1.00
-          </Badge>
+          <ActionIcon style={{ alignSelf: "start" }}>
+            <Bookmark />
+          </ActionIcon>
         </div>
 
-        <Text size="sm" style={{ color: secondaryColor, lineHeight: 1.5 }}>
+        {/* <Text size="sm" style={{ color: secondaryColor, lineHeight: 1.5 }}>
           With Fjord Tours you can explore more of the magical fjord landscapes
           with tours and activities on and around the fjords of Norway
-        </Text>
+        </Text> */}
 
-        <div>
-          <Text color="blue" size="sm" component="span" style={{ marginRight: theme.spacing.xs }}>#Food</Text>
-          <Text color="blue" size="sm" component="span" style={{ marginRight: theme.spacing.xs }}>#Pet friendly</Text>
-          <Text color="blue" size="sm" component="span" style={{ marginRight: theme.spacing.xs }}>#Travel</Text>
-          <Text color="blue" size="sm" component="span" style={{ marginRight: theme.spacing.xs }}>#Nature</Text>
-        </div>
+        {props.perk.categories.length > 0 && (
+          <Group>
+            {props.perk.categories.map((category: any) => (
+              <Text key={category.id} color="blue" size="sm" component="span">
+                {category.name}
+              </Text>
+            ))}
+          </Group>
+        )}
       </Card>
     </div>
   );
