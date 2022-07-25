@@ -98,6 +98,7 @@ export default function App(props: AppProps) {
                 "#FFD43B",
               ],
             },
+            loader: "dots",
           }}
         >
           <NotificationsProvider position="bottom-center">
