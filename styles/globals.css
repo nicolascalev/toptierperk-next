@@ -9,3 +9,12 @@
   width: 32px;
   height: 32px;
 }
+
+.company__info {
+  opacity: 1;
+  transition: all .5s;
+}
+
+.company__info.company__info_hidden {
+  opacity: 0;
+}
