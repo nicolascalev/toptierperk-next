@@ -67,7 +67,7 @@ const Company: NextPage<Props> = ({ user }) => {
     loadOffers();
   }, [setLoadingOffers, setOffers, user.company.id]);
 
-  const isDark = theme.colorScheme === "dark"
+  const isDark = theme.colorScheme === "dark";
   const logoContainerStyles: any = {
     position: "sticky",
     top: "50px",
@@ -75,23 +75,39 @@ const Company: NextPage<Props> = ({ user }) => {
     justifyContent: "center",
     backgroundColor:
       theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
-    zIndex: 10,
+    zIndex: 11,
     padding: theme.spacing.xs,
-  }
+  };
+
+  const tabListStyles: any = {
+    position: "sticky",
+    top: !showCompanyInfo ? "101px" : "0px",
+    zIndex: 10,
+    backgroundColor:
+      theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+  };
   if (!showCompanyInfo) {
-    logoContainerStyles.borderBottom = "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
-  } 
+    tabListStyles.borderBottom =
+      "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
+  }
+
+  let tabPanelStyles = {};
+  if (isDark) {
+    tabPanelStyles = { backgroundColor: theme.colors.dark[8] };
+  } else {
+    tabPanelStyles = { backgroundColor: theme.colors.gray[1] };
+  }
 
   if (!user.company) {
     return <div>You have to be a part of a company or create one</div>;
   }
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", marginBottom: "49px" }}>
+    <div
+      style={{ position: "relative", minHeight: "100vh", marginBottom: "49px" }}
+    >
       {user.company.logo && (
-        <div
-          style={logoContainerStyles}
-        >
+        <div style={logoContainerStyles}>
           {/* this div reduces impact of stats on scroll for now */}
           <div
             style={{
@@ -114,7 +130,9 @@ const Company: NextPage<Props> = ({ user }) => {
       )}
       <div
         style={{
-          padding: theme.spacing.md,
+          paddingRight: theme.spacing.md,
+          paddingLeft: theme.spacing.md,
+          paddingTop: 0,
           display: "flex",
           flexWrap: "wrap",
         }}
@@ -131,13 +149,6 @@ const Company: NextPage<Props> = ({ user }) => {
           <Paper
             radius="md"
             p="md"
-            style={{
-              backgroundColor:
-                theme.colorScheme === "dark"
-                  ? theme.colors.dark[6]
-                  : theme.colors.gray[0],
-              marginTop: theme.spacing.md,
-            }}
           >
             <SimpleGrid cols={3}>
               <div>
@@ -176,29 +187,31 @@ const Company: NextPage<Props> = ({ user }) => {
           </Alert>
         )}
       </div>
-      <div>
-        <Tabs grow variant="pills" position="apart" color="primary">
+      <Tabs variant="pills" color="primary" defaultValue="newest">
+        <Tabs.List grow p="sm" sx={tabListStyles}>
+          <Tabs.Tab value="newest">Newest</Tabs.Tab>
+          <Tabs.Tab value="offers">Offers</Tabs.Tab>
+          <Tabs.Tab value="about">About</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="newest" pt="md">
           {/* TODO: show public and private just add a filter somewhere OR add the private instead of popular for mvp given that popular might be hard to calculate and make performant */}
-          {/* TODO: upgrade to mantine v5 and change bg color on tab content for light theme */}
-          <Tabs.Tab label="Newest">
-            <div>First tab content</div>
-          </Tabs.Tab>
-          <Tabs.Tab label="Offers">
-            {loadingOffers ? (
-              <Center>
-                <Loader />
-              </Center>
-            ) : (
-              offers.map((offer: any) => (
-                <AppPerkCard key={offer.id} perk={offer}></AppPerkCard>
-              ))
-            )}
-          </Tabs.Tab>
-          <Tabs.Tab label="About">
-            <Text>{user.company.about}</Text>
-          </Tabs.Tab>
-        </Tabs>
-      </div>
+          <div>First tab content</div>
+        </Tabs.Panel>
+        <Tabs.Panel value="offers" pt="md" sx={tabPanelStyles}>
+          {loadingOffers ? (
+            <Center>
+              <Loader />
+            </Center>
+          ) : (
+            offers.map((offer: any) => (
+              <AppPerkCard key={offer.id} perk={offer}></AppPerkCard>
+            ))
+          )}
+        </Tabs.Panel>
+        <Tabs.Panel value="about" p="md">
+          <Text>{user.company.about}</Text>
+        </Tabs.Panel>
+      </Tabs>
     </div>
   );
 };
