@@ -104,7 +104,7 @@ export default function App(props: AppProps) {
           <NotificationsProvider position="bottom-center">
             <AppShell
               styles={{
-                body: { minHeight: "100vh", paddingTop: "50px" },
+                body: { minHeight: "100vh" },
               }}
               padding={0}
               header={
