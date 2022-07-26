@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   useMantineTheme,
   Stack,
-  InputWrapper,
   NumberInput,
   TextInput,
   Textarea,
@@ -45,7 +44,7 @@ export default function AppPerkForm(props: any) {
   const theme = useMantineTheme();
 
   const form = useForm({
-    schema: joiResolver(createBenefitSchema),
+    validate: joiResolver(createBenefitSchema),
     initialValues: {
       name: "",
       description: "",
@@ -206,7 +205,6 @@ export default function AppPerkForm(props: any) {
       </div>
       <form onSubmit={onSubmit} style={{ padding: theme.spacing.md }}>
         <Stack>
-          <InputWrapper>
             <SegmentedControl
               fullWidth
               value={isPrivate}
@@ -216,7 +214,6 @@ export default function AppPerkForm(props: any) {
                 { label: "Private", value: "private" },
               ]}
             />
-          </InputWrapper>
           <TextInput
             required
             label="Name"
@@ -253,9 +250,11 @@ export default function AppPerkForm(props: any) {
             searchable
             creatable
             getCreateLabel={(query) => `+ Add ${query}`}
-            onCreate={(query) =>
-              setCategories((current) => [...current, query])
-            }
+            onCreate={(query) => {
+              const item = { value: query, label: query };
+              setCategories((current) => [...current, query]);
+              return item;
+            }}
           />
           <NumberInput
             label="Use Limit"
@@ -285,21 +284,20 @@ export default function AppPerkForm(props: any) {
         title="Photos"
         size="xl"
         styles={{
-          header: { padding: theme.spacing.md },
+          header: { padding: theme.spacing.md, marginBottom: 0 },
         }}
       >
-        <div style={{ padding: theme.spacing.md, paddingTop: 0 }}>
-          <AppDropzone onDrop={onDropFiles} />
-          <Text
-            color="dimmed"
-            size="sm"
-            style={{ marginTop: theme.spacing.sm }}
-          >
-            {photos.length} photos
-          </Text>
-        </div>
-
-        <ScrollArea type="auto" style={{ height: "375px" }}>
+        <ScrollArea type="auto" style={{ height: "440px" }}>
+          <div style={{ padding: theme.spacing.md, paddingTop: 0 }}>
+            <AppDropzone onDrop={onDropFiles} />
+            <Text
+              color="dimmed"
+              size="sm"
+              style={{ marginTop: theme.spacing.sm }}
+            >
+              {photos.length} photos
+            </Text>
+          </div>
           <SimpleGrid cols={3} spacing={1}>
             {photos.map((photo, index) => (
               <AspectRatio
