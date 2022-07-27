@@ -60,6 +60,9 @@ const UpdatePerkPage: NextPage<Props> = ({ user }) => {
       {loadingPerk && <Center><Loader></Loader></Center>}
       {loadPerkError && <Error statusCode={loadPerkError.status}></Error>}
       {/* TODO: pass perk to AppPerkForm for update */}
+      {perk && !loadPerkError && (
+        <AppPerkForm perk={perk}></AppPerkForm>
+      )}
     </div>
   );
 };
