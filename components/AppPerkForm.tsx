@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import {
   useMantineTheme,
   Stack,
@@ -25,7 +26,6 @@ import AppDropzone from "./AppDropzone";
 import {
   ChevronLeft,
   ChevronRight,
-  LayoutGrid,
   Photo,
 } from "tabler-icons-react";
 import Joi from "joi";
@@ -43,23 +43,27 @@ const createBenefitSchema = Joi.object({
 
 export default function AppPerkForm(props: any) {
   const theme = useMantineTheme();
+  const router = useRouter();
+
+  const perk = props.perk;
 
   const form = useForm({
     validate: joiResolver(createBenefitSchema),
     initialValues: {
-      name: "",
-      description: "",
-      useLimit: null,
-      useLimitPerUser: null,
-      startsAt: new Date(),
-      finishesAt: null,
+      name: perk ? perk.name : "",
+      description: perk ? perk.description : "",
+      useLimit: perk ? perk.useLimit : null,
+      useLimitPerUser: perk ? perk.useLimitPerUser : null,
+      startsAt: perk ? new Date(perk.startsAt) : new Date(),
+      finishesAt: perk ? new Date(perk.finishesAt) : null,
     },
   });
 
-  const initialCategories: string[] = [];
+  const initialCategories: string[] = perk?.categories ? perk.categories.map((cat:any) => cat.name) : [];
   const [categories, setCategories] = useState(initialCategories);
 
-  const [isPrivate, setIsPrivate] = useState("public");
+  const privacy = props.perk?.isPrivate ? "private" : "public";
+  const [isPrivate, setIsPrivate] = useState(privacy);
 
   const [openedImageUploader, setOpenedImageUploader] = useState(false);
   function openImageUploader(e: any) {
@@ -134,8 +138,7 @@ export default function AppPerkForm(props: any) {
     try {
       setLoading(true);
       const { data: createdPerk } = await axios.post("/api/benefit", formData);
-      console.log(createdPerk);
-      // TODO: do something after create, maybe redirect to perk view
+      router.push("/perk/" + createdPerk.id);
     } catch (err) {
       console.log((err as any).response.data);
     } finally {
@@ -244,9 +247,11 @@ export default function AppPerkForm(props: any) {
           <MultiSelect
             label="Select Categories"
             data={categories}
+            value={categories}
             placeholder="Select items"
             searchable
             creatable
+            maxSelectedValues={10}
             getCreateLabel={(query) => `+ Add ${query}`}
             onCreate={(query) => {
               const item = { value: query, label: query };
