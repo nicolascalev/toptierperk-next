@@ -17,6 +17,7 @@ import {
   SimpleGrid,
   Text,
   Paper,
+  Badge,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { useForm, joiResolver } from "@mantine/form";
@@ -114,7 +115,7 @@ export default function AppPerkForm(props: any) {
     return formData;
   }
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   async function onSubmit(e: any) {
     e.preventDefault();
     const formData = beforeSubmit();
@@ -125,19 +126,20 @@ export default function AppPerkForm(props: any) {
   async function saveDraft() {
     const formData = beforeSubmit();
     if (!formData) return;
-    formData.append('isActive', "false");
-    await createPerk(formData)
+    formData.append("isActive", "false");
+    await createPerk(formData);
   }
 
   async function createPerk(formData: FormData) {
     try {
-      setLoading(true)
+      setLoading(true);
       const { data: createdPerk } = await axios.post("/api/benefit", formData);
       console.log(createdPerk);
+      // TODO: do something after create, maybe redirect to perk view
     } catch (err) {
       console.log((err as any).response.data);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -170,20 +172,16 @@ export default function AppPerkForm(props: any) {
         </AspectRatio>
         {photos.length > 0 && (
           <>
-            <Button
-              leftIcon={<LayoutGrid />}
-              color="dark"
-              variant="light"
-              size="xs"
-              onClick={openImageUploader}
+            <Badge
+              color="gray"
               style={{
                 position: "absolute",
-                top: theme.spacing.md,
-                right: theme.spacing.md,
+                bottom: theme.spacing.md,
+                left: theme.spacing.md,
               }}
             >
-              Show All
-            </Button>
+              {displayPhoto + 1} / {photos.length}
+            </Badge>
             <Group
               position="right"
               spacing="xs"
@@ -205,15 +203,15 @@ export default function AppPerkForm(props: any) {
       </div>
       <form onSubmit={onSubmit} style={{ padding: theme.spacing.md }}>
         <Stack>
-            <SegmentedControl
-              fullWidth
-              value={isPrivate}
-              onChange={setIsPrivate}
-              data={[
-                { label: "Public", value: "public" },
-                { label: "Private", value: "private" },
-              ]}
-            />
+          <SegmentedControl
+            fullWidth
+            value={isPrivate}
+            onChange={setIsPrivate}
+            data={[
+              { label: "Public", value: "public" },
+              { label: "Private", value: "private" },
+            ]}
+          />
           <TextInput
             required
             label="Name"
@@ -272,8 +270,12 @@ export default function AppPerkForm(props: any) {
           />
 
           <Group position="right">
-            <Button variant="default" loading={loading} onClick={saveDraft}>Save for later</Button>
-            <Button type="submit" loading={loading}>Create</Button>
+            <Button variant="default" loading={loading} onClick={saveDraft}>
+              Save for later
+            </Button>
+            <Button type="submit" loading={loading}>
+              Create
+            </Button>
           </Group>
         </Stack>
       </form>
