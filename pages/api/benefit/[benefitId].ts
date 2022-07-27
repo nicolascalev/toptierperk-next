@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
-import Benefit, { BenefitCreateParams } from "prisma/models/Benefit";
+import Benefit from "prisma/models/Benefit";
 import Category from "prisma/models/Category";
 import Joi from "joi";
 import isAuthenticated from "helpers/isAuthenticated";
@@ -28,10 +28,25 @@ const updateBenefitSchema = Joi.object({
 
 type FilesNextApiRequest = NextApiRequest & { files?: any };
 
-export default async function userHandler(
+export default async function singleBenefitHandler(
   req: FilesNextApiRequest,
   res: NextApiResponse
 ) {
+  // GET /api/benefit/[id]
+  if (req.method === "GET") {
+    try {
+      const benefitId = Number(req.query.benefitId);
+      const perk = await Benefit.findById(benefitId);
+      if (!perk) {
+        return res
+          .status(404)
+          .json({ error: `Perk with the id ${benefitId} was not found.` });
+      }
+      return res.status(200).json(perk);
+    } catch (error) {
+      return res.status(500).json({ error });
+    }
+  }
   // PATCH /api/benefit/[id]
   // TODO: implement photos update
   if (req.method == "PATCH") {
@@ -67,7 +82,9 @@ export default async function userHandler(
       const data: any = {};
       data.name = body.name;
       data.description = body.description;
-      data.categories = categories ? categories.map(cat => cat.id) : undefined;
+      data.categories = categories
+        ? categories.map((cat) => cat.id)
+        : undefined;
       data.beneficiaries = beneficiaries;
       data.availableFor = availableFor;
       data.isPrivate = body.isPrivate;
