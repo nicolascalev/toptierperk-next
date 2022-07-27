@@ -55,7 +55,6 @@ const Company: NextPage<Props> = ({ user }) => {
         const { data } = await axios.get(
           `/api/company/${user.company.id}/offers`
         );
-        console.log(data);
         setOffers(data);
       } catch (err) {
         // TODO: do something with the error
@@ -91,11 +90,11 @@ const Company: NextPage<Props> = ({ user }) => {
       "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
   }
 
-  let tabPanelStyles = {};
+  let tabPanelStyles: any = { minHeight: "330px" };
   if (isDark) {
-    tabPanelStyles = { backgroundColor: theme.colors.dark[8] };
+    tabPanelStyles.backgroundColor = theme.colors.dark[8];
   } else {
-    tabPanelStyles = { backgroundColor: theme.colors.gray[1] };
+    tabPanelStyles.backgroundColor = theme.colors.gray[1];
   }
 
   if (!user.company) {
@@ -103,9 +102,7 @@ const Company: NextPage<Props> = ({ user }) => {
   }
 
   return (
-    <div
-      style={{ position: "relative", minHeight: "100vh", marginBottom: "49px" }}
-    >
+    <div style={{ position: "relative", marginBottom: "49px" }}>
       {user.company.logo && (
         <div style={logoContainerStyles}>
           {/* this div reduces impact of stats on scroll for now */}
@@ -146,10 +143,7 @@ const Company: NextPage<Props> = ({ user }) => {
           <Text size="xl" weight={500}>
             {user.company.name}
           </Text>
-          <Paper
-            radius="md"
-            p="md"
-          >
+          <Paper radius="md" p="md">
             <SimpleGrid cols={3}>
               <div>
                 <Text weight="bold" size="lg">
@@ -193,11 +187,14 @@ const Company: NextPage<Props> = ({ user }) => {
           <Tabs.Tab value="offers">Offers</Tabs.Tab>
           <Tabs.Tab value="about">About</Tabs.Tab>
         </Tabs.List>
-        <Tabs.Panel value="newest" pt="md">
+        <Tabs.Panel value="newest" pt="md" sx={tabPanelStyles}>
           {/* TODO: show public and private just add a filter somewhere OR add the private instead of popular for mvp given that popular might be hard to calculate and make performant */}
-          <div>First tab content</div>
+          <Text align="center">Load benefits after aquiring them</Text>
         </Tabs.Panel>
         <Tabs.Panel value="offers" pt="md" sx={tabPanelStyles}>
+          {!loadingOffers && offers.length === 0 && (
+            <Text align="center">0 results found</Text>
+          )}
           {loadingOffers ? (
             <Center>
               <Loader />
@@ -208,7 +205,7 @@ const Company: NextPage<Props> = ({ user }) => {
             ))
           )}
         </Tabs.Panel>
-        <Tabs.Panel value="about" p="md">
+        <Tabs.Panel value="about" p="md" sx={tabPanelStyles}>
           <Text>{user.company.about}</Text>
         </Tabs.Panel>
       </Tabs>
