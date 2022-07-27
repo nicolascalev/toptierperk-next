@@ -17,6 +17,20 @@ export type BenefitCreateParams = {
   useLimitPerUser?: number;
 };
 
+type BenefitUpdateParams = {
+  name?: string;
+  description?: string;
+  categories?: number[];
+  beneficiaries?: number[];
+  availableFor?: number[];
+  isPrivate?: boolean;
+  isActive?: boolean;
+  useLimit?: number | undefined;
+  useLimitPerUser?: number | undefined;
+  startsAt?: Date | undefined;
+  finishesAt?: Date | undefined;
+}
+
 // TODO: change pagination to use cursor instead of take and skip https://www.prisma.io/docs/concepts/components/prisma-client/pagination
 type FindPublicSearchParams = {
   searchString?: string;
@@ -135,6 +149,35 @@ const Benefit = {
       return benefit;
     } catch (err) {
       return Promise.reject(err);
+    }
+  },
+
+  update: async (id: number, data: BenefitUpdateParams) => {
+    if (!id) {
+      throw new Error("id parameter must be provided");
+    }
+    try {
+      let parsedData: Prisma.BenefitUpdateInput = {
+        ...data, ...{
+          categories: data.categories ? { set: data.categories.map(cat => ({id: cat})) } : undefined,
+          beneficiaries: data.beneficiaries ? { set: data.beneficiaries.map(com => ({id: com})) } : undefined,
+          availableFor : data.availableFor ? { set: data.availableFor.map(com => ({id: com})) } : undefined,
+        }
+      };
+      const updatedPerk = await prisma.benefit.update<Prisma.BenefitUpdateArgs>({
+        where: { id },
+        data: parsedData,
+        include: {
+          supplier: true,
+          categories: true,
+          photos: true,
+          beneficiaries: true,
+          availableFor: true,
+        },
+      })
+      return updatedPerk
+    } catch (err) {
+      return Promise.reject(err)
     }
   },
 
