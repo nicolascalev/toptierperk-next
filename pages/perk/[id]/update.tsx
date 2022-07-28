@@ -32,11 +32,8 @@ function useFetchPerk(perkId: string) {
   }, [perkId]);
   return {
     loadingPerk,
-    setLoadingPerk,
     perk,
-    setPerk,
     loadPerkError,
-    setLoadPerkError,
   };
 }
 
@@ -45,11 +42,8 @@ const UpdatePerkPage: NextPage<Props> = ({ user }) => {
   const router = useRouter();
   const {
     loadingPerk,
-    setLoadingPerk,
     perk,
-    setPerk,
     loadPerkError,
-    setLoadPerkError,
   } = useFetchPerk(router.query.id as string);
 
   return (
@@ -61,7 +55,7 @@ const UpdatePerkPage: NextPage<Props> = ({ user }) => {
       {loadPerkError && <Error statusCode={loadPerkError.status}></Error>}
       {/* TODO: pass perk to AppPerkForm for update */}
       {perk && !loadPerkError && (
-        <AppPerkForm perk={perk}></AppPerkForm>
+        <AppPerkForm action="update" perk={perk}></AppPerkForm>
       )}
     </div>
   );
