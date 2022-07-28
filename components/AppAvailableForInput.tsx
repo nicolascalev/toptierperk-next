@@ -14,16 +14,23 @@ import { debounce } from "lodash";
 import axios from "axios";
 
 const debouncedSearchCompany = debounce(
-  async (setCompaniesSearchItems, startLoader, name) => {
+  async (setCompaniesSearchItems, availableFor, name) => {
     try {
-      startLoader();
       const { data } = await axios.get("/api/company", {
         params: { take: 15, searchString: name },
       });
-      const parsedItems = data.map((company: any) => ({
-        value: company.id,
-        label: company.name,
-      }));
+      const parsedItems = data.map((company: any) => {
+        const itemOnList = availableFor.find(
+          (com: any) => com.id === company.id
+        );
+        return {
+          value: `${company.id}`,
+          label: company.name,
+          disabled: itemOnList ? true : false,
+          group: itemOnList ? "Company already on list" : "Add",
+          company,
+        };
+      });
       setCompaniesSearchItems(parsedItems);
     } catch (err) {
       setCompaniesSearchItems([]);
@@ -44,19 +51,39 @@ function AppAvailableForInput(props: any) {
     setOpenedDrawer(false);
   }
 
-  const [searchString, setSearchString] = useState("")
   const [companiesSearchItems, setCompaniesSearchItems] = useState<any>([]);
   function setLoadingSearch() {
     setCompaniesSearchItems([
       { value: "loading", label: "Loading...", disabled: true },
     ]);
   }
+  const [selectValue, setSelectValue] = useState("");
+  function onSelectChange(val: any) {
+    setSelectValue(val);
+    if (!val) return;
+    const selectedCompany = companiesSearchItems.find(
+      (item: any) => item.value === val
+    ).company;
+    setAvailableFor([...availableFor, ...[selectedCompany]]);
+  }
 
+  function removeCompanyItem(companyIndex: number) {
+    const copy = [...availableFor];
+    copy.splice(companyIndex, 1);
+    setAvailableFor(copy);
+  }
+
+  const [searchString, setSearchString] = useState("");
   useEffect(() => {
     if (searchString) {
-      debouncedSearchCompany(setCompaniesSearchItems, setLoadingSearch, searchString)
+      setLoadingSearch();
+      debouncedSearchCompany(
+        setCompaniesSearchItems,
+        availableFor,
+        searchString
+      );
     }
-  }, [searchString])
+  }, [searchString, availableFor]);
 
   return (
     <div>
@@ -83,19 +110,26 @@ function AppAvailableForInput(props: any) {
         position="bottom"
       >
         <Select
-          label="Search"
           placeholder="Company Name"
+          data={companiesSearchItems}
+          value={selectValue}
+          onChange={(val: any) => onSelectChange(val)}
           searchable
           nothingFound="No options"
-          data={companiesSearchItems}
           maxDropdownHeight={250}
+          clearable
           icon={<Search />}
           onSearchChange={setSearchString}
         />
         <Box mt="md">
           {availableFor.length === 0 && (
-            <Text color="dimmed">
+            <Text color="dimmed" size="sm">
               This perk is not available to any companies when private yet
+            </Text>
+          )}
+          {availableFor.length > 0 && (
+            <Text color="dimmed" size="sm">
+              Available for {availableFor.length} companies
             </Text>
           )}
           {availableFor.map((company: any, index: number) => (
@@ -104,7 +138,7 @@ function AppAvailableForInput(props: any) {
               <Group position="apart" spacing="xs" py="md">
                 <Text>{company.name}</Text>
                 <ActionIcon size="xs">
-                  <X />
+                  <X onClick={() => removeCompanyItem(index)} />
                 </ActionIcon>
               </Group>
             </div>

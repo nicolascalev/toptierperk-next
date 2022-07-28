@@ -82,6 +82,8 @@ export default function AppPerkForm(props: any) {
   const perkIsActive = props.perk?.isActive ? "true" : "false";
   const [isActive, setIsActive] = useState(perkIsActive);
 
+  const [availableFor, setAvailableFor] = useState([])
+
   const [openedImageUploader, setOpenedImageUploader] = useState(false);
   function openImageUploader(e: any) {
     e.stopPropagation();
@@ -125,6 +127,7 @@ export default function AppPerkForm(props: any) {
     let data: any = { ...form.values };
     data.isPrivate = isPrivate === "private" ? true : false;
     data.categories = categories.join(",");
+    data.availableFor = availableFor.map((com: any) => com.id).join(",");
     let formData = new FormData();
     for (const [key, val] of Object.entries(data)) {
       if (!val) continue;
@@ -323,7 +326,7 @@ export default function AppPerkForm(props: any) {
             min={1}
             {...form.getInputProps("useLimitPerUser")}
           />
-          <AppAvailableForInput onChange={() => console.log('changed availableFor')} />
+          <AppAvailableForInput availableFor={availableFor} onChange={(updated: any) => setAvailableFor(updated)} />
           {props.action === "update" && (
             <Radio.Group
               label="Perk active state"
