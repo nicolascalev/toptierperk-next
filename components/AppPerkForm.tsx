@@ -19,13 +19,19 @@ import {
   Text,
   Paper,
   Badge,
+  Radio,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { useForm, joiResolver } from "@mantine/form";
 import AppDropzone from "./AppDropzone";
-import { ChevronLeft, ChevronRight, Photo } from "tabler-icons-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Photo,
+} from "tabler-icons-react";
 import Joi from "joi";
 import axios from "axios";
+import AppAvailableForInput from "./AppAvailableForInput";
 
 const createBenefitSchema = Joi.object({
   name: Joi.string().required(),
@@ -72,6 +78,9 @@ export default function AppPerkForm(props: any) {
 
   const privacy = props.perk?.isPrivate ? "private" : "public";
   const [isPrivate, setIsPrivate] = useState(privacy);
+
+  const perkIsActive = props.perk?.isActive ? "true" : "false";
+  const [isActive, setIsActive] = useState(perkIsActive);
 
   const [openedImageUploader, setOpenedImageUploader] = useState(false);
   function openImageUploader(e: any) {
@@ -136,6 +145,7 @@ export default function AppPerkForm(props: any) {
       await createPerk(formData);
     }
     if (props.action === "update") {
+      formData.append("isActive", isActive);
       await updatePerk(formData);
     }
   }
@@ -162,7 +172,10 @@ export default function AppPerkForm(props: any) {
   async function updatePerk(formData: FormData) {
     try {
       setLoading(true);
-      const { data: updatedPerk } = await axios.patch("/api/benefit/" + perk.id, formData);
+      const { data: updatedPerk } = await axios.patch(
+        "/api/benefit/" + perk.id,
+        formData
+      );
       router.push("/perk/" + updatedPerk.id);
     } catch (err) {
       console.log((err as any).response.data);
@@ -246,6 +259,12 @@ export default function AppPerkForm(props: any) {
               { label: "Private", value: "private" },
             ]}
           />
+          {props.action === "update" && isPrivate === "private" && (
+            <Text size="sm" color="dimmed">
+              Perk will be private but the companies that got it while it was
+              public will keep it.
+            </Text>
+          )}
           <TextInput
             required
             label="Name"
@@ -304,6 +323,19 @@ export default function AppPerkForm(props: any) {
             min={1}
             {...form.getInputProps("useLimitPerUser")}
           />
+          <AppAvailableForInput onChange={() => console.log('changed availableFor')} />
+          {props.action === "update" && (
+            <Radio.Group
+              label="Perk active state"
+              description="Use this to disable your perk"
+              value={isActive}
+              onChange={setIsActive}
+              required
+            >
+              <Radio value="true" label="Active" />
+              <Radio value="false" label="Inactive (draft)" />
+            </Radio.Group>
+          )}
 
           <Group position="right">
             {props.action === "create" && (
