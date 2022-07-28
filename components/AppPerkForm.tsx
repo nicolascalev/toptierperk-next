@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
   useMantineTheme,
@@ -24,11 +24,7 @@ import {
 import { DatePicker } from "@mantine/dates";
 import { useForm, joiResolver } from "@mantine/form";
 import AppDropzone from "./AppDropzone";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Photo,
-} from "tabler-icons-react";
+import { ChevronLeft, ChevronRight, Photo } from "tabler-icons-react";
 import Joi from "joi";
 import axios from "axios";
 import AppAvailableForInput from "./AppAvailableForInput";
@@ -42,6 +38,37 @@ const createBenefitSchema = Joi.object({
   startsAt: Joi.date().allow(null).optional(),
   finishesAt: Joi.date().allow(null).optional(),
 });
+
+function useFetchAvailableFor(action: string) {
+  const router = useRouter();
+  const perkId = router.query.id;
+  const [loadingAvailableFor, setLoadingAvailableFor] = useState(false);
+  const [availableFor, setAvailableFor] = useState([]);
+  const [loadAvailableForError, setLoadAvailableForError] = useState<any>(null);
+  useEffect(() => {
+    async function loadAvailableFor() {
+      setLoadingAvailableFor(true);
+      setLoadAvailableForError(null);
+      try {
+        const { data } = await axios.get(`/api/benefit/${perkId}/availableFor`);
+        setAvailableFor(data);
+      } catch (err) {
+        setLoadAvailableForError((err as any).response);
+      } finally {
+        setLoadingAvailableFor(false);
+      }
+    }
+    if (action === "update") {
+      loadAvailableFor();
+    }
+  }, [perkId, action]);
+  return {
+    loadingAvailableFor,
+    availableFor,
+    setAvailableFor,
+    loadAvailableForError,
+  };
+}
 
 export default function AppPerkForm(props: any) {
   const theme = useMantineTheme();
@@ -82,7 +109,12 @@ export default function AppPerkForm(props: any) {
   const perkIsActive = props.perk?.isActive ? "true" : "false";
   const [isActive, setIsActive] = useState(perkIsActive);
 
-  const [availableFor, setAvailableFor] = useState([])
+  const {
+    loadingAvailableFor,
+    availableFor,
+    setAvailableFor,
+    loadAvailableForError,
+  } = useFetchAvailableFor(props.action);
 
   const [openedImageUploader, setOpenedImageUploader] = useState(false);
   function openImageUploader(e: any) {
@@ -326,7 +358,11 @@ export default function AppPerkForm(props: any) {
             min={1}
             {...form.getInputProps("useLimitPerUser")}
           />
-          <AppAvailableForInput availableFor={availableFor} onChange={(updated: any) => setAvailableFor(updated)} />
+          <AppAvailableForInput
+            availableFor={availableFor}
+            loading={loadingAvailableFor}
+            onChange={(updated: any) => setAvailableFor(updated)}
+          />
           {props.action === "update" && (
             <Radio.Group
               label="Perk active state"

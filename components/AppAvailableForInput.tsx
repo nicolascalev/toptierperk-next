@@ -45,6 +45,9 @@ function AppAvailableForInput(props: any) {
     throw new Error("'onChange' param is a must");
   }
   const [availableFor, setAvailableFor] = useState(props.availableFor || []);
+  useEffect(() => {
+    setAvailableFor(props.availableFor)
+  }, [props.availableFor])
   const [openedDrawer, setOpenedDrawer] = useState(false);
   function onCloseDrawer() {
     props.onChange(availableFor);
@@ -98,6 +101,8 @@ function AppAvailableForInput(props: any) {
         sx={{ width: "100%", marginTop: 2 }}
         rightIcon={<Edit />}
         onClick={() => setOpenedDrawer(true)}
+        loading={props.loading}
+        disabled={props.loading}
       >
         {availableFor.length} Selected
       </Button>
