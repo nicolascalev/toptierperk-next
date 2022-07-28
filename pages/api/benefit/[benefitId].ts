@@ -58,14 +58,14 @@ export default async function singleBenefitHandler(
       if (!session!.user.adminOf) {
         return res.status(401).send("Unauthorized");
       }
-      const perkId = Number(query.id);
+      const perkId = Number(query.benefitId);
       const perk = await Benefit.findById(perkId);
       if (!perk) {
         return res
           .status(404)
           .json({ error: `Perk with the id ${perkId} was not found` });
       }
-      if (perk.supplier !== session!.user.adminOf.id) {
+      if (perk.supplier.id !== session!.user.adminOfId) {
         return res.status(403).send("Forbidden");
       }
 
