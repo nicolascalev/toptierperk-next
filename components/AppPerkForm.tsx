@@ -23,11 +23,7 @@ import {
 import { DatePicker } from "@mantine/dates";
 import { useForm, joiResolver } from "@mantine/form";
 import AppDropzone from "./AppDropzone";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Photo,
-} from "tabler-icons-react";
+import { ChevronLeft, ChevronRight, Photo } from "tabler-icons-react";
 import Joi from "joi";
 import axios from "axios";
 
@@ -45,6 +41,16 @@ export default function AppPerkForm(props: any) {
   const theme = useMantineTheme();
   const router = useRouter();
 
+  if (!props.action || !["create", "update"].includes(props.action)) {
+    throw new Error(
+      "action prop is mandatory and should be 'create' or 'update'"
+    );
+  }
+
+  if (props.action === "update" && !props.perk) {
+    throw new Error("if the action is 'update' then perk prop is a must");
+  }
+
   const perk = props.perk;
 
   const form = useForm({
@@ -59,7 +65,9 @@ export default function AppPerkForm(props: any) {
     },
   });
 
-  const initialCategories: string[] = perk?.categories ? perk.categories.map((cat:any) => cat.name) : [];
+  const initialCategories: string[] = perk?.categories
+    ? perk.categories.map((cat: any) => cat.name)
+    : [];
   const [categories, setCategories] = useState(initialCategories);
 
   const privacy = props.perk?.isPrivate ? "private" : "public";
@@ -102,7 +110,7 @@ export default function AppPerkForm(props: any) {
     setDisplayPhoto(displayPhoto + 1);
   }
 
-  function beforeSubmit() {
+  function parseFormData() {
     let validation = form.validate();
     if (validation.hasErrors) return;
     let data: any = { ...form.values };
@@ -122,13 +130,18 @@ export default function AppPerkForm(props: any) {
   const [loading, setLoading] = useState(false);
   async function onSubmit(e: any) {
     e.preventDefault();
-    const formData = beforeSubmit();
+    const formData = parseFormData();
     if (!formData) return;
-    await createPerk(formData);
+    if (props.action === "create") {
+      await createPerk(formData);
+    }
+    if (props.action === "update") {
+      await updatePerk(formData);
+    }
   }
 
   async function saveDraft() {
-    const formData = beforeSubmit();
+    const formData = parseFormData();
     if (!formData) return;
     formData.append("isActive", "false");
     await createPerk(formData);
@@ -146,64 +159,82 @@ export default function AppPerkForm(props: any) {
     }
   }
 
+  async function updatePerk(formData: FormData) {
+    try {
+      setLoading(true);
+      const { data: updatedPerk } = await axios.patch("/api/benefit/" + perk.id, formData);
+      router.push("/perk/" + updatedPerk.id);
+    } catch (err) {
+      console.log((err as any).response.data);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
-      <div style={{ width: "100%", position: "relative" }}>
-        <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
-          {photos.length > 0 ? (
-            <Image
-              src={photos[displayPhoto].dataURL}
-              alt="Perk Image"
-              onClick={openImageUploader}
-            />
-          ) : (
-            <Paper
-              sx={(theme) => ({
-                backgroundColor:
-                  theme.colorScheme === "dark"
-                    ? theme.colors.dark[6]
-                    : theme.colors.gray[0],
-              })}
-              onClick={openImageUploader}
-            >
-              <ActionIcon>
-                <Photo />
-              </ActionIcon>
-              Upload your photos
-            </Paper>
+      {props.action === "create" && (
+        <div style={{ width: "100%", position: "relative" }}>
+          <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
+            {photos.length > 0 ? (
+              <Image
+                src={photos[displayPhoto].dataURL}
+                alt="Perk Image"
+                onClick={openImageUploader}
+              />
+            ) : (
+              <Paper
+                sx={(theme) => ({
+                  backgroundColor:
+                    theme.colorScheme === "dark"
+                      ? theme.colors.dark[6]
+                      : theme.colors.gray[0],
+                })}
+                onClick={openImageUploader}
+              >
+                <ActionIcon>
+                  <Photo />
+                </ActionIcon>
+                Upload your photos
+              </Paper>
+            )}
+          </AspectRatio>
+          {photos.length > 0 && (
+            <>
+              <Badge
+                color="gray"
+                style={{
+                  position: "absolute",
+                  bottom: theme.spacing.md,
+                  left: theme.spacing.md,
+                }}
+              >
+                {displayPhoto + 1} / {photos.length}
+              </Badge>
+              <Group
+                position="right"
+                spacing="xs"
+                style={{
+                  position: "absolute",
+                  bottom: theme.spacing.md,
+                  right: theme.spacing.md,
+                }}
+              >
+                <ActionIcon color="dark" variant="light" onClick={carouselLeft}>
+                  <ChevronLeft></ChevronLeft>
+                </ActionIcon>
+                <ActionIcon
+                  color="dark"
+                  variant="light"
+                  onClick={carouselRight}
+                >
+                  <ChevronRight></ChevronRight>
+                </ActionIcon>
+              </Group>
+            </>
           )}
-        </AspectRatio>
-        {photos.length > 0 && (
-          <>
-            <Badge
-              color="gray"
-              style={{
-                position: "absolute",
-                bottom: theme.spacing.md,
-                left: theme.spacing.md,
-              }}
-            >
-              {displayPhoto + 1} / {photos.length}
-            </Badge>
-            <Group
-              position="right"
-              spacing="xs"
-              style={{
-                position: "absolute",
-                bottom: theme.spacing.md,
-                right: theme.spacing.md,
-              }}
-            >
-              <ActionIcon color="dark" variant="light" onClick={carouselLeft}>
-                <ChevronLeft></ChevronLeft>
-              </ActionIcon>
-              <ActionIcon color="dark" variant="light" onClick={carouselRight}>
-                <ChevronRight></ChevronRight>
-              </ActionIcon>
-            </Group>
-          </>
-        )}
-      </div>
+        </div>
+      )}
       <form onSubmit={onSubmit} style={{ padding: theme.spacing.md }}>
         <Stack>
           <SegmentedControl
@@ -275,11 +306,13 @@ export default function AppPerkForm(props: any) {
           />
 
           <Group position="right">
-            <Button variant="default" loading={loading} onClick={saveDraft}>
-              Save for later
-            </Button>
+            {props.action === "create" && (
+              <Button variant="default" loading={loading} onClick={saveDraft}>
+                Save for later
+              </Button>
+            )}
             <Button type="submit" loading={loading}>
-              Create
+              {props.action === "create" ? "Create" : "Update"}
             </Button>
           </Group>
         </Stack>
