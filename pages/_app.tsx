@@ -16,6 +16,7 @@ import {
   ScrollArea,
   useMantineTheme,
 } from "@mantine/core";
+import Link from "next/link";
 import { NotificationsProvider } from "@mantine/notifications";
 import {
   Scan,
@@ -135,22 +136,26 @@ export default function App(props: AppProps) {
             >
               <ScrollArea style={{ height: 250 }}>
                 <Stack justify="flex-start" spacing="xs">
-                  <Anchor
-                    href="/company/admin"
-                    underline={false}
-                    className={classes.collectionLink}
-                  >
-                    <BuildingSkyscraper size={14} style={{ marginRight: 9 }} />
-                    Your company
-                  </Anchor>
-                  <Anchor
-                    href="/company/scan-costumer"
-                    underline={false}
-                    className={classes.collectionLink}
-                  >
-                    <Scan size={14} style={{ marginRight: 9 }} />
-                    Verify Costumer QR
-                  </Anchor>
+                  <Link href="/company/admin" passHref>
+                    <Anchor
+                      component="a"
+                      underline={false}
+                      className={classes.collectionLink}
+                    >
+                      <BuildingSkyscraper size={14} style={{ marginRight: 9 }} />
+                      Your company
+                    </Anchor>
+                  </Link>
+                  <Link href="/company/scan-costumer" passHref>
+                    <Anchor
+                      component="a"
+                      underline={false}
+                      className={classes.collectionLink}
+                    >
+                      <Scan size={14} style={{ marginRight: 9 }} />
+                      Verify Costumer QR
+                    </Anchor>
+                  </Link>
                   <Anchor
                     underline={false}
                     className={classes.collectionLink}
