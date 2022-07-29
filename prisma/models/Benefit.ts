@@ -50,6 +50,8 @@ type FindCompanyBenefitParams = {
   categories?: number[];
 };
 
+export type BenefitStatus = "ALL" | "ACTIVE" | "INACTIVE";
+
 const Benefit = {
   // POST: /benefit
   create: async ({
@@ -506,17 +508,19 @@ const Benefit = {
   // GET: /company/:id/offers
   // TODO: dont filter all and use a pointer for pagination
   // TODO: add isActive filter if necessary
-  findCompanyOffers: async (supplierId: number) => {
+  findCompanyOffers: async (supplierId: number, status: BenefitStatus) => {
     try {
       if (!supplierId) {
         throw new Error("supplierId is necessary to filter offers");
       }
 
       const queryDateTime = new Date();
+      const isActive =
+        status === "ACTIVE" ? true : status === "INACTIVE" ? false : undefined;
 
       const filters: Prisma.BenefitFindManyArgs = {
         where: {
-          isActive: true,
+          isActive: isActive,
           supplier: {
             id: supplierId,
             paidMembership: true,
@@ -564,9 +568,9 @@ const Benefit = {
           },
         },
       });
-      return benefit?.availableFor
+      return benefit?.availableFor;
     } catch (err) {
-      return Promise.reject(err)
+      return Promise.reject(err);
     }
   },
 };
