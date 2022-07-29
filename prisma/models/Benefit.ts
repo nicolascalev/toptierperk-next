@@ -29,7 +29,7 @@ type BenefitUpdateParams = {
   useLimitPerUser?: number | undefined;
   startsAt?: Date | undefined;
   finishesAt?: Date | undefined;
-}
+};
 
 // TODO: change pagination to use cursor instead of take and skip https://www.prisma.io/docs/concepts/components/prisma-client/pagination
 type FindPublicSearchParams = {
@@ -158,26 +158,35 @@ const Benefit = {
     }
     try {
       let parsedData: Prisma.BenefitUpdateInput = {
-        ...data, ...{
-          categories: data.categories ? { set: data.categories.map(cat => ({id: cat})) } : undefined,
-          beneficiaries: data.beneficiaries ? { set: data.beneficiaries.map(com => ({id: com})) } : undefined,
-          availableFor : data.availableFor ? { set: data.availableFor.map(com => ({id: com})) } : undefined,
-        }
-      };
-      const updatedPerk = await prisma.benefit.update<Prisma.BenefitUpdateArgs>({
-        where: { id },
-        data: parsedData,
-        include: {
-          supplier: true,
-          categories: true,
-          photos: true,
-          beneficiaries: true,
-          availableFor: true,
+        ...data,
+        ...{
+          categories: data.categories
+            ? { set: data.categories.map((cat) => ({ id: cat })) }
+            : undefined,
+          beneficiaries: data.beneficiaries
+            ? { set: data.beneficiaries.map((com) => ({ id: com })) }
+            : undefined,
+          availableFor: data.availableFor
+            ? { set: data.availableFor.map((com) => ({ id: com })) }
+            : undefined,
         },
-      })
-      return updatedPerk
+      };
+      const updatedPerk = await prisma.benefit.update<Prisma.BenefitUpdateArgs>(
+        {
+          where: { id },
+          data: parsedData,
+          include: {
+            supplier: true,
+            categories: true,
+            photos: true,
+            beneficiaries: true,
+            availableFor: true,
+          },
+        }
+      );
+      return updatedPerk;
     } catch (err) {
-      return Promise.reject(err)
+      return Promise.reject(err);
     }
   },
 
@@ -541,6 +550,23 @@ const Benefit = {
       return benefits;
     } catch (err) {
       return Promise.reject(err);
+    }
+  },
+
+  // GET: /benefit/:id/availableFor
+  availableFor: async (benefitId: number) => {
+    try {
+      const benefit = await prisma.benefit.findFirst({
+        where: { id: benefitId },
+        include: {
+          availableFor: {
+            select: { id: true, name: true },
+          },
+        },
+      });
+      return benefit?.availableFor
+    } catch (err) {
+      return Promise.reject(err)
     }
   },
 };
