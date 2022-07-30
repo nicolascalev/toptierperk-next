@@ -35,6 +35,7 @@ export default function BottomNavigation(props: any) {
         {links.map((link: any, index) => (
           <Link key={index} href={link.url} passHref>
             <ActionIcon
+              component="a"
               color={router.pathname === link.url ? "primary" : undefined}
               variant={router.pathname === link.url ? "transparent" : undefined}
               style={{ width: "100%" }}
