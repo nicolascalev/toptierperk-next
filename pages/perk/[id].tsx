@@ -17,6 +17,7 @@ import {
   Center,
   Badge,
 } from "@mantine/core";
+import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -35,6 +36,7 @@ interface Props {
 
 const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
   const theme = useMantineTheme();
+  const isPerkAdmin = user.adminOfId === benefit.supplier.id;
 
   const [displayPhoto, setDisplayPhoto] = useState(0);
   function carouselLeft() {
@@ -134,6 +136,11 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
           <Button variant="default">Acquire</Button>
           <Button variant="default">Claim</Button>
           <Button variant="default">Save</Button>
+          {isPerkAdmin && (
+            <Link href={`/perk/${benefit.id}/update`} passHref>
+              <Button component="a" variant="default">Edit</Button>
+            </Link>
+          )}
         </Group>
       </div>
       <div style={{ padding: theme.spacing.md }}>
@@ -147,6 +154,21 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
           >
             At this moment this perk can&apos;t be used
           </Alert>
+        )}
+        {isPerkAdmin && (
+          // TODO: fetch stats (beneficiaries and available for)
+          <Group grow mb="md">
+            <div style={{ borderRight: startsAtBorder }}>
+              <Text color="dimmed">Beneficiaries</Text>
+              <Text>{15}</Text>
+            </div>
+            <div>
+              <Text color="dimmed">Available for</Text>
+              <Text>
+                {benefit.isPrivate ? 15 : 'Publicly available'}
+              </Text>
+            </div>
+          </Group>
         )}
         <Text color="dimmed">Description</Text>
         <Text mb="md">{benefit.description}</Text>
@@ -178,31 +200,34 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
           ))}
         </Group>
         <Text color="dimmed">Supplier</Text>
-        <Card
-          style={{
-            backgroundColor:
-              theme.colorScheme === "dark"
-                ? theme.colors.dark[6]
-                : theme.colors.gray[0],
-            marginTop: theme.spacing.md,
-          }}
-        >
-          {benefit.supplier.logo && (
-            <Center>
-              <Image
-                src={benefit.supplier.logo.url}
-                alt={benefit.supplier.name}
-                radius={100}
-                width={32}
-                height={32}
-              ></Image>
-            </Center>
-          )}
-          <Text weight={500} align="center">
-            {benefit.supplier.name}
-          </Text>
-          <Text align="center">{benefit.supplier.about}</Text>
-        </Card>
+        <Link href={"/company/" + benefit.supplier.id} passHref>
+          <Card
+            component="a"
+            style={{
+              backgroundColor:
+                theme.colorScheme === "dark"
+                  ? theme.colors.dark[6]
+                  : theme.colors.gray[0],
+              marginTop: theme.spacing.md,
+            }}
+          >
+            {benefit.supplier.logo && (
+              <Center>
+                <Image
+                  src={benefit.supplier.logo.url}
+                  alt={benefit.supplier.name}
+                  radius={100}
+                  width={32}
+                  height={32}
+                ></Image>
+              </Center>
+            )}
+            <Text weight={500} align="center">
+              {benefit.supplier.name}
+            </Text>
+            <Text align="center">{benefit.supplier.about}</Text>
+          </Card>
+        </Link>
       </div>
 
       <Drawer
