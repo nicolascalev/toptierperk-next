@@ -10,13 +10,15 @@ import {
   Header,
   Burger,
   Drawer,
-  Stack,
-  Anchor,
+  Box,
   createStyles,
   ScrollArea,
-  useMantineTheme,
+  Group,
+  ActionIcon,
+  NavLink,
 } from "@mantine/core";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { NotificationsProvider } from "@mantine/notifications";
 import {
   Scan,
@@ -26,35 +28,12 @@ import {
   BuildingSkyscraper,
 } from "tabler-icons-react";
 
-import BottomNavigation from "../components/BottomNavigation";
+import BottomNavigation from "components/BottomNavigation";
 
 import { UserProvider } from "@auth0/nextjs-auth0";
 
-const useStyles = createStyles((theme) => ({
-  collectionLink: {
-    display: "block",
-    paddingTop: theme.spacing.xs,
-    paddingBottom: theme.spacing.xs,
-    textDecoration: "none",
-    borderRadius: theme.radius.sm,
-    color:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[0]
-        : theme.colors.gray[7],
-    lineHeight: 1,
-
-    "&:hover": {
-      backgroundColor:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[6]
-          : theme.colors.gray[0],
-      color: theme.colorScheme === "dark" ? theme.white : theme.black,
-    },
-  },
-}));
-
 export default function App(props: AppProps) {
-  const { classes } = useStyles();
+  const router = useRouter();
 
   const { Component, pageProps } = props;
 
@@ -64,9 +43,8 @@ export default function App(props: AppProps) {
   const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
-  const dark = colorScheme === "dark";
 
-  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
 
   return (
     <UserProvider>
@@ -75,7 +53,7 @@ export default function App(props: AppProps) {
         toggleColorScheme={toggleColorScheme}
       >
         <Head>
-          <title>Page title</title>
+          <title>Toptierperk, B2B perks available for all size business</title>
           <meta
             name="viewport"
             content="minimum-scale=1, initial-scale=1, width=device-width"
@@ -115,12 +93,20 @@ export default function App(props: AppProps) {
                   style={{ borderBottom: "none" }}
                   fixed
                 >
-                  <Burger
-                    size={14}
-                    opened={opened}
-                    onClick={() => setOpened((o) => !o)}
-                    title={title}
-                  />
+                  <Group position="apart">
+                    <Burger
+                      size={14}
+                      opened={opened}
+                      onClick={() => setOpened((o) => !o)}
+                      title={title}
+                    />
+                    <ActionIcon
+                      onClick={() => toggleColorScheme()}
+                      title="Toggle scheme"
+                    >
+                      {isDark ? <Sun /> : <MoonStars />}
+                    </ActionIcon>
+                  </Group>
                 </Header>
               }
             >
@@ -135,49 +121,33 @@ export default function App(props: AppProps) {
               padding="xl"
             >
               <ScrollArea style={{ height: 250 }}>
-                <Stack justify="flex-start" spacing="xs">
+                <Box>
                   <Link href="/company/admin" passHref>
-                    <Anchor
+                    <NavLink
                       component="a"
-                      underline={false}
-                      className={classes.collectionLink}
-                    >
-                      <BuildingSkyscraper size={14} style={{ marginRight: 9 }} />
-                      Your company
-                    </Anchor>
+                      label="Your company"
+                      icon={<BuildingSkyscraper size={14} />}
+                      active={router.pathname == "/company/admin"}
+                    />
                   </Link>
-                  <Link href="/company/scan-costumer" passHref>
-                    <Anchor
+                  <Link href="/scan/costumer" passHref>
+                    <NavLink
                       component="a"
-                      underline={false}
-                      className={classes.collectionLink}
-                    >
-                      <Scan size={14} style={{ marginRight: 9 }} />
-                      Verify Costumer QR
-                    </Anchor>
+                      label="Verify Costumer QR"
+                      icon={<Scan size={14} />}
+                      active={router.pathname == "/scan/costumer"}
+                    />
                   </Link>
-                  <Anchor
-                    underline={false}
-                    className={classes.collectionLink}
-                    onClick={() => toggleColorScheme()}
-                  >
-                    {dark ? (
-                      <Sun size={14} style={{ marginRight: 9 }} />
-                    ) : (
-                      <MoonStars size={14} style={{ marginRight: 9 }} />
-                    )}
-                    Toggle theme
-                  </Anchor>
-                  <Anchor
-                    href="/api/auth/logout"
-                    component="a"
-                    underline={false}
-                    className={classes.collectionLink}
-                  >
-                    <Logout size={14} style={{ marginRight: 9 }} />
-                    Logout
-                  </Anchor>
-                </Stack>
+                  <Link href="/api/auth/logout" passHref>
+                    <NavLink
+                      variant="filled"
+                      color="red"
+                      component="a"
+                      label="Logout"
+                      icon={<Logout size={14} />}
+                    />
+                  </Link>
+                </Box>
               </ScrollArea>
             </Drawer>
           </NotificationsProvider>
