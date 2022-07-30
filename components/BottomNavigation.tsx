@@ -1,7 +1,7 @@
 import { Paper, ActionIcon, useMantineColorScheme } from "@mantine/core";
 import { SmartHome, Scan, BuildingSkyscraper, User } from "tabler-icons-react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import Link from "next/link";
 
 export default function BottomNavigation(props: any) {
   const { colorScheme } = useMantineColorScheme();
@@ -15,16 +15,12 @@ export default function BottomNavigation(props: any) {
   };
 
   const router = useRouter();
-  const initialActiveRoute = ["/", "/scan", "/company", "/profile"].includes(
-    router.pathname
-  )
-    ? router.pathname
-    : "";
-  const [activeLink, setActiveLink] = useState(initialActiveRoute);
-  function navigate(to: string) {
-    router.push(to);
-    setActiveLink(to);
-  }
+  const links = [
+    { url: "/", icon: <SmartHome /> },
+    { url: "/scan/company", icon: <Scan /> },
+    { url: "/company", icon: <BuildingSkyscraper /> },
+    { url: "/profile", icon: <User /> },
+  ]
 
   return (
     <Paper
@@ -36,42 +32,19 @@ export default function BottomNavigation(props: any) {
       }}
     >
       <div style={bottomNavigationStyles}>
-        <ActionIcon
-          color={activeLink == "/" ? "primary" : undefined}
-          variant={activeLink == "/" ? "transparent" : undefined}
-          style={{ width: "100%" }}
-          sx={(theme) => ({ margin: theme.spacing.xs })}
-          onClick={() => navigate("/")}
-        >
-          <SmartHome />
-        </ActionIcon>
-        <ActionIcon
-          color={activeLink == "/scan" ? "primary" : undefined}
-          variant={activeLink == "/scan" ? "transparent" : undefined}
-          style={{ width: "100%" }}
-          sx={(theme) => ({ margin: theme.spacing.xs })}
-          onClick={() => navigate("/scan")}
-        >
-          <Scan />
-        </ActionIcon>
-        <ActionIcon
-          color={activeLink == "/company" ? "primary" : undefined}
-          variant={activeLink == "/company" ? "transparent" : undefined}
-          style={{ width: "100%" }}
-          sx={(theme) => ({ margin: theme.spacing.xs })}
-          onClick={() => navigate("/company")}
-        >
-          <BuildingSkyscraper />
-        </ActionIcon>
-        <ActionIcon
-          color={activeLink == "/profile" ? "primary" : undefined}
-          variant={activeLink == "/profile" ? "transparent" : undefined}
-          style={{ width: "100%" }}
-          sx={(theme) => ({ margin: theme.spacing.xs })}
-          onClick={() => navigate("/profile")}
-        >
-          <User />
-        </ActionIcon>
+        {links.map((link: any, index) => (
+          <Link key={index} href={link.url} passHref>
+            <ActionIcon
+              color={router.pathname === link.url ? "primary" : undefined}
+              variant={router.pathname === link.url ? "transparent" : undefined}
+              style={{ width: "100%" }}
+              m="sx"
+              sx={(theme) => ({ margin: theme.spacing.xs })}
+            >
+              {link.icon}
+            </ActionIcon>
+          </Link>
+        ))}
       </div>
     </Paper>
   );
