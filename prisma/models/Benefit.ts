@@ -262,16 +262,19 @@ const Benefit = {
   // GET: /allowedbenefits
   // Find ALL benefits a company could see, wether acquired or not, private or not
 
-  // GET: /company/:id/benefits?acquired=true
-  // Find acquired benefits wether they are private or not, just show your own
+  // GET: /company/:id/benefits
+  // Find company benefits, private or not, acquired or not
   findAcquiredBenefits: async ({
     searchString = "",
     beneficiaryId,
     skip = undefined,
     take = undefined,
-    orderBy = "desc",
-    categories = [],
-  }: FindCompanyBenefitParams) => {
+    cursor = undefined,
+    category = undefined,
+    privacy = undefined,
+    acquired = undefined,
+    startsAt = new Date(),
+  }: any) => {
     try {
       if (!beneficiaryId) {
         throw new Error(
@@ -281,35 +284,47 @@ const Benefit = {
 
       const queryDateTime = new Date();
 
+      // TODO: use conditions in notes to determine isPrivate, beneficiaries, and availableFor
+      const beneficiaries =
+        acquired == true
+          ? {
+              some: {
+                id: beneficiaryId,
+              },
+            }
+          : acquired == false
+          ? {
+              none: {
+                id: beneficiaryId,
+              },
+            }
+          : undefined;
+
       const filters: Prisma.BenefitFindManyArgs = {
         where: {
           name: { contains: searchString },
           supplier: {
             paidMembership: true,
           },
-          categories: {
-            some: {
-              id: {
-                in: categories,
-              },
-            },
-          },
-          beneficiaries: {
-            some: {
-              id: beneficiaryId,
-            },
-          },
+          isPrivate: privacy,
+          categories: category ? { some: { id: category } } : undefined,
+          beneficiaries,
           startsAt: {
             // where it started before now
-            lt: queryDateTime,
+            lt: startsAt,
           },
-          // where it hasn't finished or there isn't finish date
-          OR: [
-            { finishesAt: null },
+          AND: [
+            // here goes the or for the other conditions
             {
-              finishesAt: {
-                gte: queryDateTime,
-              },
+              // where it hasn't finished or there isn't finish date
+              OR: [
+                { finishesAt: null },
+                {
+                  finishesAt: {
+                    gte: queryDateTime,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -318,17 +333,15 @@ const Benefit = {
           photos: true,
           supplier: true,
         },
-        take: Number(take) || undefined,
-        skip: Number(skip) || undefined,
+        cursor: {
+          id: cursor,
+        },
+        take,
+        skip,
         orderBy: {
-          createdAt: orderBy,
+          id: "desc",
         },
       };
-
-      if (categories.length <= 0) {
-        // delete filters.where.categories;
-        filters.where!.categories = {};
-      }
 
       const benefits = await prisma.benefit.findMany(filters);
 
