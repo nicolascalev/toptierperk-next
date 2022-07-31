@@ -3,7 +3,7 @@ import {
   useMantineTheme,
   Text,
   Box,
-  Input,
+  TextInput,
   Group,
   ActionIcon,
   Loader,
@@ -15,12 +15,25 @@ import {
 } from "@mantine/core";
 import { Filter } from "tabler-icons-react";
 import AppPerkCard from "../components/AppPerkCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DatePicker } from "@mantine/dates";
+import axios from "axios";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
 type PrivacyType = "all" | "private" | "public";
 
-const Home: NextPage = () => {
+type Filters = {
+  searchString: string;
+  category?: string;
+  startsAt?: Date;
+  isPrivate: undefined | boolean;
+};
+
+interface Props {
+  user: any;
+}
+
+const Home: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
 
@@ -47,6 +60,55 @@ const Home: NextPage = () => {
   }
   const isPrivate: undefined | boolean = getIsPrivate(selectedPrivacy);
 
+  const [category, setCategory] = useState("");
+  const [startsAt, setStartsAt] = useState<Date | null>(null);
+
+  const [filters, setFilters] = useState<Filters>({
+    searchString: "",
+    isPrivate: undefined,
+    category: undefined,
+    startsAt: undefined,
+  });
+  function onChangeSearchString(e: any) {
+    setFilters({
+      ...filters,
+      ...{ searchString: e.currentTarget?.value || "" },
+    });
+  }
+  function onCloseDrawer() {
+    setOpenedFilters(false);
+
+    if (
+      filters.isPrivate == isPrivate &&
+      filters.category == (category || undefined) &&
+      filters.startsAt == (startsAt || undefined)
+    ) {
+      return;
+    }
+
+    setFilters({
+      ...filters,
+      ...{
+        isPrivate: isPrivate,
+        category: category || undefined,
+        startsAt: startsAt || undefined,
+      },
+    });
+  }
+
+  useEffect(() => {
+    // async function loadPerks() {
+    //   try {
+    //     await axios.get(`/api/company/${user.company.id}/benefits`, {
+    //       params: {}
+    //     })
+    //   } catch (err) {
+    //     console.log(err, 'loading perks')
+    //   }
+    // }
+    // loadPerks()
+  }, [filters, user.company.id]);
+
   return (
     <Box>
       <Group
@@ -57,7 +119,9 @@ const Home: NextPage = () => {
           backgroundColor: filterBackground,
         }}
       >
-        <Input
+        <TextInput
+          value={filters.searchString}
+          onChange={onChangeSearchString}
           variant="default"
           placeholder="Search available perks"
           style={{ flexGrow: 1 }}
@@ -72,7 +136,7 @@ const Home: NextPage = () => {
 
       <Drawer
         opened={openedFilters}
-        onClose={() => setOpenedFilters(false)}
+        onClose={onCloseDrawer}
         title="Filters"
         padding="md"
         size="xl"
@@ -96,13 +160,16 @@ const Home: NextPage = () => {
             nothingFound="Not found"
             clearable
             data={[]}
-            value=""
+            value={category}
+            onChange={(val: string) => setCategory(val)}
           />
           <DatePicker
             placeholder="Pick date"
             label="Available on"
             description="Find perks that will be available on a certain day"
             minDate={new Date()}
+            value={startsAt}
+            onChange={setStartsAt}
           />
         </Stack>
       </Drawer>
@@ -111,3 +178,5 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export const getServerSideProps = withPageAuthRequired();
