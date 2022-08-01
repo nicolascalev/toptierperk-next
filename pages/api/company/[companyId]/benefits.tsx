@@ -19,6 +19,7 @@ export default async function findCompanyBenfits(
     const q = req.query
     const params: BenefitSearchParams = {
       beneficiaryId: companyId,
+      searchString: q.searchString as string || undefined,
       skip: q.skip ? Number(q.skip) : undefined,
       take: q.take ? Number(q.take) : undefined,
       cursor: q.cursor ? Number(q.cursor) : undefined,
