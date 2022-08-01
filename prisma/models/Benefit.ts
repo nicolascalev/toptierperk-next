@@ -52,6 +52,138 @@ type FindCompanyBenefitParams = {
 
 export type BenefitStatus = "ALL" | "ACTIVE" | "INACTIVE";
 
+export type BenefitSearchParams = {
+  searchString?: string;
+  beneficiaryId: number;
+  skip?: number | undefined;
+  take?: number | undefined;
+  cursor?: number | undefined;
+  category?: number | undefined;
+  privacy?: boolean | undefined;
+  acquired?: boolean | undefined;
+  startsAt?: Date | string | undefined;
+};
+
+type BooleanUndefined = boolean | undefined;
+type FilterReturn = {
+  availableFor: Prisma.CompanyListRelationFilter | undefined;
+  beneficiaries: Prisma.CompanyListRelationFilter | undefined;
+  isPrivate: boolean | undefined;
+  OR: Prisma.BenefitWhereInput | undefined;
+};
+
+function getQueryFilters(
+  privacy: BooleanUndefined,
+  acquired: BooleanUndefined,
+  beneficiaryId: number
+): FilterReturn {
+  const beneficiaryInList = {
+    some: {
+      id: beneficiaryId,
+    },
+  };
+  const beneficiaryNotInList = {
+    none: {
+      id: beneficiaryId,
+    },
+  };
+
+  // the ones where it has not been acquired
+  if (acquired == false && privacy == false) {
+    return {
+      availableFor: undefined,
+      beneficiaries: beneficiaryNotInList,
+      isPrivate: false,
+      OR: undefined,
+    };
+  }
+
+  if (acquired == false && privacy == true) {
+    return {
+      availableFor: beneficiaryInList,
+      beneficiaries: beneficiaryNotInList,
+      isPrivate: true,
+      OR: undefined,
+    };
+  }
+
+  if (acquired == false && privacy == undefined) {
+    return {
+      availableFor: undefined,
+      beneficiaries: beneficiaryNotInList,
+      isPrivate: undefined,
+      OR: {
+        OR: [{ isPrivate: false }, { availableFor: beneficiaryInList }],
+      },
+    };
+  }
+
+  // the ones where it has been acquired
+  if (acquired == true && privacy == false) {
+    return {
+      availableFor: undefined,
+      beneficiaries: beneficiaryInList,
+      isPrivate: false,
+      OR: undefined,
+    };
+  }
+
+  if (acquired == true && privacy == true) {
+    return {
+      availableFor: undefined,
+      beneficiaries: beneficiaryInList,
+      isPrivate: true,
+      OR: undefined,
+    };
+  }
+
+  if (acquired == true && privacy == undefined) {
+    return {
+      availableFor: undefined,
+      beneficiaries: beneficiaryInList,
+      isPrivate: undefined,
+      OR: undefined,
+    };
+  }
+
+  // the ones where it does not matter if it has been acquired
+  if (acquired == undefined && privacy == true) {
+    return {
+      availableFor: beneficiaryInList,
+      beneficiaries: undefined,
+      isPrivate: true,
+      OR: undefined,
+    };
+  }
+
+  if (acquired == undefined && privacy == false) {
+    return {
+      availableFor: beneficiaryInList,
+      beneficiaries: undefined,
+      isPrivate: undefined,
+      OR: undefined,
+    };
+  }
+
+  if (acquired == undefined && privacy == undefined) {
+    return {
+      availableFor: undefined,
+      beneficiaries: undefined,
+      isPrivate: undefined,
+      OR: {
+        OR: [{ isPrivate: false }, { availableFor: beneficiaryInList }],
+      },
+    };
+  }
+
+  return {
+    availableFor: undefined,
+    beneficiaries: undefined,
+    isPrivate: undefined,
+    OR: undefined,
+  };
+}
+
 const Benefit = {
   // POST: /benefit
   create: async ({
@@ -264,7 +396,7 @@ const Benefit = {
 
   // GET: /company/:id/benefits
   // Find company benefits, private or not, acquired or not
-  findAcquiredBenefits: async ({
+  adminBenefitSearch: async ({
     searchString = "",
     beneficiaryId,
     skip = undefined,
@@ -284,37 +416,27 @@ const Benefit = {
 
       const queryDateTime = new Date();
 
-      // TODO: use conditions in notes to determine isPrivate, beneficiaries, and availableFor
-      const beneficiaries =
-        acquired == true
-          ? {
-              some: {
-                id: beneficiaryId,
-              },
-            }
-          : acquired == false
-          ? {
-              none: {
-                id: beneficiaryId,
-              },
-            }
-          : undefined;
+      const { availableFor, beneficiaries, isPrivate, OR } = getQueryFilters(
+        privacy,
+        acquired,
+        beneficiaryId
+      );
 
       const filters: Prisma.BenefitFindManyArgs = {
         where: {
-          name: { contains: searchString },
+          name: searchString ? { contains: searchString } : undefined,
           supplier: {
             paidMembership: true,
           },
-          isPrivate: privacy,
+          isPrivate: isPrivate,
           categories: category ? { some: { id: category } } : undefined,
           beneficiaries,
+          availableFor,
           startsAt: {
             // where it started before now
-            lt: startsAt,
+            lt: typeof startsAt == "string" ? new Date(startsAt) : startsAt,
           },
           AND: [
-            // here goes the or for the other conditions
             {
               // where it hasn't finished or there isn't finish date
               OR: [
@@ -333,15 +455,34 @@ const Benefit = {
           photos: true,
           supplier: true,
         },
-        cursor: {
-          id: cursor,
-        },
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
         take,
         skip,
         orderBy: {
           id: "desc",
         },
       };
+
+      if (OR) {
+        filters!.where!.AND = [
+          OR,
+          {
+            // where it hasn't finished or there isn't finish date
+            OR: [
+              { finishesAt: null },
+              {
+                finishesAt: {
+                  gte: queryDateTime,
+                },
+              },
+            ],
+          },
+        ];
+      }
 
       const benefits = await prisma.benefit.findMany(filters);
 
