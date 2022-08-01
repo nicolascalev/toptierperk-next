@@ -158,9 +158,9 @@ function getQueryFilters(
 
   if (acquired == undefined && privacy == false) {
     return {
-      availableFor: beneficiaryInList,
+      availableFor: undefined,
       beneficiaries: undefined,
-      isPrivate: undefined,
+      isPrivate: false,
       OR: undefined,
     };
   }
@@ -406,7 +406,7 @@ const Benefit = {
     privacy = undefined,
     acquired = undefined,
     startsAt = new Date(),
-  }: any) => {
+  }: BenefitSearchParams) => {
     try {
       if (!beneficiaryId) {
         throw new Error(
@@ -424,7 +424,7 @@ const Benefit = {
 
       const filters: Prisma.BenefitFindManyArgs = {
         where: {
-          name: searchString ? { contains: searchString } : undefined,
+          name: { contains: searchString },
           supplier: {
             paidMembership: true,
           },
@@ -463,7 +463,7 @@ const Benefit = {
         take,
         skip,
         orderBy: {
-          id: "desc",
+          id: "asc",
         },
       };
 
