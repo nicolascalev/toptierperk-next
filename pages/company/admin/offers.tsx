@@ -51,11 +51,11 @@ const CompanyOffers: NextPage<Props> = ({ user, serverError }) => {
   }
 
   return (
-    <Box>
+    <Box mb={49}>
       <Box p="md">
         <Text size="lg" mb="md">
           Perks you are offering
-          { loadingOffers && <Loader ml="md" /> }
+          { loadingOffers && <Loader ml="md" size="sm" /> }
           { !loadingOffers ? " " + offers.length : "" }
         </Text>
         <SegmentedControl
@@ -68,7 +68,7 @@ const CompanyOffers: NextPage<Props> = ({ user, serverError }) => {
           ]}
         />
     </Box>
-      <Box p="md" sx={{minHeight: "90vh", backgroundColor }}>
+      <Box p="md" sx={{minHeight: "calc(100vh - 215px)", backgroundColor }}>
         {status === "active" && activeOffers.length === 0 && (
           <Text>No active perks found here</Text>
         )}
