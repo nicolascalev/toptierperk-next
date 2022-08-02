@@ -453,7 +453,13 @@ const Benefit = {
         include: {
           categories: true,
           photos: true,
-          supplier: true,
+          supplier: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+            }
+          },
         },
         cursor: cursor
           ? {
