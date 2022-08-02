@@ -17,6 +17,7 @@ import {
 import { Filter } from "tabler-icons-react";
 import AppPerkCard from "components/AppPerkCard";
 import AppCategorySelect from "components/AppCategorySelect";
+import AppPrivacySelect from "components/AppPrivacySelect";
 import { useState, useEffect } from "react";
 import { DatePicker } from "@mantine/dates";
 import axios from "axios";
@@ -24,7 +25,6 @@ import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useCallback } from "react";
 import { uniqBy, debounce } from "lodash";
 
-type PrivacyType = "all" | "private" | "public";
 type AquiredType = "all" | "acquired" | "notacquired";
 
 type Filters = {
@@ -60,22 +60,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
 
   const [searchString, setSearchString] = useState('')
 
-  const privacyOptions = [
-    { label: "All", value: "all" },
-    { label: "Private", value: "private" },
-    { label: "Public", value: "public" },
-  ];
-  const [selectedPrivacy, setSelectedPrivacy] = useState<PrivacyType>("all");
-  function getIsPrivate(value: PrivacyType) {
-    if (value == "private") {
-      return true;
-    }
-    if (value == "public") {
-      return false;
-    }
-    return undefined;
-  }
-  const isPrivate: boolean | undefined = getIsPrivate(selectedPrivacy);
+  const [isPrivate, setIsPrivate] = useState<undefined | boolean>(undefined);
 
   const acquiredOptions = [
     { label: "All", value: "all" },
@@ -196,7 +181,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
   }
 
   function clearFilters() {
-    setSelectedPrivacy("all");
+    setIsPrivate(undefined);
     setCategory(undefined);
     setStartsAt(null);
     setSelectedAcquired("all");
@@ -215,7 +200,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
         p="md"
         sx={{
           position: "sticky",
-          top: "48px",
+          top: "47px",
           backgroundColor: filterBackground,
           zIndex: 10,
           borderBottom,
@@ -267,15 +252,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
       >
         <Stack spacing="sm">
           <Box sx={{ width: "100%" }}>
-            <Text weight={500} size="sm" mb={1}>
-              Privacy
-            </Text>
-            <SegmentedControl
-              sx={{ width: "100%" }}
-              value={selectedPrivacy}
-              onChange={(val: PrivacyType) => setSelectedPrivacy(val)}
-              data={privacyOptions}
-            />
+            <AppPrivacySelect value={isPrivate} onChange={setIsPrivate} />
           </Box>
           <Box sx={{ width: "100%" }}>
             <Text weight={500} size="sm" mb={1}>
