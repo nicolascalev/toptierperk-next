@@ -1,13 +1,19 @@
-.logo {
-  width: 64px;
+.logo__container {
+  min-height: 34px;
+  min-width: 34px;
   height: 64px;
-  border-radius: 100px;
-  transition: all .5s;
+  width: 64px;
+  resize: both;
 }
 
-.logo.logo__shrink {
-  width: 32px;
-  height: 32px;
+.logo {
+  border-radius: 100px;
+  background-image: url('https://devttp.sfo3.cdn.digitaloceanspaces.com/companies/1656101124259zenitsu.png');
+  height: 100%;
+  width: 100%;
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover;
 }
 
 .company__info {
