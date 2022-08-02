@@ -12,6 +12,7 @@ import {
   Stack,
   SegmentedControl,
   Button,
+  Indicator,
 } from "@mantine/core";
 import { Filter } from "tabler-icons-react";
 import AppPerkCard from "components/AppPerkCard";
@@ -194,6 +195,20 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
     setTheresMore(true);
   }
 
+  function clearFilters() {
+    setSelectedPrivacy("all");
+    setCategory(undefined);
+    setStartsAt(null);
+    setSelectedAcquired("all");
+  }
+
+  const hasActiveFilters = () => {
+    if (Object.values(filters).map((val: any) => (val !== '' && val !== undefined)).includes(true)) {
+      return true
+    }
+    return false
+  }
+
   return (
     <Box sx={{ marginBottom: "49px" }}>
       <Group
@@ -213,9 +228,11 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
           placeholder="Search available perks"
           style={{ flexGrow: 1 }}
         />
-        <ActionIcon title="Open filters" onClick={() => setOpenedFilters(true)}>
-          <Filter></Filter>
-        </ActionIcon>
+        <Indicator disabled={!hasActiveFilters()}>
+          <ActionIcon title="Open filters" onClick={() => setOpenedFilters(true)}>
+            <Filter></Filter>
+          </ActionIcon>
+        </Indicator>
       </Group>
       <Box p="md" sx={{ backgroundColor: feedBackground, minHeight: "calc(100vh - 168px)" }}>
         {perks.length == 0 && !loadingPerks && (
@@ -280,6 +297,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
             value={startsAt}
             onChange={setStartsAt}
           />
+          {hasActiveFilters() && <Button onClick={clearFilters}>Clear filters</Button>}
         </Stack>
       </Drawer>
     </Box>
