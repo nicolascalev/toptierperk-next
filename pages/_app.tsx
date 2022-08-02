@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 import { AppProps } from "next/app";
 import Head from "next/head";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ColorSchemeProvider,
   MantineProvider,
@@ -41,8 +41,21 @@ export default function App(props: AppProps) {
   const title = opened ? "Close navigation" : "Open navigation";
 
   const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+  const toggleColorScheme = (value?: ColorScheme) => {
+    const theme = value || (colorScheme === "dark" ? "light" : "dark")
+    setColorScheme(theme);
+    localStorage.setItem('color-scheme', theme)
+  }
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('color-scheme') as ColorScheme | null;
+    if (storedTheme) {
+      console.log(storedTheme)
+      const parsedTheme: ColorScheme = storedTheme;
+      setColorScheme(parsedTheme)
+    } else {
+      localStorage.setItem('color-scheme', 'light')
+    }
+  }, []);
 
   const isDark = colorScheme === "dark";
 
@@ -77,7 +90,7 @@ export default function App(props: AppProps) {
                 "#FFD43B",
               ],
             },
-            loader: "dots",
+            // loader: "dots",
           }}
         >
           <NotificationsProvider position="bottom-center">
