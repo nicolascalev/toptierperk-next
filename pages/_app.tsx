@@ -49,7 +49,6 @@ export default function App(props: AppProps) {
   useEffect(() => {
     const storedTheme = localStorage.getItem('color-scheme') as ColorScheme | null;
     if (storedTheme) {
-      console.log(storedTheme)
       const parsedTheme: ColorScheme = storedTheme;
       setColorScheme(parsedTheme)
     } else {
