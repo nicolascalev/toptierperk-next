@@ -18,6 +18,7 @@ import { Filter } from "tabler-icons-react";
 import AppPerkCard from "components/AppPerkCard";
 import AppCategorySelect from "components/AppCategorySelect";
 import AppPrivacySelect from "components/AppPrivacySelect";
+import AppAquiredSelect from "components/AppAquiredSelect";
 import { useState, useEffect } from "react";
 import { DatePicker } from "@mantine/dates";
 import axios from "axios";
@@ -61,23 +62,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
   const [searchString, setSearchString] = useState('')
 
   const [isPrivate, setIsPrivate] = useState<undefined | boolean>(undefined);
-
-  const acquiredOptions = [
-    { label: "All", value: "all" },
-    { label: "Acquired", value: "acquired" },
-    { label: "Not acquired", value: "notacquired" },
-  ];
-  const [selectedAcquired, setSelectedAcquired] = useState<AquiredType>("all");
-  function getIsAquired(value: AquiredType) {
-    if (value == "acquired") {
-      return true;
-    }
-    if (value == "notacquired") {
-      return false;
-    }
-    return undefined;
-  }
-  const acquired: boolean | undefined = getIsAquired(selectedAcquired);
+  const [acquired, setAcquired] = useState<undefined | boolean>(undefined);
 
   const [category, setCategory] = useState<any>(undefined);
   const [startsAt, setStartsAt] = useState<Date | null>(null);
@@ -184,7 +169,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
     setIsPrivate(undefined);
     setCategory(undefined);
     setStartsAt(null);
-    setSelectedAcquired("all");
+    setAcquired(undefined);
   }
 
   const hasActiveFilters = () => {
@@ -255,15 +240,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
             <AppPrivacySelect value={isPrivate} onChange={setIsPrivate} />
           </Box>
           <Box sx={{ width: "100%" }}>
-            <Text weight={500} size="sm" mb={1}>
-              Acquired
-            </Text>
-            <SegmentedControl
-              sx={{ width: "100%" }}
-              value={selectedAcquired}
-              onChange={(val: AquiredType) => setSelectedAcquired(val)}
-              data={acquiredOptions}
-            />
+            <AppAquiredSelect value={acquired} onChange={setAcquired} />
           </Box>
           <AppCategorySelect onChange={setCategory} value={category} />
           <DatePicker
