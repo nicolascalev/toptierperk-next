@@ -13,38 +13,40 @@ import {
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useWindowScroll } from "react-use";
-import { debounce } from "lodash";
 import { AlertCircle } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import AppPerkCard from "components/AppPerkCard";
 
-const debounceScrollHandle = debounce((y, setShowCompanyInfo) => {
-  if (y <= 50) {
-    setShowCompanyInfo(true);
-  } else {
-    setShowCompanyInfo(false);
-  }
-}, 200);
-
-const useDisplayProfile = () => {
-  const [showCompanyInfo, setShowCompanyInfo] = useState(true);
-  const { y } = useWindowScroll();
-  debounceScrollHandle(y, setShowCompanyInfo);
-  const detailsOpacity = showCompanyInfo ? 1 : 0;
-
-  const logoClass = showCompanyInfo ? "logo" : "logo logo__shrink";
-  return { showCompanyInfo, detailsOpacity, logoClass };
-};
-
 interface Props {
   user: any;
+}
+
+function CompanyLogo(props: any) {
+  const { y } = useWindowScroll();
+  const [logoSize, setLogoSize] = useState(64);
+  useEffect(() => {
+    if (y < 300) {
+      setLogoSize(64 - y);
+    }
+  }, [y]);
+
+  return (
+    <div
+      className="logo__container"
+      style={{ width: logoSize, height: logoSize }}
+    >
+      <div
+        className="logo"
+        style={{ backgroundImage: `url(${props.logo})` }}
+      ></div>
+    </div>
+  );
 }
 
 const Company: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const router = useRouter();
-  const { logoClass, showCompanyInfo } = useDisplayProfile();
 
   const [loadingOffers, setLoadingOffers] = useState(false);
   const [offers, setOffers] = useState([]);
@@ -67,30 +69,20 @@ const Company: NextPage<Props> = ({ user }) => {
   }, [setLoadingOffers, setOffers, user.company.id]);
 
   const isDark = theme.colorScheme === "dark";
-  const logoContainerStyles: any = {
-    position: "sticky",
-    top: "50px",
-    display: "flex",
-    justifyContent: "center",
-    backgroundColor:
-      theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
-    zIndex: 11,
-    padding: theme.spacing.xs,
-  };
+
+  const logoContainerBg =
+    theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white;
 
   const tabListStyles: any = {
     position: "sticky",
-    top: !showCompanyInfo ? "101px" : "0px",
+    top: "102px",
     zIndex: 10,
     backgroundColor:
       theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+    borderBottom: "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da"),
   };
-  if (!showCompanyInfo) {
-    tabListStyles.borderBottom =
-      "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
-  }
 
-  let tabPanelStyles: any = { minHeight: "330px" };
+  let tabPanelStyles: any = { minHeight: "50vh" };
   if (isDark) {
     tabPanelStyles.backgroundColor = theme.colors.dark[8];
   } else {
@@ -103,28 +95,23 @@ const Company: NextPage<Props> = ({ user }) => {
 
   return (
     <div style={{ position: "relative", marginBottom: "49px" }}>
-      {user.company.logo && (
-        <div style={logoContainerStyles}>
-          {/* this div reduces impact of stats on scroll for now */}
-          <div
-            style={{
-              width: "100%",
-              height: "34px",
-              position: "absolute",
-              top: "-1px",
-              backgroundColor:
-                theme.colorScheme === "dark"
-                  ? theme.colors.dark[7]
-                  : theme.white,
-            }}
-          ></div>
-          <Image
-            src={user.company.logo?.url}
-            alt={user.company.name + " Toptierperk"}
-            imageProps={{ className: logoClass, style: undefined }}
-          ></Image>
-        </div>
-      )}
+      <Center
+        p="xs"
+        sx={{
+          height: "64px",
+          position: "sticky",
+          top: "49px",
+          zIndex: 11,
+          backgroundColor: logoContainerBg,
+        }}
+      >
+        <CompanyLogo
+          logo={
+            user.company.logo ||
+            "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+          }
+        />
+      </Center>
       <div
         style={{
           paddingRight: theme.spacing.md,
@@ -133,14 +120,9 @@ const Company: NextPage<Props> = ({ user }) => {
           display: "flex",
           flexWrap: "wrap",
         }}
-        className={
-          showCompanyInfo
-            ? "company__info"
-            : "company__info company__info_hidden"
-        }
       >
         <div style={{ width: "100%", textAlign: "center" }}>
-          <Text size="xl" weight={500}>
+          <Text mt="xs" size="xl" weight={500}>
             {user.company.name}
           </Text>
           <Paper radius="md" p="md">
