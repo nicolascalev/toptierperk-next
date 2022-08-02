@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import { useMantineTheme, Text } from "@mantine/core";
+import { Text, Box } from "@mantine/core";
 import AppPerkForm from "components/AppPerkForm";
 
 interface Props {
@@ -8,19 +8,18 @@ interface Props {
 }
 
 const CreatePerkPage: NextPage<Props> = ({ user }) => {
-  const theme = useMantineTheme();
 
   return (
     <div style={{ minHeight: "100vh", marginBottom: "49px" }}>
-      <div style={{ padding: theme.spacing.md }}>
-        <h2 style={{ marginBottom: 0 }}>Create Perk</h2>
-      </div>
+      <Box p="md">
+        <Text size="xl" weight={500}>Create perk</Text>
+      </Box>
       {user.adminOf ? (
         <AppPerkForm action="create"></AppPerkForm>
       ) : (
-        <div style={{ padding: theme.spacing.md }}>
+        <Box p="md">
           <Text>You have to be a company admin to create a perk</Text>
-        </div>
+        </Box>
       )}
     </div>
   );
