@@ -35,14 +35,18 @@ function AppCategorySelect(props: any) {
     }
   }, [data]);
 
-  useEffect(() => {
-    props.onChange(categories.find((cat : any) => cat.value === category) || undefined);
-  }, [category, categories, props]);
+  function onSelectChange(val: string) {
+    props.onChange(categories.find((cat : any) => cat.value === val) || undefined);
+    setCategory(val);
+  }
 
   useEffect(() => {
     if (props.value) {
       setCategories([props.value] as any)
       setCategory(props.value.value)
+    } else {
+      setCategories([]);
+      setCategory("");
     }
   }, [props])
 
@@ -56,7 +60,7 @@ function AppCategorySelect(props: any) {
       data={categories}
       value={category}
       onInput={(val: any) => setSearchString(val.currentTarget.value)}
-      onChange={(val: string) => setCategory(val)}
+      onChange={onSelectChange}
     />
   );
 }
