@@ -10,6 +10,8 @@ import {
   Alert,
   Loader,
   Center,
+  Box,
+  Anchor,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useWindowScroll } from "react-use";
@@ -17,6 +19,7 @@ import { AlertCircle } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import AppPerkCard from "components/AppPerkCard";
+import Link from "next/link";
 
 interface Props {
   user: any;
@@ -65,8 +68,10 @@ const Company: NextPage<Props> = ({ user }) => {
         setLoadingOffers(false);
       }
     }
-    loadOffers();
-  }, [setLoadingOffers, setOffers, user.company.id]);
+    if (user.company?.id) {
+      loadOffers();
+    }
+  }, [setLoadingOffers, setOffers, user.company?.id]);
 
   const isDark = theme.colorScheme === "dark";
 
@@ -90,7 +95,20 @@ const Company: NextPage<Props> = ({ user }) => {
   }
 
   if (!user.company) {
-    return <div>You have to be a part of a company or create one</div>;
+    return (
+      <Box p="md">
+        <Text>
+          You are not a part of a company yet, you can either
+          <Link href="/company/join" passHref>
+            <Anchor component="a"> join a company </Anchor>
+          </Link>
+          or
+          <Link href="/company/create" passHref>
+            <Anchor component="a"> create one.</Anchor>
+          </Link>
+        </Text>
+      </Box>
+    );
   }
 
   return (
@@ -107,7 +125,7 @@ const Company: NextPage<Props> = ({ user }) => {
       >
         <CompanyLogo
           logo={
-            user.company.logo ||
+            user.company.logo?.url ||
             "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
           }
         />
@@ -158,8 +176,11 @@ const Company: NextPage<Props> = ({ user }) => {
             style={{ marginTop: theme.spacing.md, position: "initial" }}
             onClick={() => router.push("/subscription")}
           >
-            You need to get a subscription to show offers and get perks, click
-            here
+            You need to 
+            <Link href="/subscription" passHref>
+              <Anchor component="a"> get a subscription </Anchor>
+            </Link>
+             to show offers and get perks.
           </Alert>
         )}
       </div>
