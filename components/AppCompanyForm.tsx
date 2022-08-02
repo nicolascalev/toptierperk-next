@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Photo } from "tabler-icons-react";
-import { debounce } from "lodash"
+import { debounce, isEmpty } from "lodash"
 import axios from "axios"
 
 function useFileUpload() {
@@ -58,7 +58,7 @@ const debounceFindCompany = debounce(async (name, form) => {
   if (data) {
     form.setFieldError("name", "Name has already been taken")
   } else {
-    form.setFieldError("name", "")
+    form.clearErrors();
   }
 }, 300)
 
@@ -78,6 +78,7 @@ function AppCompanyForm({ action, initialvalues, onSuccess, onError }: PropTypes
       name: "",
       about: "",
     },
+    validateInputOnChange: true,
   });
 
   const { fileInput, changeUploadFile, logo, parsedLogo, clickUploadfile } =
@@ -168,7 +169,7 @@ function AppCompanyForm({ action, initialvalues, onSuccess, onError }: PropTypes
         {/* TODO: add actual terms and conditions */}
         <Checkbox required label="I agree to Terms and Conditions" />
         <Group position="right">
-          <Button type="submit" loading={loading}>Create</Button>
+          <Button type="submit" disabled={!isEmpty(form.errors)} loading={loading}>Create</Button>
         </Group>
       </Stack>
     </form>
