@@ -1,20 +1,23 @@
 import { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { useMantineTheme, Text, Box, SegmentedControl, Loader } from "@mantine/core";
+import {
+  useMantineTheme,
+  Text,
+  Box,
+  SegmentedControl,
+  Loader,
+} from "@mantine/core";
 import AppPerkCard from "components/AppPerkCard";
-import Error from "next/error";
 import axios from "axios";
 
 interface Props {
   user: any;
-  serverError: any;
 }
 
-const CompanyOffers: NextPage<Props> = ({ user, serverError }) => {
+const CompanyOffers: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const [status, setStatus] = useState("active");
-  const filterIsDraft = status === "draft" ? true : false;
   const isDark = theme.colorScheme === "dark" ? true : false;
   const backgroundColor = isDark ? theme.colors.dark[8] : theme.colors.gray[1];
 
@@ -39,48 +42,51 @@ const CompanyOffers: NextPage<Props> = ({ user, serverError }) => {
     loadOffers();
   }, [setLoadingOffers, setOffers, user.company.id]);
 
-  const [activeOffers, setActiveOffers] = useState([])
-  const [drafts, setDrafts] = useState([])
+  const [activeOffers, setActiveOffers] = useState([]);
+  const [drafts, setDrafts] = useState([]);
   useEffect(() => {
-    setActiveOffers(offers.filter((offer:any) => offer.isActive === true))
-    setDrafts(offers.filter((offer:any) => offer.isActive === false))
-  }, [offers])
-
-  if (serverError) {
-    return <Error statusCode={serverError} />;
-  }
+    setActiveOffers(offers.filter((offer: any) => offer.isActive === true));
+    setDrafts(offers.filter((offer: any) => offer.isActive === false));
+  }, [offers]);
 
   return (
     <Box mb={49}>
       <Box p="md">
         <Text size="lg" mb="md">
           Perks you are offering
-          { loadingOffers && <Loader ml="md" size="sm" /> }
-          { !loadingOffers ? " " + offers.length : "" }
+          {loadingOffers && <Loader ml="md" size="sm" />}
         </Text>
         <SegmentedControl
           fullWidth
           value={status}
           onChange={setStatus}
           data={[
-            { label: "Active", value: "active" },
-            { label: "Draft", value: "draft" },
+            {
+              label: "Active " + (!loadingOffers ? activeOffers.length : ""),
+              value: "active",
+            },
+            {
+              label: "Draft " + (!loadingOffers ? drafts.length : ""),
+              value: "draft",
+            },
           ]}
         />
-    </Box>
-      <Box p="md" sx={{minHeight: "calc(100vh - 215px)", backgroundColor }}>
+      </Box>
+      <Box p="md" sx={{ minHeight: "calc(100vh - 215px)", backgroundColor }}>
         {status === "active" && activeOffers.length === 0 && (
           <Text>No active perks found here</Text>
         )}
         {status === "draft" && drafts.length === 0 && (
           <Text>No drafts found here</Text>
         )}
-        {status === "active" && activeOffers.map((offer:any) => (
-          <AppPerkCard key={offer.id} perk={offer} />
-        ))}
-        {status === "draft" && drafts.map((offer:any) => (
-          <AppPerkCard key={offer.id} perk={offer} />
-        ))}
+        {status === "active" &&
+          activeOffers.map((offer: any) => (
+            <AppPerkCard key={offer.id} perk={offer} />
+          ))}
+        {status === "draft" &&
+          drafts.map((offer: any) => (
+            <AppPerkCard key={offer.id} perk={offer} />
+          ))}
       </Box>
     </Box>
   );
@@ -92,8 +98,8 @@ export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
     const session = getSession(ctx.req, ctx.res);
     if (!session?.user.adminOf) {
-      return { props: { serverError: 401 } };
+      return { redirect: { destination: "/401", permanent: false } };
     }
-    return { props: { serverError: 0 } };
+    return { props: {} };
   },
 });
