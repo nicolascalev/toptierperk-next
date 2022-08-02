@@ -8,9 +8,10 @@ import {
   Badge,
   Image,
 } from "@mantine/core";
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Bookmark } from "tabler-icons-react";
+import { timeAgo } from "helpers/formatDate";
 
 export default function AppPerkCard(props: any) {
   const theme = useMantineTheme();
@@ -19,16 +20,6 @@ export default function AppPerkCard(props: any) {
   if (!props.perk) {
     throw new Error("perk prop must be provided");
   }
-
-  const secondaryColor =
-    theme.colorScheme === "dark" ? theme.colors.dark[1] : theme.colors.gray[7];
-
-  const CardHeaderStyles = {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
-  };
 
   const [displayPhoto, setDisplayPhoto] = useState(0);
   function carouselLeft(e: any) {
@@ -55,7 +46,27 @@ export default function AppPerkCard(props: any) {
         zIndex: 1,
       }}
     >
-      <Card p="sm" onClick={() => router.push('/perk/' + props.perk.id)}>
+      <Group position="apart" align="center" py="sm">
+        <Group align="center" spacing={4}>
+          <Image
+            width={25}
+            height={25}
+            radius={100}
+            src={
+              props.perk.supplier.logo?.url ||
+              "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+            }
+            alt={"Toptierperk " + props.perk.supplier.name}
+          />
+          <Text size="sm" color="dimmed">
+            {props.perk.supplier.name}
+          </Text>
+        </Group>
+        <Text size="sm" color="dimmed">
+          {timeAgo(props.perk.createdAt)}
+        </Text>
+      </Group>
+      <Card p="sm" onClick={() => router.push("/perk/" + props.perk.id)}>
         <Card.Section>
           {props.perk.photos.length > 0 && (
             <div style={{ width: "100%", position: "relative" }}>
@@ -100,17 +111,12 @@ export default function AppPerkCard(props: any) {
         </Card.Section>
 
         {/* TODO: add functionality like links and save button */}
-        <div style={CardHeaderStyles}>
-          <div>
-            <Text weight={500} size="sm">
-              {props.perk.supplier.name}
-            </Text>
-            <Text>{props.perk.name}</Text>
-          </div>
+        <Group position="apart" py="sm">
+          <Text>{props.perk.name}</Text>
           <ActionIcon style={{ alignSelf: "start" }}>
             <Bookmark />
           </ActionIcon>
-        </div>
+        </Group>
 
         {/* <Text size="sm" style={{ color: secondaryColor, lineHeight: 1.5 }}>
           With Fjord Tours you can explore more of the magical fjord landscapes

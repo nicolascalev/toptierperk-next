@@ -12,3 +12,7 @@ export default function formatDate(timestamp, format) {
 
   return moment(timestamp).format(allowedFormats[format])
 }
+
+export function timeAgo(timestamp) {
+  return moment(timestamp).startOf('hour').fromNow()
+}
