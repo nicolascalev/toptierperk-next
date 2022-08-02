@@ -458,7 +458,7 @@ const Benefit = {
               id: true,
               name: true,
               logo: true,
-            }
+            },
           },
         },
         cursor: cursor
@@ -469,7 +469,7 @@ const Benefit = {
         take,
         skip,
         orderBy: {
-          id: "asc",
+          id: "desc",
         },
       };
 
@@ -700,7 +700,7 @@ const Benefit = {
           ],
         },
         include: {
-          supplier: { select: { id: true, name: true } },
+          supplier: { select: { id: true, name: true, logo: true } },
           categories: { select: { id: true, name: true } },
           photos: true,
         },
