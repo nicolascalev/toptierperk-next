@@ -16,6 +16,7 @@ import {
   Group,
   ActionIcon,
   NavLink,
+  Button,
 } from "@mantine/core";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -42,19 +43,25 @@ export default function App(props: AppProps) {
 
   const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
   const toggleColorScheme = (value?: ColorScheme) => {
-    const theme = value || (colorScheme === "dark" ? "light" : "dark")
+    const theme = value || (colorScheme === "dark" ? "light" : "dark");
     setColorScheme(theme);
-    localStorage.setItem('color-scheme', theme)
-  }
+    localStorage.setItem("color-scheme", theme);
+  };
   useEffect(() => {
-    const storedTheme = localStorage.getItem('color-scheme') as ColorScheme | null;
+    const storedTheme = localStorage.getItem(
+      "color-scheme"
+    ) as ColorScheme | null;
     if (storedTheme) {
       const parsedTheme: ColorScheme = storedTheme;
-      setColorScheme(parsedTheme)
+      setColorScheme(parsedTheme);
     } else {
-      localStorage.setItem('color-scheme', 'light')
+      localStorage.setItem("color-scheme", "light");
     }
   }, []);
+
+  useEffect(() => {
+    setOpened(false);
+  }, [router.pathname]);
 
   const isDark = colorScheme === "dark";
 
@@ -112,12 +119,12 @@ export default function App(props: AppProps) {
                       onClick={() => setOpened((o) => !o)}
                       title={title}
                     />
-                    <ActionIcon
+                    {/* <ActionIcon
                       onClick={() => toggleColorScheme()}
                       title="Toggle scheme"
                     >
                       {isDark ? <Sun /> : <MoonStars />}
-                    </ActionIcon>
+                    </ActionIcon> */}
                   </Group>
                 </Header>
               }
@@ -130,9 +137,9 @@ export default function App(props: AppProps) {
               opened={opened}
               onClose={() => setOpened(false)}
               title="Toptierperk"
-              padding="xl"
+              padding="md"
             >
-              <ScrollArea style={{ height: 250 }}>
+              <ScrollArea style={{ height: 282 }}>
                 <Box>
                   <Link href="/company/admin" passHref>
                     <NavLink
@@ -159,6 +166,14 @@ export default function App(props: AppProps) {
                       icon={<Logout size={14} />}
                     />
                   </Link>
+                  <Button
+                    fullWidth
+                    color={isDark ? "primary" : "dark"}
+                    onClick={() => toggleColorScheme()}
+                    rightIcon={isDark ? <Sun /> : <MoonStars />}
+                  >
+                    Toggle theme
+                  </Button>
                 </Box>
               </ScrollArea>
             </Drawer>
