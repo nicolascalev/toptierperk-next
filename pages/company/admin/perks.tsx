@@ -11,12 +11,11 @@ import {
   Drawer,
   Stack,
   SegmentedControl,
-  Select,
   Button,
 } from "@mantine/core";
-import Error from "next/error";
 import { Filter } from "tabler-icons-react";
 import AppPerkCard from "components/AppPerkCard";
+import AppCategorySelect from "components/AppCategorySelect";
 import { useState, useEffect } from "react";
 import { DatePicker } from "@mantine/dates";
 import axios from "axios";
@@ -37,7 +36,6 @@ type Filters = {
 
 interface Props {
   user: any;
-  serverError: any;
 }
 
 const debSetFilter = debounce((resetSearch, setFilters, searchString) => {
@@ -48,7 +46,7 @@ const debSetFilter = debounce((resetSearch, setFilters, searchString) => {
   }));
 }, 500)
 
-const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
+const AvailablePerksView: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
 
@@ -95,7 +93,7 @@ const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
   }
   const acquired: boolean | undefined = getIsAquired(selectedAcquired);
 
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<any>(undefined);
   const [startsAt, setStartsAt] = useState<Date | null>(null);
 
   const [filters, setFilters] = useState<Filters>({
@@ -116,7 +114,7 @@ const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
 
     if (
       filters.isPrivate == isPrivate &&
-      filters.category == (category || undefined) &&
+      filters.category == (category?.value || undefined) &&
       filters.startsAt == (startsAt || undefined) &&
       filters.acquired == acquired
     ) {
@@ -128,7 +126,7 @@ const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
       ...filters,
       ...{
         isPrivate: isPrivate,
-        category: category || undefined,
+        category: category?.value || undefined,
         startsAt: startsAt || undefined,
         acquired: acquired,
       },
@@ -150,7 +148,7 @@ const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
             skip: skip,
             take: 10,
             cursor: cursor,
-            // category: undefined,
+            category: filters.category,
             privacy: filters.isPrivate,
             acquired: filters.acquired,
             startsAt: filters.startsAt,
@@ -176,6 +174,7 @@ const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
   }, [
     cursor,
     filters.acquired,
+    filters.category,
     filters.isPrivate,
     filters.searchString,
     filters.startsAt,
@@ -201,7 +200,7 @@ const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
         p="md"
         sx={{
           position: "sticky",
-          top: "50px",
+          top: "48px",
           backgroundColor: filterBackground,
           zIndex: 10,
           borderBottom,
@@ -218,7 +217,7 @@ const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
           <Filter></Filter>
         </ActionIcon>
       </Group>
-      <Box p="md" sx={{ backgroundColor: feedBackground, minHeight: "80vh" }}>
+      <Box p="md" sx={{ backgroundColor: feedBackground, minHeight: "calc(100vh - 168px)" }}>
         {perks.length == 0 && !loadingPerks && (
           <Text>No results at the moment</Text>
         )}
@@ -272,15 +271,7 @@ const AvailablePerksView: NextPage<Props> = ({ user, serverError }) => {
               data={acquiredOptions}
             />
           </Box>
-          <Select
-            label="Category"
-            placeholder="Select category"
-            nothingFound="Not found"
-            clearable
-            data={[]}
-            value={category}
-            onChange={(val: string) => setCategory(val)}
-          />
+          <AppCategorySelect onChange={setCategory} value={category} />
           <DatePicker
             placeholder="Pick date"
             label="Available on"
@@ -301,8 +292,8 @@ export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
     const session = getSession(ctx.req, ctx.res);
     if (!session?.user.adminOf) {
-      return { props: { serverError: 401 } };
+      return { redirect: { destination: '/401', permanent: false } };
     }
-    return { props: { serverError: 0 } };
+    return { props: {} };
   },
 });

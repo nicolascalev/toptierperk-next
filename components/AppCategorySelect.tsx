@@ -36,8 +36,15 @@ function AppCategorySelect(props: any) {
   }, [data]);
 
   useEffect(() => {
-    props.onChange(category || undefined);
-  }, [category, props]);
+    props.onChange(categories.find((cat : any) => cat.value === category) || undefined);
+  }, [category, categories, props]);
+
+  useEffect(() => {
+    if (props.value) {
+      setCategories([props.value] as any)
+      setCategory(props.value.value)
+    }
+  }, [props])
 
   return (
     <Select
