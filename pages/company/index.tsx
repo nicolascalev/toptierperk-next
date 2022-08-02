@@ -82,7 +82,7 @@ const Company: NextPage<Props> = ({ user }) => {
     borderBottom: "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da"),
   };
 
-  let tabPanelStyles: any = { minHeight: "50vh" };
+  let tabPanelStyles: any = { minHeight: "calc(100vh - 349px)" };
   if (isDark) {
     tabPanelStyles.backgroundColor = theme.colors.dark[8];
   } else {
