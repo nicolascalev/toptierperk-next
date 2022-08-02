@@ -16,16 +16,38 @@ const CompanyAdmin: NextPage<Props> = ({ user, serverError }) => {
   }
 
   const links: any[] = [
-    { url: '/company/profile', label: 'Edit profile', disabled: false },
-    { url: '/company/subscription', label: 'Manage subscription', disabled: false },
-    { url: '/perk/create', label: 'Create perk', disabled: false },
-    { url: '/company/admin/offers', label: 'List your offered perks', disabled: false },
-    { url: '/company/admin/available-perks', label: 'Find available perks', disabled: false },
-    { url: '/company/admin/acquired-perks', label: 'Find acquired perks', disabled: false },
-    { url: '/company/employees', label: 'Allowed employees', disabled: false },
-    { url: '/company/verifiers', label: 'Allowed verifiers', disabled: false },
-    { url: '/company/analitycs', label: 'Analytics', disabled: true },
-  ]
+    { url: "/company/profile", label: "Edit profile", disabled: false },
+    {
+      url: "/company/subscription",
+      label: "Manage subscription",
+      disabled: false,
+    },
+    { url: "/perk/create", label: "Create perk", disabled: false },
+    {
+      url: "/company/admin/offers",
+      label: "List your offered perks",
+      disabled: false,
+    },
+    {
+      url: "/company/admin/perks",
+      label: "Find available perks",
+      description: "Perks you can acquire to offer to your employees",
+      disabled: false,
+    },
+    {
+      url: "/company/employees",
+      label: "Allowed employees",
+      description: "List of active and allowed emloyees",
+      disabled: false,
+    },
+    {
+      url: "/company/verifiers",
+      label: "Allowed verifiers",
+      description: "Employees capable of verifying claims",
+      disabled: false,
+    },
+    { url: "/company/analitycs", label: "Analytics", disabled: true },
+  ];
   return (
     <Box sx={{ position: "relative", marginBottom: "49px" }}>
       <Group p="md">
@@ -40,7 +62,9 @@ const CompanyAdmin: NextPage<Props> = ({ user, serverError }) => {
           <Text size="xl" weight={500}>
             {user.adminOf.name} admin
           </Text>
-          <Text color="dimmed" size="sm">Allowed actions for admins</Text>
+          <Text color="dimmed" size="sm">
+            Allowed actions for admins
+          </Text>
         </div>
       </Group>
       <Box p="sm">
@@ -49,6 +73,7 @@ const CompanyAdmin: NextPage<Props> = ({ user, serverError }) => {
             <NavLink
               component="a"
               label={link.label}
+              description={link.description || ""}
               rightSection={<ChevronRight size={12} />}
               disabled={link.disabled}
             />

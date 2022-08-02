@@ -144,6 +144,7 @@ export default function App(props: AppProps) {
                   <Link href="/company/admin" passHref>
                     <NavLink
                       component="a"
+                      variant="subtle"
                       label="Your company"
                       icon={<BuildingSkyscraper size={14} />}
                       active={router.pathname == "/company/admin"}
@@ -152,6 +153,7 @@ export default function App(props: AppProps) {
                   <Link href="/scan/costumer" passHref>
                     <NavLink
                       component="a"
+                      variant="subtle"
                       label="Verify Costumer QR"
                       icon={<Scan size={14} />}
                       active={router.pathname == "/scan/costumer"}
