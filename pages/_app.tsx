@@ -84,6 +84,7 @@ export default function App(props: AppProps) {
           withNormalizeCSS
           theme={{
             colorScheme,
+            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
             colors: {
               "bright-yellow": [
                 "#FFD43B",

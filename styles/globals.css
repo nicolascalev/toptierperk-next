@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
 .logo__container {
   min-height: 34px;
   min-width: 34px;
@@ -23,4 +25,8 @@
 
 .company__info.company__info_hidden {
   opacity: 0;
+}
+
+.mantine-Button-label {
+  font-weight: 300;
 }
