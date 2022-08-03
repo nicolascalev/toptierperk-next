@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
-import Benefit, { BenefitCreateParams } from "../../../prisma/models/Benefit";
+import Benefit, { BenefitCreateParams } from "prisma/models/Benefit";
 import Joi from "joi";
-import isAuthenticated from "../../../helpers/isAuthenticated";
-import parseFormData from "../../../helpers/parse-form-data";
-import uploadFile from "../../../helpers/upload-file";
+import isAuthenticated from "helpers/isAuthenticated";
+import parseFormData from "helpers/parse-form-data";
+import uploadFile from "helpers/upload-file";
 
 export const config = {
   api: {
@@ -43,7 +43,15 @@ export default async function userHandler(
       const session = getSession(req, res);
 
       if (!session!.user.adminOf) {
-        return res.status(401).send("Unauthorized")
+        return res.status(401).send("Unauthorized");
+      }
+
+      if (!session!.user.adminOf.paidMembership) {
+        return res
+          .status(404)
+          .json({
+            error: "You can not create perks without a paid membership.",
+          });
       }
 
       const data: BenefitCreateParams = {
@@ -51,6 +59,7 @@ export default async function userHandler(
         description: body.description,
         categories: body.categories ? body.categories.split(",") : [],
         supplier: session!.user.adminOf.id,
+        // TODO: add supllier to beneficiaries, maybe from the frontend
         beneficiaries: body.beneficiaries
           ? body.beneficiaries.split(",").map((id: string) => Number(id))
           : [],
@@ -65,6 +74,9 @@ export default async function userHandler(
         finishesAt: body.finishesAt,
       };
 
+      data.beneficiaries.push(session!.user.adminOfId);
+      data.availableFor!.push(session!.user.adminOfId);
+
       const { value: validatedData, error: validationError } =
         createBenefitSchema.validate(data);
       if (validationError) {
@@ -76,7 +88,9 @@ export default async function userHandler(
         const photos = files.photos.length ? files.photos : [files.photos];
         const today = new Date().toLocaleDateString().split("/").join("-");
         const upload = await uploadFile(photos, `benefits/${today}/`);
-        const uploadedPhotos = upload.success.map((up) => ({ url: up.Location }));
+        const uploadedPhotos = upload.success.map((up) => ({
+          url: up.Location,
+        }));
         validatedData.photos = uploadedPhotos;
       }
 
