@@ -44,7 +44,7 @@ model Company {
   privateBenefitsAvailable Benefit[] @relation(name: "AvailableFor")
   claims                   Claim[]
   claimAmount              Int       @default(0)
-  allowedEmployeeEmails    Json      @default("[]")
+  allowedEmployeeEmails    Json      @default("\"[]\"")
 }
 
 model Benefit {
