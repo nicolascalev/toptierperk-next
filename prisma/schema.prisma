@@ -43,6 +43,8 @@ model Company {
   benefitsFrom             Benefit[] @relation(name: "Beneficiaries")
   privateBenefitsAvailable Benefit[] @relation(name: "AvailableFor")
   claims                   Claim[]
+  claimAmount              Int       @default(0)
+  allowedEmployeeEmails    Json      @default("[]")
 }
 
 model Benefit {
@@ -61,6 +63,7 @@ model Benefit {
   availableFor    Company[]  @relation(name: "AvailableFor")
   isActive        Boolean    @default(true)
   claims          Claim[]
+  claimAmount     Int        @default(0)
   savedBy         User[]
   useLimit        Int?
   useLimitPerUser Int?
@@ -85,12 +88,13 @@ model Photo {
 }
 
 model Claim {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  benefitId Int
-  benefit   Benefit  @relation(fields: [benefitId], references: [id])
-  userId    Int      @unique
-  user      User     @relation(fields: [userId], references: [id])
-  companyId Int      @unique
-  company   Company  @relation(fields: [companyId], references: [id])
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  benefitId  Int
+  benefit    Benefit   @relation(fields: [benefitId], references: [id])
+  userId     Int       @unique
+  user       User      @relation(fields: [userId], references: [id])
+  companyId  Int       @unique
+  company    Company   @relation(fields: [companyId], references: [id])
+  approvedAt DateTime?
 }
