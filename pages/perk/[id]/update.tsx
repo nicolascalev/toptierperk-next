@@ -2,15 +2,13 @@ import { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/router";
-import { useMantineTheme, Text, Loader, Center } from "@mantine/core";
+import { useMantineTheme, Text, Box, Loader, Center } from "@mantine/core";
 import AppPerkForm from "components/AppPerkForm";
 import axios from "axios";
-import Error from "next/error";
 import Benefit from "prisma/models/Benefit";
 
 interface Props {
   user: any;
-  serverError: any;
 }
 
 function useFetchPerk(perkId: string) {
@@ -39,29 +37,23 @@ function useFetchPerk(perkId: string) {
   };
 }
 
-const UpdatePerkPage: NextPage<Props> = ({ user, serverError }) => {
+const UpdatePerkPage: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const router = useRouter();
   const { loadingPerk, perk, loadPerkError } = useFetchPerk(
     router.query.id as string
   );
 
-  if (serverError) {
-    return (<Error statusCode={serverError}></Error>)
-  }
-
   return (
-    <div style={{ minHeight: "100vh", marginBottom: "49px" }}>
-      <div style={{ padding: theme.spacing.md }}>
-        <h2 style={{ marginBottom: 0 }}>Update Perk</h2>
-      </div>
+    <div style={{ marginBottom: "49px" }}>
+      <Box p="md">
+        <Text size="xl" mb={0}>Update Perk</Text>
+      </Box>
       {loadingPerk && (
         <Center>
-          <Loader></Loader>
+          <Loader size="sm"></Loader>
         </Center>
       )}
-      {loadPerkError && <Error statusCode={loadPerkError.status}></Error>}
-      {/* TODO: pass perk to AppPerkForm for update */}
       {perk && !loadPerkError && (
         <AppPerkForm action="update" perk={perk}></AppPerkForm>
       )}
@@ -78,13 +70,13 @@ export const getServerSideProps = withPageAuthRequired({
       const perkId = Number(ctx.query.id);
       const perk = await Benefit.findById(perkId);
       if (!perk) {
-        return { props: { serverError: 404 } }
+        return { redirect: { destination: '/404', permanent: false } };
       }
       if (perk.supplier.id !== session!.user.adminOfId) {
-        return { props: { serverError: 403 } };
+        return { redirect: { destination: '/403', permanent: false } };
       }
   
-      return { props: { serverError: 0 } };
+      return { props: {} };
     } catch (err) {
       throw err;
     }
