@@ -7,9 +7,13 @@ import {
   Box,
   SegmentedControl,
   Loader,
+  Group,
+  Button,
+  Center,
 } from "@mantine/core";
 import AppPerkCard from "components/AppPerkCard";
 import axios from "axios";
+import Link from "next/link";
 
 interface Props {
   user: any;
@@ -52,10 +56,16 @@ const CompanyOffers: NextPage<Props> = ({ user }) => {
   return (
     <Box mb={49}>
       <Box p="md">
-        <Text size="lg" mb="md">
-          Perks you are offering
-          {loadingOffers && <Loader ml="md" size="sm" />}
-        </Text>
+        <Group align="center" position="apart" py="sm">
+          <Text size="lg">
+            Perks you are offering
+          </Text>
+          <Link href="/perk/create" passHref>
+            <Button component="a" variant="filled">
+              Create
+            </Button>
+          </Link>
+        </Group>
         <SegmentedControl
           fullWidth
           value={status}
@@ -72,11 +82,16 @@ const CompanyOffers: NextPage<Props> = ({ user }) => {
           ]}
         />
       </Box>
-      <Box p="md" sx={{ minHeight: "calc(100vh - 215px)", backgroundColor }}>
-        {status === "active" && activeOffers.length === 0 && (
+      <Box p="md" sx={{ minHeight: "calc(100vh - 231px)", backgroundColor }}>
+        {loadingOffers && (
+          <Center>
+            <Loader ml="md" size="sm" />
+          </Center>
+        )}
+        {!loadingOffers && status === "active" && activeOffers.length === 0 && (
           <Text>No active perks found here</Text>
         )}
-        {status === "draft" && drafts.length === 0 && (
+        {!loadingOffers && status === "draft" && drafts.length === 0 && (
           <Text>No drafts found here</Text>
         )}
         {status === "active" &&
