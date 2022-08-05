@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { NextPage } from "next";
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0";
+import axios from "axios";
+import useSWR from "swr";
 import {
   useMantineTheme,
   AspectRatio,
@@ -16,6 +18,7 @@ import {
   Card,
   Center,
   Badge,
+  Loader,
 } from "@mantine/core";
 import Link from "next/link";
 import {
@@ -25,18 +28,28 @@ import {
   AlertCircle,
   Bookmark,
 } from "tabler-icons-react";
-import formatDate from "../../helpers/formatDate";
+import formatDate from "helpers/formatDate";
 
-import Benefit from "../../prisma/models/Benefit";
+import Benefit from "prisma/models/Benefit";
 
 interface Props {
-  user: any;
   benefit: any;
 }
 
-const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+
+const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
   const theme = useMantineTheme();
-  const isPerkAdmin = user.adminOfId === benefit.supplier.id;
+  const { user } = useUser();
+  const isPerkAdmin = !user || user.adminOfId === benefit.supplier.id;
+
+  const { data: stats, error: loadStatsError }: any = useSWR(
+    user && user.adminOfId === benefit.supplier.id
+      ? `/api/benefit/${benefit.id}/stats`
+      : null,
+    fetcher
+  );
+  const loadingStats = !stats && !loadStatsError;
 
   const [displayPhoto, setDisplayPhoto] = useState(0);
   function carouselLeft() {
@@ -84,9 +97,22 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
     return "This perk offer is unlimited";
   }
 
+  function getPerkInactiveError(): string {
+    if (!benefit.isActive) {
+      return "This perk is not available for claims at the moment";
+    }
+    if (!benefit.supplier.paidMembership) {
+      return "Perk currently unavailable, needs confirmation from supplier";
+    }
+    if (benefit.useLimit && benefit.claimAmount >= benefit.useLimit) {
+      return "This perk reached use limit amount";
+    }
+    return "";
+  }
+
   return (
     // TODO: add seo fields
-    <div style={{ minHeight: "100vh", marginBottom: "49px" }}>
+    <div style={{ marginBottom: "49px" }}>
       {benefit.photos.length > 0 && (
         <div style={{ width: "100%", position: "relative" }}>
           <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
@@ -138,13 +164,15 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
           <Button variant="default">Save</Button>
           {isPerkAdmin && (
             <Link href={`/perk/${benefit.id}/update`} passHref>
-              <Button component="a" variant="default">Edit</Button>
+              <Button component="a" variant="default">
+                Edit
+              </Button>
             </Link>
           )}
         </Group>
       </div>
       <div style={{ padding: theme.spacing.md }}>
-        {benefit.isActive === false && (
+        {getPerkInactiveError() && (
           <Alert
             mb="md"
             sx={{ zIndex: 1 }}
@@ -152,7 +180,7 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
             title="Perk is not active"
             color="red"
           >
-            At this moment this perk can&apos;t be used
+            {getPerkInactiveError()}
           </Alert>
         )}
         {isPerkAdmin && (
@@ -160,18 +188,28 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
           <Group grow mb="md">
             <div style={{ borderRight: startsAtBorder }}>
               <Text color="dimmed">Beneficiaries</Text>
-              <Text>{15}</Text>
+              {loadingStats && <Loader size="sm" />}
+              {!loadingStats && stats && <Text>{stats.beneficiaries}</Text>}
             </div>
             <div>
               <Text color="dimmed">Available for</Text>
-              <Text>
-                {benefit.isPrivate ? 15 : 'Publicly available'}
-              </Text>
+              {loadingStats ? (
+                <Loader size="sm" />
+              ) : (
+                <Text>
+                  {benefit.isPrivate
+                    ? !loadingStats &&
+                      stats && <Text>{stats.availableFor}</Text>
+                    : "Publicly available"}
+                </Text>
+              )}
             </div>
           </Group>
         )}
         <Text color="dimmed">Description</Text>
-        <Text mb="md">{benefit.description}</Text>
+        <Text mb="md" style={{ whiteSpace: "pre-wrap" }}>
+          {benefit.description}
+        </Text>
         <Group grow mb="md">
           <div style={{ borderRight: startsAtBorder }}>
             <Text color="dimmed">Starts At</Text>
@@ -266,28 +304,22 @@ const PerkDetailsPage: NextPage<Props> = ({ user, benefit }) => {
 
 export default PerkDetailsPage;
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(ctx) {
-    // access the user session
-    // const session = getSession(ctx.req, ctx.res);
-
-    const perkId = Number(ctx.query.id);
-    try {
-      let benefit: any = await Benefit.findById(perkId);
-      if (!benefit) {
-        return { props: { benefit } };
-      }
-
-      benefit.createdAt = benefit.createdAt?.getTime() || null;
-      benefit.startsAt = benefit.startsAt?.getTime() || null;
-      benefit.finishesAt = benefit.finishesAt?.getTime() || null;
-      benefit.supplier.createdAt =
-        benefit.supplier.createdAt?.getTime() || null;
-      delete benefit.supplier.paypalSubscriptionId;
-
-      return { props: { benefit } };
-    } catch (err) {
-      throw err;
+export async function getServerSideProps(ctx: any) {
+  const perkId = Number(ctx.query.id);
+  try {
+    let benefit: any = await Benefit.findById(perkId);
+    if (!benefit) {
+      return { redirect: { destination: "/404", permanent: false } };
     }
-  },
-});
+
+    benefit.createdAt = benefit.createdAt?.getTime() || null;
+    benefit.startsAt = benefit.startsAt?.getTime() || null;
+    benefit.finishesAt = benefit.finishesAt?.getTime() || null;
+    benefit.supplier.createdAt = benefit.supplier.createdAt?.getTime() || null;
+    delete benefit.supplier.paypalSubscriptionId;
+
+    return { props: { benefit } };
+  } catch (err) {
+    throw err;
+  }
+}
