@@ -11,7 +11,7 @@ import {
   Burger,
   Drawer,
   Box,
-  createStyles,
+  Text,
   ScrollArea,
   Group,
   ActionIcon,
@@ -32,6 +32,7 @@ import {
 import BottomNavigation from "components/BottomNavigation";
 
 import { UserProvider } from "@auth0/nextjs-auth0";
+import AppLogo from "components/AppLogo";
 
 export default function App(props: AppProps) {
   const router = useRouter();
@@ -137,7 +138,12 @@ export default function App(props: AppProps) {
               position="bottom"
               opened={opened}
               onClose={() => setOpened(false)}
-              title="Toptierperk"
+              title={(
+                <Group>
+                  <AppLogo />
+                  <Text size="lg" weight={700}>Toptierperk</Text>
+                </Group>
+              )}
               padding="md"
             >
               <ScrollArea style={{ height: 282 }}>
