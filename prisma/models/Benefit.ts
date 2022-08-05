@@ -498,6 +498,22 @@ const Benefit = {
     }
   },
 
+  findBenefitStats: async (benefitId: number) => {
+    try {
+      const result = await prisma.benefit.findFirst({
+        where: { id: benefitId },
+        select: {
+          _count: {
+            select: { beneficiaries: true, availableFor: true },
+          },
+        },
+      });
+      return result
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
   // GET: /company/:id/benefits?acquired=false
   // Find available benefits only, exclude the ones you already have
   findAvailableBenefits: async ({
