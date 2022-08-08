@@ -20,14 +20,9 @@ import {
   Badge,
   Loader,
 } from "@mantine/core";
+import AppAcquirePerkButton from "components/AppAcquirePerkButton";
 import Link from "next/link";
-import {
-  ChevronLeft,
-  ChevronRight,
-  LayoutGrid,
-  AlertCircle,
-  Bookmark,
-} from "tabler-icons-react";
+import { ChevronLeft, ChevronRight, AlertCircle } from "tabler-icons-react";
 import formatDate from "helpers/formatDate";
 
 import Benefit from "prisma/models/Benefit";
@@ -41,7 +36,7 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
   const theme = useMantineTheme();
   const { user } = useUser();
-  const isPerkAdmin = !user || user.adminOfId === benefit.supplier.id;
+  const isPerkAdmin = user && user.adminOfId === benefit.supplier.id;
 
   const { data: stats, error: loadStatsError }: any = useSWR(
     user && user.adminOfId === benefit.supplier.id
@@ -159,7 +154,13 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
           <span style={{ fontWeight: 500 }}>{benefit.supplier.name}</span>
         </Text>
         <Group mt="md">
-          <Button variant="default">Acquire</Button>
+          {user?.adminOfId && (
+            <AppAcquirePerkButton
+              variant="default"
+              perkId={benefit.id}
+              companyId={user.adminOfId as number}
+            />
+          )}
           <Button variant="default">Claim</Button>
           <Button variant="default">Save</Button>
           {isPerkAdmin && (
