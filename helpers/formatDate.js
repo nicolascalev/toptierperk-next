@@ -1,4 +1,4 @@
-import moment from "moment"
+import moment from "moment-timezone"
 
 const allowedFormats = {
   'SHORT_TEXT': 'MMM Do YY',
@@ -10,9 +10,9 @@ export default function formatDate(timestamp, format) {
     throw new Error('format must be in ' + formatNames.join(','))
   }
 
-  return moment(timestamp).format(allowedFormats[format])
+  return moment(timestamp).tz('America/Costa_Rica').format(allowedFormats[format])
 }
 
 export function timeAgo(timestamp) {
-  return moment(timestamp).startOf('hour').fromNow()
+  return moment(timestamp).tz('America/Costa_Rica').startOf('hour').fromNow()
 }
