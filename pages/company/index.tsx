@@ -12,6 +12,7 @@ import {
   Center,
   Box,
   Anchor,
+  Button,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useWindowScroll } from "react-use";
@@ -169,14 +170,21 @@ const CompanyView: NextPage<Props> = ({ user, company }) => {
           <Tabs.Tab value="about">About</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="newest" pt="md" sx={tabPanelStyles}>
+          <Text color="dimmed" px="md" size="sm">10 Newest Perks</Text>
           {company.benefitsFrom.length === 0 && (
             <Text align="center">0 results found</Text>
           )}
           {company.benefitsFrom.map((perk: any) => (
             <AppPerkCard key={perk.id} perk={perk}></AppPerkCard>
           ))}
+          {company.benefitsFrom.length < company._count.benefitsFrom && (
+            <Link href="/" passHref>
+              <Button component="a">More</Button>
+            </Link>
+          )}
         </Tabs.Panel>
         <Tabs.Panel value="offers" pt="md" sx={tabPanelStyles}>
+          <Text color="dimmed" px="md" size="sm">All Company Offers</Text>
           {company.benefits.length === 0 && (
             <Text align="center">0 results found</Text>
           )}
