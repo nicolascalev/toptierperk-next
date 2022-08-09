@@ -202,7 +202,12 @@ export const getServerSideProps = withPageAuthRequired({
       if (!companyId) {
         return { props: { company: null } };
       }
-      const company = await Company.getProfile(companyId);
+      const company: any = await Company.getProfile(companyId);
+      const parseDate = (perk: any) => {
+        perk.createdAt = perk.createdAt.getTime();
+      }
+      company?.benefits.forEach(parseDate);
+      company?.benefitsFrom.forEach(parseDate);
 
       return { props: { company } };
     } catch (err) {
