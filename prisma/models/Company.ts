@@ -89,6 +89,75 @@ const Company = {
     }
   },
 
+  getProfile: async (companyId: number) => {
+    try {
+      const queryDateTime = new Date();
+      const perkInclude = {
+        id: true,
+        name: true,
+        createdAt: false,
+        startsAt: false,
+        finishesAt: false,
+        supplier: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+          },
+        },
+        photos: true,
+        categories: {
+          select: { id: true, name: true },
+        },
+      };
+      const company =
+        await prisma.company.findFirst<Prisma.CompanyFindFirstArgs>({
+          where: { id: companyId },
+          select: {
+            id: true,
+            name: true,
+            about: true,
+            logo: true,
+            paidMembership: true,
+            claimAmount: true,
+            benefitsFrom: {
+              where: {
+                isActive: true,
+                startsAt: {
+                  lt: queryDateTime,
+                },
+                OR: [
+                  { finishesAt: null },
+                  {
+                    finishesAt: {
+                      gte: queryDateTime,
+                    },
+                  },
+                ],
+              },
+              select: perkInclude,
+              take: 10,
+              orderBy: { createdAt: "desc" },
+            },
+            benefits: {
+              where: { isActive: true },
+              select: perkInclude,
+              orderBy: { createdAt: "desc" },
+            },
+            _count: {
+              select: {
+                benefits: true,
+                benefitsFrom: true,
+              },
+            },
+          },
+        });
+      return company;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
   findOneByName: async (name: string) => {
     try {
       const company = await prisma.company.findUnique(<
