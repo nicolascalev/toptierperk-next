@@ -19,7 +19,10 @@ export default async function findCompanyBenfits(
         return res.status(403).send("Forbidden");
       }
       const benefitId = Number(req.query.benefitId);
-      const acquireStatus = await Company.checkAvailableBenefit(companyId, benefitId);
+      const acquireStatus = await Company.checkAvailableBenefit(
+        companyId,
+        benefitId
+      );
       return res.status(200).json(acquireStatus);
     } catch (error) {
       return res.status(500).json(error);
@@ -67,7 +70,7 @@ export default async function findCompanyBenfits(
 
       await Company.acquireBenefit(companyId, benefitId);
 
-      return res.status(204).send("Updated perks list");
+      return res.status(204).end();
     } catch (error) {
       return res.status(500).json({ error });
     }
@@ -88,7 +91,7 @@ export default async function findCompanyBenfits(
 
       await Company.looseBenefit(companyId, benefitId);
 
-      return res.status(204).send("Updated perks list");;
+      return res.status(204).end();
     } catch (error) {
       return res.status(500).json({ error });
     }

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
 import useSWR from "swr";
+import { showNotification } from "@mantine/notifications";
 
 type AcquireButtonProps = {
   perkId: number;
@@ -15,11 +16,11 @@ function AppAcquirePerkButton({
   ...props
 }: AcquireButtonProps & ButtonProps) {
   const endpoint = `/api/company/${companyId}/benefits/${perkId}`;
-  const { data, error } = useSWR(
-    endpoint,
-    fetcher
-  );
-  const [status, setStatus] = useState<{ perkIsAvailable: boolean; perkIsAcquired: boolean } | null>(null);
+  const { data, error } = useSWR(endpoint, fetcher);
+  const [status, setStatus] = useState<{
+    perkIsAvailable: boolean;
+    perkIsAcquired: boolean;
+  } | null>(null);
 
   const loadingStatus = !status && !error;
 
@@ -35,15 +36,21 @@ function AppAcquirePerkButton({
       setLoading(true);
       await axios.put(endpoint);
       setLabel("Loose");
-      setStatus(status => {
+      setStatus((status) => {
         if (!status) {
-          return null
+          return null;
         }
         return {
           ...status,
           perkIsAcquired: true,
-        }
-      })
+        };
+      });
+      showNotification({
+        title: "Perk acquired",
+        message: "Now this perk is available to your employees.",
+        color: "green",
+        autoClose: 5000,
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -56,15 +63,20 @@ function AppAcquirePerkButton({
       setLoading(true);
       await axios.delete(endpoint);
       setLabel("Acquire");
-      setStatus(status => {
+      setStatus((status) => {
         if (!status) {
-          return null
+          return null;
         }
         return {
           ...status,
           perkIsAcquired: false,
-        }
-      })
+        };
+      });
+      showNotification({
+        title: "Removed perk",
+        message: "This perk is no longer available to your employees.",
+        autoClose: 5000,
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -73,33 +85,36 @@ function AppAcquirePerkButton({
   }
 
   function onClick() {
-    if (!status) return
+    if (!status) return;
     if (status.perkIsAcquired) {
-      console.log('made it there')
       looseBenefit();
     } else {
       acquireBenefit();
     }
   }
-  
+
   useEffect(() => {
     setStatus(data);
     if (data) {
-      setLabel(data.perkIsAcquired ? "Loose" : "Acquire")
+      setLabel(data.perkIsAcquired ? "Loose" : "Acquire");
     }
-  }, [data])
+  }, [data]);
 
   return (
     <Tooltip
       label="Perk not available"
-      disabled={(status && !status?.perkIsAcquired && !status?.perkIsAvailable) ? true : false}
+      disabled={
+        status && !status?.perkIsAcquired && !status?.perkIsAvailable
+          ? true
+          : false
+      }
     >
       <Button
         disabled={disabled}
         loading={loadingStatus || loading}
         onClick={onClick}
         {...props}
-        >
+      >
         {label}
       </Button>
     </Tooltip>
