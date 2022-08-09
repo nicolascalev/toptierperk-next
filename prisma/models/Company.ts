@@ -95,7 +95,7 @@ const Company = {
       const perkInclude = {
         id: true,
         name: true,
-        createdAt: false,
+        createdAt: true,
         startsAt: false,
         finishesAt: false,
         supplier: {
