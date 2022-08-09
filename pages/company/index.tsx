@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
+import Company from "prisma/models/Company";
 import {
   useMantineTheme,
   Image,
@@ -8,7 +9,6 @@ import {
   Tabs,
   SimpleGrid,
   Alert,
-  Loader,
   Center,
   Box,
   Anchor,
@@ -17,12 +17,12 @@ import { useState, useEffect } from "react";
 import { useWindowScroll } from "react-use";
 import { AlertCircle } from "tabler-icons-react";
 import { useRouter } from "next/router";
-import axios from "axios";
 import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
 
 interface Props {
   user: any;
+  company?: any;
 }
 
 function CompanyLogo(props: any) {
@@ -47,31 +47,9 @@ function CompanyLogo(props: any) {
   );
 }
 
-const Company: NextPage<Props> = ({ user }) => {
+const CompanyView: NextPage<Props> = ({ user, company }) => {
   const theme = useMantineTheme();
   const router = useRouter();
-
-  const [loadingOffers, setLoadingOffers] = useState(false);
-  const [offers, setOffers] = useState([]);
-  useEffect(() => {
-    async function loadOffers() {
-      setLoadingOffers(true);
-      try {
-        const { data } = await axios.get(
-          `/api/company/${user.company.id}/offers`
-        );
-        setOffers(data);
-      } catch (err) {
-        // TODO: do something with the error
-        console.log(err);
-      } finally {
-        setLoadingOffers(false);
-      }
-    }
-    if (user.company?.id) {
-      loadOffers();
-    }
-  }, [setLoadingOffers, setOffers, user.company?.id]);
 
   const isDark = theme.colorScheme === "dark";
 
@@ -125,7 +103,7 @@ const Company: NextPage<Props> = ({ user }) => {
       >
         <CompanyLogo
           logo={
-            user.company.logo?.url ||
+            company.logo?.url ||
             "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
           }
         />
@@ -141,25 +119,25 @@ const Company: NextPage<Props> = ({ user }) => {
       >
         <div style={{ width: "100%", textAlign: "center" }}>
           <Text mt="xs" size="xl" weight={500}>
-            {user.company.name}
+            {company.name}
           </Text>
           <Paper radius="md" p="md">
             <SimpleGrid cols={3}>
               <div>
                 <Text weight="bold" size="lg">
-                  500
+                  {company._count.benefitsFrom}
                 </Text>
                 <Text>Perks</Text>
               </div>
               <div>
                 <Text weight="bold" size="lg">
-                  {offers.length}
+                  {company._count.benefits}
                 </Text>
                 <Text>Offers</Text>
               </div>
               <div>
                 <Text weight="bold" size="lg">
-                  1000
+                  {company.claimAmount}
                 </Text>
                 <Text>Claims</Text>
               </div>
@@ -176,11 +154,11 @@ const Company: NextPage<Props> = ({ user }) => {
             style={{ marginTop: theme.spacing.md, position: "initial" }}
             onClick={() => router.push("/subscription")}
           >
-            You need to 
+            You need to
             <Link href="/subscription" passHref>
               <Anchor component="a"> get a subscription </Anchor>
             </Link>
-             to show offers and get perks.
+            to show offers and get perks.
           </Alert>
         )}
       </div>
@@ -191,31 +169,44 @@ const Company: NextPage<Props> = ({ user }) => {
           <Tabs.Tab value="about">About</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="newest" pt="md" sx={tabPanelStyles}>
-          {/* TODO: show public and private just add a filter somewhere OR add the private instead of popular for mvp given that popular might be hard to calculate and make performant */}
-          <Text align="center">Load benefits after aquiring them</Text>
-        </Tabs.Panel>
-        <Tabs.Panel value="offers" pt="md" sx={tabPanelStyles}>
-          {!loadingOffers && offers.length === 0 && (
+          {company.benefitsFrom.length === 0 && (
             <Text align="center">0 results found</Text>
           )}
-          {loadingOffers ? (
-            <Center>
-              <Loader />
-            </Center>
-          ) : (
-            offers.map((offer: any) => (
-              <AppPerkCard key={offer.id} perk={offer}></AppPerkCard>
-            ))
+          {company.benefitsFrom.map((perk: any) => (
+            <AppPerkCard key={perk.id} perk={perk}></AppPerkCard>
+          ))}
+        </Tabs.Panel>
+        <Tabs.Panel value="offers" pt="md" sx={tabPanelStyles}>
+          {company.benefits.length === 0 && (
+            <Text align="center">0 results found</Text>
           )}
+          {company.benefits.map((offer: any) => (
+            <AppPerkCard key={offer.id} perk={offer}></AppPerkCard>
+          ))}
         </Tabs.Panel>
         <Tabs.Panel value="about" p="md" sx={tabPanelStyles}>
-          <Text>{user.company.about}</Text>
+          <Text style={{ whiteSpace: "pre-wrap" }}>{user.company.about}</Text>
         </Tabs.Panel>
       </Tabs>
     </div>
   );
 };
 
-export default Company;
+export default CompanyView;
 
-export const getServerSideProps = withPageAuthRequired();
+export const getServerSideProps = withPageAuthRequired({
+  async getServerSideProps(ctx) {
+    try {
+      const session = getSession(ctx.req, ctx.res);
+      const companyId = session!.user.company?.id;
+      if (!companyId) {
+        return { props: { company: null } };
+      }
+      const company = await Company.getProfile(companyId);
+
+      return { props: { company } };
+    } catch (err) {
+      throw err;
+    }
+  },
+});
