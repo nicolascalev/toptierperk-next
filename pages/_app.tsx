@@ -10,29 +10,19 @@ import {
   Header,
   Burger,
   Drawer,
-  Box,
   Text,
-  ScrollArea,
   Group,
-  ActionIcon,
-  NavLink,
   Button,
 } from "@mantine/core";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { NotificationsProvider } from "@mantine/notifications";
-import {
-  Scan,
-  Sun,
-  MoonStars,
-  Logout,
-  BuildingSkyscraper,
-} from "tabler-icons-react";
+import { Sun, MoonStars } from "tabler-icons-react";
 
 import BottomNavigation from "components/BottomNavigation";
 
 import { UserProvider } from "@auth0/nextjs-auth0";
 import AppLogo from "components/AppLogo";
+import AppNavigation from "components/AppNavigation";
 
 export default function App(props: AppProps) {
   const router = useRouter();
@@ -85,7 +75,7 @@ export default function App(props: AppProps) {
           withNormalizeCSS
           theme={{
             colorScheme,
-            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+            fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
             colors: {
               "bright-yellow": [
                 "#FFD43B",
@@ -138,53 +128,26 @@ export default function App(props: AppProps) {
               position="bottom"
               opened={opened}
               onClose={() => setOpened(false)}
-              title={(
+              title={
                 <Group>
                   <AppLogo />
-                  <Text size="lg" weight={700}>Toptierperk</Text>
+                  <Text size="lg" weight={700}>
+                    Toptierperk
+                  </Text>
                 </Group>
-              )}
+              }
               padding="md"
             >
-              <ScrollArea style={{ height: 282 }}>
-                <Box>
-                  <Link href="/company/admin" passHref>
-                    <NavLink
-                      component="a"
-                      variant="subtle"
-                      label="Your company"
-                      icon={<BuildingSkyscraper size={14} />}
-                      active={router.pathname == "/company/admin"}
-                    />
-                  </Link>
-                  <Link href="/scan/costumer" passHref>
-                    <NavLink
-                      component="a"
-                      variant="subtle"
-                      label="Verify Costumer QR"
-                      icon={<Scan size={14} />}
-                      active={router.pathname == "/scan/costumer"}
-                    />
-                  </Link>
-                  <Link href="/api/auth/logout" passHref>
-                    <NavLink
-                      variant="filled"
-                      color="red"
-                      component="a"
-                      label="Logout"
-                      icon={<Logout size={14} />}
-                    />
-                  </Link>
-                  <Button
-                    fullWidth
-                    color={isDark ? "primary" : "dark"}
-                    onClick={() => toggleColorScheme()}
-                    rightIcon={isDark ? <Sun /> : <MoonStars />}
-                  >
-                    Toggle theme
-                  </Button>
-                </Box>
-              </ScrollArea>
+              <AppNavigation>
+                <Button
+                  fullWidth
+                  color={isDark ? "primary" : "dark"}
+                  onClick={() => toggleColorScheme()}
+                  rightIcon={isDark ? <Sun /> : <MoonStars />}
+                >
+                  Toggle theme
+                </Button>
+              </AppNavigation>
             </Drawer>
           </NotificationsProvider>
         </MantineProvider>
