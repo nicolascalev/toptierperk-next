@@ -28,6 +28,7 @@ import { ChevronLeft, ChevronRight, Photo } from "tabler-icons-react";
 import Joi from "joi";
 import axios from "axios";
 import AppAvailableForInput from "./AppAvailableForInput";
+import { showNotification } from "@mantine/notifications";
 
 const createBenefitSchema = Joi.object({
   name: Joi.string().required(),
@@ -177,6 +178,15 @@ export default function AppPerkForm(props: any) {
     const formData = parseFormData();
     if (!formData) return;
     if (props.action === "create") {
+      if (photos.length === 0) {
+        showNotification({
+          title: "One more thing",
+          message: "You need to upload at least one photo.",
+          color: "red",
+          autoClose: 5000,
+        });
+        return
+      }
       await createPerk(formData);
     }
     if (props.action === "update") {
@@ -197,8 +207,20 @@ export default function AppPerkForm(props: any) {
       setLoading(true);
       const { data: createdPerk } = await axios.post("/api/benefit", formData);
       router.push("/perk/" + createdPerk.id);
+      showNotification({
+        title: "Created",
+        message: "Perk created, and available to your employees.",
+        color: "green",
+        autoClose: 5000,
+      });
     } catch (err) {
-      console.log((err as any).response.data);
+      // TODO: do something with the error on both requests
+      showNotification({
+        title: "Please try again",
+        message: "let us know if the error persists",
+        color: "red",
+        autoClose: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -212,11 +234,31 @@ export default function AppPerkForm(props: any) {
         formData
       );
       router.push("/perk/" + updatedPerk.id);
+      showNotification({
+        title: "Perk updated",
+        message: "This perk was successfully updated",
+        color: "green",
+        autoClose: 5000,
+      });
     } catch (err) {
-      console.log((err as any).response.data);
+      showNotification({
+        title: "Please try again",
+        message: "let us know if the error persists",
+        color: "red",
+        autoClose: 5000,
+      });
     } finally {
       setLoading(false);
     }
+  }
+
+  function onReject(files: any) {
+    showNotification({
+      title: "Some photos are too large",
+      message: `${files.length} files were bigger than 3mb`,
+      color: "red",
+      autoClose: 5000,
+    });
   }
 
   return (
@@ -358,11 +400,13 @@ export default function AppPerkForm(props: any) {
             min={1}
             {...form.getInputProps("useLimitPerUser")}
           />
-          <AppAvailableForInput
-            availableFor={availableFor}
-            loading={loadingAvailableFor}
-            onChange={(updated: any) => setAvailableFor(updated)}
-          />
+          {isPrivate === "private" && (
+            <AppAvailableForInput
+              availableFor={availableFor}
+              loading={loadingAvailableFor}
+              onChange={(updated: any) => setAvailableFor(updated)}
+            />
+          )}
           {props.action === "update" && (
             <Radio.Group
               label="Perk active state"
@@ -400,7 +444,7 @@ export default function AppPerkForm(props: any) {
       >
         <ScrollArea type="auto" style={{ height: "440px" }}>
           <div style={{ padding: theme.spacing.md, paddingTop: 0 }}>
-            <AppDropzone onDrop={onDropFiles} />
+            <AppDropzone onDrop={onDropFiles} onReject={onReject} />
             <Text
               color="dimmed"
               size="sm"
