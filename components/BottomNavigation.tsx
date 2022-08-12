@@ -1,4 +1,4 @@
-import { Paper, ActionIcon, useMantineColorScheme } from "@mantine/core";
+import { Paper, ActionIcon, useMantineColorScheme, Divider } from "@mantine/core";
 import { SmartHome, Scan, BuildingSkyscraper, User } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -11,7 +11,6 @@ export default function BottomNavigation(props: any) {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    borderTop: dark ? "1px solid #2C2E33" : "1px solid #e9ecef",
   };
 
   const router = useRouter();
@@ -31,6 +30,7 @@ export default function BottomNavigation(props: any) {
         width: "100%",
       }}
     >
+      <Divider />
       <div style={bottomNavigationStyles}>
         {links.map((link: any, index) => (
           <Link key={index} href={link.url} passHref>
