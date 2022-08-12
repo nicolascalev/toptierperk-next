@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
-import Company from "prisma/models/Company";
+import Business from "prisma/models/Business";
 import {
   useMantineTheme,
   Image,
@@ -23,10 +23,10 @@ import Link from "next/link";
 
 interface Props {
   user: any;
-  company?: any;
+  business?: any;
 }
 
-function CompanyLogo(props: any) {
+function BusinessLogo(props: any) {
   const { y } = useWindowScroll();
   const [logoSize, setLogoSize] = useState(64);
   useEffect(() => {
@@ -48,7 +48,7 @@ function CompanyLogo(props: any) {
   );
 }
 
-const CompanyView: NextPage<Props> = ({ user, company }) => {
+const BusinessView: NextPage<Props> = ({ user, business }) => {
   const theme = useMantineTheme();
   const router = useRouter();
 
@@ -73,19 +73,22 @@ const CompanyView: NextPage<Props> = ({ user, company }) => {
     tabPanelStyles.backgroundColor = theme.colors.gray[1];
   }
 
-  if (!user.company) {
+  if (!user.business) {
     return (
       <Box p="md">
-        <Text>
-          You are not a part of a company yet, you can either
-          <Link href="/company/join" passHref>
-            <Anchor component="a"> join a company </Anchor>
-          </Link>
-          or
-          <Link href="/company/create" passHref>
-            <Anchor component="a"> create one.</Anchor>
-          </Link>
-        </Text>
+        <Paper p="md" withBorder>
+          <Text weight={500} mb="sm">Business not set</Text>
+          <Text>
+            You are not a part of a business yet, you can either
+            <Link href="/business/join" passHref>
+              <Anchor component="a"> join a business </Anchor>
+            </Link>
+            or
+            <Link href="/business/create" passHref>
+              <Anchor component="a"> create one</Anchor>
+            </Link>
+          </Text>
+        </Paper>
       </Box>
     );
   }
@@ -102,9 +105,9 @@ const CompanyView: NextPage<Props> = ({ user, company }) => {
           backgroundColor: logoContainerBg,
         }}
       >
-        <CompanyLogo
+        <BusinessLogo
           logo={
-            company.logo?.url ||
+            business.logo?.url ||
             "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
           }
         />
@@ -120,25 +123,25 @@ const CompanyView: NextPage<Props> = ({ user, company }) => {
       >
         <div style={{ width: "100%", textAlign: "center" }}>
           <Text mt="xs" size="xl" weight={500}>
-            {company.name}
+            {business.name}
           </Text>
           <Paper radius="md" p="md">
             <SimpleGrid cols={3}>
               <div>
                 <Text weight="bold" size="lg">
-                  {company._count.benefitsFrom}
+                  {business._count.benefitsFrom}
                 </Text>
                 <Text>Perks</Text>
               </div>
               <div>
                 <Text weight="bold" size="lg">
-                  {company._count.benefits}
+                  {business._count.benefits}
                 </Text>
                 <Text>Offers</Text>
               </div>
               <div>
                 <Text weight="bold" size="lg">
-                  {company.claimAmount}
+                  {business.claimAmount}
                 </Text>
                 <Text>Claims</Text>
               </div>
@@ -146,7 +149,7 @@ const CompanyView: NextPage<Props> = ({ user, company }) => {
           </Paper>
         </div>
 
-        {user.adminOf && user.company?.paidMembership == false && (
+        {user.adminOf && user.business?.paidMembership == false && (
           <Alert
             icon={<AlertCircle size={16} />}
             title="Subscription"
@@ -171,53 +174,53 @@ const CompanyView: NextPage<Props> = ({ user, company }) => {
         </Tabs.List>
         <Tabs.Panel value="newest" pt="md" sx={tabPanelStyles}>
           <Text color="dimmed" px="md" size="sm">10 Newest Perks</Text>
-          {company.benefitsFrom.length === 0 && (
+          {business.benefitsFrom.length === 0 && (
             <Text align="center">0 results found</Text>
           )}
-          {company.benefitsFrom.map((perk: any) => (
+          {business.benefitsFrom.map((perk: any) => (
             <AppPerkCard key={perk.id} perk={perk}></AppPerkCard>
           ))}
-          {company.benefitsFrom.length < company._count.benefitsFrom && (
+          {business.benefitsFrom.length < business._count.benefitsFrom && (
             <Link href="/" passHref>
               <Button component="a">More</Button>
             </Link>
           )}
         </Tabs.Panel>
         <Tabs.Panel value="offers" pt="md" sx={tabPanelStyles}>
-          <Text color="dimmed" px="md" size="sm">All Company Offers</Text>
-          {company.benefits.length === 0 && (
+          <Text color="dimmed" px="md" size="sm">All Business Offers</Text>
+          {business.benefits.length === 0 && (
             <Text align="center">0 results found</Text>
           )}
-          {company.benefits.map((offer: any) => (
+          {business.benefits.map((offer: any) => (
             <AppPerkCard key={offer.id} perk={offer}></AppPerkCard>
           ))}
         </Tabs.Panel>
         <Tabs.Panel value="about" p="md" sx={tabPanelStyles}>
-          <Text style={{ whiteSpace: "pre-wrap" }}>{user.company.about}</Text>
+          <Text style={{ whiteSpace: "pre-wrap" }}>{user.business.about}</Text>
         </Tabs.Panel>
       </Tabs>
     </div>
   );
 };
 
-export default CompanyView;
+export default BusinessView;
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
     try {
       const session = getSession(ctx.req, ctx.res);
-      const companyId = session!.user.company?.id;
-      if (!companyId) {
-        return { props: { company: null } };
+      const businessId = session!.user.business?.id;
+      if (!businessId) {
+        return { props: { business: null } };
       }
-      const company: any = await Company.getProfile(companyId);
+      const business: any = await Business.getProfile(businessId);
       const parseDate = (perk: any) => {
         perk.createdAt = perk.createdAt.getTime();
       }
-      company?.benefits.forEach(parseDate);
-      company?.benefitsFrom.forEach(parseDate);
+      business?.benefits.forEach(parseDate);
+      business?.benefitsFrom.forEach(parseDate);
 
-      return { props: { company } };
+      return { props: { business } };
     } catch (err) {
       throw err;
     }

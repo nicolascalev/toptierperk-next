@@ -11,10 +11,17 @@ import {
   ActionIcon,
   Checkbox,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { useForm, joiResolver } from "@mantine/form";
 import { Photo } from "tabler-icons-react";
-import { debounce, isEmpty } from "lodash"
-import axios from "axios"
+import { debounce, isEmpty } from "lodash";
+import axios from "axios";
+import Joi from "joi";
+
+const createCompanySchema = Joi.object({
+  name: Joi.string().required().max(30),
+  email: Joi.string().email({ tlds: { allow: false } }).required(),
+  about: Joi.string().required().max(500),
+});
 
 function useFileUpload() {
   const [logo, setLogo] = useState(null);
@@ -30,7 +37,7 @@ function useFileUpload() {
     if (e.target.files[0]) {
       readFileAsDataURL(e.target.files[0]);
     } else {
-      setParsedLogo(undefined)
+      setParsedLogo(undefined);
     }
   }
 
@@ -48,35 +55,43 @@ function useFileUpload() {
 }
 
 // Declare function outside of component so that its not redefined on update
-const debounceFindCompany = debounce(async (name, form) => {
-  if (!name || !form) return
-  const { data } = await axios.get("/api/company/findByName", {
+const debounceFindBusiness = debounce(async (name, form) => {
+  if (!name || !form) return;
+  if (name.length > 30) return;
+  const { data } = await axios.get("/api/business/findByName", {
     params: {
       searchString: name,
-    }
-  })
+    },
+  });
   if (data) {
-    form.setFieldError("name", "Name has already been taken")
+    form.setFieldError("name", "Name has already been taken");
   } else {
     form.clearErrors();
   }
-}, 300)
+}, 300);
 
 type PropTypes = {
-  action: "create",
-  initialvalues?: any,
-  onSuccess: () => void,
-  onError: (error: any) => void,
-}
+  action: "create";
+  initialvalues?: any;
+  onSuccess: () => void;
+  onError: (error: any) => void;
+};
 
-function AppCompanyForm({ action, initialvalues, onSuccess, onError }: PropTypes) {
+function AppBusinessForm({
+  action,
+  initialvalues,
+  onSuccess,
+  onError,
+}: PropTypes) {
   const theme = useMantineTheme();
 
   // TODO: add extra validations
   const form = useForm({
+    validate: joiResolver(createCompanySchema),
     initialValues: initialvalues || {
       name: "",
       about: "",
+      email: "",
     },
     validateInputOnChange: true,
   });
@@ -85,31 +100,31 @@ function AppCompanyForm({ action, initialvalues, onSuccess, onError }: PropTypes
     useFileUpload();
 
   const handleSubmit = (values: any) => {
-    const formData = new FormData()
+    const formData = new FormData();
     for (const [key, value] of Object.entries(values)) {
-      formData.append(key, value as string)
+      formData.append(key, value as string);
     }
     if (logo) {
-      formData.set("logo", logo as Blob)
+      formData.set("logo", logo as Blob);
     }
     if (action == "create") {
-      submitCompany(formData)
+      submitBusiness(formData);
     }
-  }
+  };
 
-  const [loading, setLoading] = useState(false)
-  async function submitCompany(formData: FormData) {
-    setLoading(true)
+  const [loading, setLoading] = useState(false);
+  async function submitBusiness(formData: FormData) {
+    setLoading(true);
     try {
-      await axios.post('/api/company', formData)
-      onSuccess()
+      await axios.post("/api/business", formData);
+      onSuccess();
     } catch (err: any) {
       if (err.response?.data?.error?.code == "P2002") {
-        form.setFieldError('name', 'Name has been taken');
-        onError(err.response?.data)
+        form.setFieldError("name", "Name has been taken");
+        onError(err.response?.data);
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -127,7 +142,7 @@ function AppCompanyForm({ action, initialvalues, onSuccess, onError }: PropTypes
             <Image
               onClick={clickUploadfile}
               src={parsedLogo}
-              alt="Company Logo"
+              alt="Business Logo"
               width={128}
               height={128}
               radius={150}
@@ -155,8 +170,14 @@ function AppCompanyForm({ action, initialvalues, onSuccess, onError }: PropTypes
           required
           label="Name"
           placeholder=""
-          onInput={(e: any) => debounceFindCompany(e.target.value, form)}
+          onInput={(e: any) => debounceFindBusiness(e.target.value, form)}
           {...form.getInputProps("name")}
+        />
+        <TextInput
+          placeholder="user@example.com"
+          label="Email"
+          required
+          {...form.getInputProps("email")}
         />
         <Textarea
           required
@@ -169,11 +190,17 @@ function AppCompanyForm({ action, initialvalues, onSuccess, onError }: PropTypes
         {/* TODO: add actual terms and conditions */}
         <Checkbox required label="I agree to Terms and Conditions" />
         <Group position="right">
-          <Button type="submit" disabled={!isEmpty(form.errors)} loading={loading}>Create</Button>
+          <Button
+            type="submit"
+            disabled={!isEmpty(form.errors)}
+            loading={loading}
+          >
+            Create
+          </Button>
         </Group>
       </Stack>
     </form>
   );
 }
 
-export default AppCompanyForm
+export default AppBusinessForm;

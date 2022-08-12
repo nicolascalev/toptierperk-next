@@ -3,7 +3,7 @@ import Benefit, { BenefitSearchParams } from "prisma/models/Benefit";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
 
-export default async function findCompanyBenfits(
+export default async function findBusinessBenfits(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -12,17 +12,17 @@ export default async function findCompanyBenfits(
     let session = getSession(req, res);
 
     // TODO: move the employee query to another endpoint, leave this for admin only
-    const companyId = Number(req.query.companyId);
+    const businessId = Number(req.query.businessId);
     if (
-      session!.user.adminOfId !== companyId &&
-      session!.user.company?.id !== companyId
+      session!.user.adminOfId !== businessId &&
+      session!.user.business?.id !== businessId
     ) {
       return res.redirect("/403");
     }
 
     const q = req.query;
     const params: BenefitSearchParams = {
-      beneficiaryId: companyId,
+      beneficiaryId: businessId,
       searchString: (q.searchString as string) || undefined,
       skip: q.skip ? Number(q.skip) : undefined,
       take: q.take ? Number(q.take) : undefined,

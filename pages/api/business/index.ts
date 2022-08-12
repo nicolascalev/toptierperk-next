@@ -1,14 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "../../../helpers/isAuthenticated";
-import Company from "../../../prisma/models/Company";
+import Business from "../../../prisma/models/Business";
 import Joi from "joi";
 import parseFormData from "../../../helpers/parse-form-data";
 import uploadFile from "../../../helpers/upload-file";
 
-const createCompanySchema = Joi.object({
-  name: Joi.string().required(),
-  about: Joi.string(),
+const createBusinessSchema = Joi.object({
+  name: Joi.string().required().max(30),
+  about: Joi.string().required().max(500),
+  email: Joi.string().email({ tlds: { allow: false } }).required(),
   employees: Joi.array().items(Joi.number().required()),
   admins: Joi.array().items(Joi.number().required()),
 });
@@ -21,14 +22,14 @@ export const config = {
   },
 };
 
-export default async function companyHandler(
+export default async function businessHandler(
   req: FilesNextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method == "GET") {
     try {
       const { query } = req;
-      const result = await Company.find(query);
+      const result = await Business.find(query);
       return res.status(200).json(result);
     } catch (err) {
       return res.status(500).json({ error: err });
@@ -54,35 +55,36 @@ export default async function companyHandler(
       let data = {
         name: body.name,
         about: body.about,
+        email: body.email,
         // make sure the current user id is on the list
         employees: [...employees, ...[session!.user.id]],
         admins: [...admins, ...[session!.user.id]],
       };
       // validate that all body params are present and formatted
       const { value: validatedData, error: validationError } =
-        createCompanySchema.validate(data);
+        createBusinessSchema.validate(data);
       if (validationError) {
         return res.status(400).json({ error: validationError });
       }
 
       if (files.logo) {
-        const upload = await uploadFile([files.logo], `companies/`);
+        const upload = await uploadFile([files.logo], `businesses/`);
         const uploadedLogo = { url : upload.success[0].Location }
         validatedData.logo = uploadedLogo;
       }
 
-      const createdCompany = await Company.create(validatedData);
-      // after creating the company make sure that info is stored in session
+      const createdBusiness = await Business.create(validatedData);
+      // after creating the business make sure that info is stored in session
       session!.user = {
         ...session!.user,
         ...{
-          companyId: createdCompany.id,
-          adminOfId: createdCompany.id,
-          company: createdCompany,
-          adminOf: createdCompany,
+          businessId: createdBusiness.id,
+          adminOfId: createdBusiness.id,
+          business: createdBusiness,
+          adminOf: createdBusiness,
         },
       };
-      return res.status(200).json(createdCompany);
+      return res.status(200).json(createdBusiness);
     } catch (err) {
       console.error(err)
       return res.status(500).json({ error: err });

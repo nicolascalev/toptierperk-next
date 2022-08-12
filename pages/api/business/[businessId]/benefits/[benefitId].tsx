@@ -2,9 +2,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Benefit from "prisma/models/Benefit";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
-import Company from "prisma/models/Company";
+import Business from "prisma/models/Business";
 
-export default async function findCompanyBenfits(
+export default async function findBusinessBenfits(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -13,14 +13,14 @@ export default async function findCompanyBenfits(
       await isAuthenticated(req, res);
       let session = getSession(req, res);
 
-      // check the logged in user is the adming of the company acquiring the perk
-      const companyId = Number(req.query.companyId);
-      if (session!.user.adminOfId !== companyId) {
+      // check the logged in user is the adming of the business acquiring the perk
+      const businessId = Number(req.query.businessId);
+      if (session!.user.adminOfId !== businessId) {
         return res.status(403).send("Forbidden");
       }
       const benefitId = Number(req.query.benefitId);
-      const acquireStatus = await Company.checkAvailableBenefit(
-        companyId,
+      const acquireStatus = await Business.checkAvailableBenefit(
+        businessId,
         benefitId
       );
       return res.status(200).json(acquireStatus);
@@ -34,15 +34,15 @@ export default async function findCompanyBenfits(
       await isAuthenticated(req, res);
       let session = getSession(req, res);
 
-      // check the logged in user is the adming of the company acquiring the perk
-      const companyId = Number(req.query.companyId);
-      if (session!.user.adminOfId !== companyId) {
+      // check the logged in user is the adming of the business acquiring the perk
+      const businessId = Number(req.query.businessId);
+      if (session!.user.adminOfId !== businessId) {
         return res.status(403).send("Forbidden");
       }
 
-      // make sure that the company has a paidSubscription
-      const company = await Company.findById(companyId);
-      if (!company?.paidMembership) {
+      // make sure that the business has a paidSubscription
+      const business = await Business.findById(businessId);
+      if (!business?.paidMembership) {
         return res.status(402).json({ error: "Payment required" });
       }
 
@@ -55,20 +55,20 @@ export default async function findCompanyBenfits(
         });
       }
 
-      // TODO ROADMAP check that the company can aquire this perk, based on the subscription
+      // TODO ROADMAP check that the business can aquire this perk, based on the subscription
 
-      // Tvalidate that benefit is availablefor company, then do the query to update
-      const { perkIsAvailable } = await Company.checkAvailableBenefit(
-        companyId,
+      // Tvalidate that benefit is availablefor business, then do the query to update
+      const { perkIsAvailable } = await Business.checkAvailableBenefit(
+        businessId,
         benefitId
       );
       if (!perkIsAvailable) {
         return res
           .status(401)
-          .json({ error: "This perk is not available for your company." });
+          .json({ error: "This perk is not available for your business." });
       }
 
-      await Company.acquireBenefit(companyId, benefitId);
+      await Business.acquireBenefit(businessId, benefitId);
 
       return res.status(204).end();
     } catch (error) {
@@ -81,15 +81,15 @@ export default async function findCompanyBenfits(
       await isAuthenticated(req, res);
       let session = getSession(req, res);
 
-      // check the logged in user is the adming of the company acquiring the perk
-      const companyId = Number(req.query.companyId);
-      if (session!.user.adminOfId !== companyId) {
+      // check the logged in user is the adming of the business acquiring the perk
+      const businessId = Number(req.query.businessId);
+      if (session!.user.adminOfId !== businessId) {
         return res.status(403).send("Forbidden");
       }
 
       const benefitId = Number(req.query.benefitId);
 
-      await Company.looseBenefit(companyId, benefitId);
+      await Business.looseBenefit(businessId, benefitId);
 
       return res.status(204).end();
     } catch (error) {

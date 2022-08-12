@@ -40,7 +40,7 @@ type FindPublicSearchParams = {
   categories?: number[];
 };
 
-type FindCompanyBenefitParams = {
+type FindBusinessBenefitParams = {
   searchString?: string;
   beneficiaryId: number;
   isPrivate?: boolean;
@@ -66,8 +66,8 @@ export type BenefitSearchParams = {
 
 type BooleanUndefined = boolean | undefined;
 type FilterReturn = {
-  availableFor: Prisma.CompanyListRelationFilter | undefined;
-  beneficiaries: Prisma.CompanyListRelationFilter | undefined;
+  availableFor: Prisma.BusinessListRelationFilter | undefined;
+  beneficiaries: Prisma.BusinessListRelationFilter | undefined;
   isPrivate: boolean | undefined;
   OR: Prisma.BenefitWhereInput | undefined;
 };
@@ -218,7 +218,7 @@ const Benefit = {
       const data: Prisma.BenefitCreateInput = {
         name,
         description,
-        supplier: <Prisma.CompanyCreateNestedOneWithoutBenefitsInput>{
+        supplier: <Prisma.BusinessCreateNestedOneWithoutBenefitsInput>{
           connect: { id: supplier },
         },
         categories: {
@@ -392,10 +392,10 @@ const Benefit = {
 
   // TODO:
   // GET: /allowedbenefits
-  // Find ALL benefits a company could see, wether acquired or not, private or not
+  // Find ALL benefits a business could see, wether acquired or not, private or not
 
-  // GET: /company/:id/benefits
-  // Find company benefits, private or not, acquired or not
+  // GET: /business/:id/benefits
+  // Find business benefits, private or not, acquired or not
   adminBenefitSearch: async ({
     searchString = "",
     beneficiaryId,
@@ -514,7 +514,7 @@ const Benefit = {
     }
   },
 
-  // GET: /company/:id/benefits?acquired=false
+  // GET: /business/:id/benefits?acquired=false
   // Find available benefits only, exclude the ones you already have
   findAvailableBenefits: async ({
     searchString = "",
@@ -524,7 +524,7 @@ const Benefit = {
     take = undefined,
     orderBy = "desc",
     categories = [],
-  }: FindCompanyBenefitParams) => {
+  }: FindBusinessBenefitParams) => {
     try {
       if (!beneficiaryId) {
         throw new Error(
@@ -599,8 +599,8 @@ const Benefit = {
     }
   },
 
-  // GET: /company/:id/benefits
-  findAllCompanyBenefits: async ({
+  // GET: /business/:id/benefits
+  findAllBusinessBenefits: async ({
     searchString = "",
     beneficiaryId,
     isPrivate = false,
@@ -608,7 +608,7 @@ const Benefit = {
     take = undefined,
     orderBy = "desc",
     categories = [],
-  }: FindCompanyBenefitParams) => {
+  }: FindBusinessBenefitParams) => {
     try {
       if (!beneficiaryId) {
         throw new Error(
@@ -681,10 +681,10 @@ const Benefit = {
     }
   },
 
-  // GET: /company/:id/offers
+  // GET: /business/:id/offers
   // TODO: dont filter all and use a pointer for pagination
   // TODO: add isActive filter if necessary
-  findCompanyOffers: async (supplierId: number, status: BenefitStatus) => {
+  findBusinessOffers: async (supplierId: number, status: BenefitStatus) => {
     try {
       if (!supplierId) {
         throw new Error("supplierId is necessary to filter offers");

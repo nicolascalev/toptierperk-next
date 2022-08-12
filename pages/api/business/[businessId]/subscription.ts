@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import Company from "../../../../prisma/models/Company";
+import Business from "../../../../prisma/models/Business";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "../../../../helpers/isAuthenticated";
 import isAdmin from "../../../../helpers/isAdmin";
 
-export default async function findCompanyByNameHandler(
+export default async function findBusinessByNameHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -15,21 +15,21 @@ export default async function findCompanyByNameHandler(
     let session = getSession(req, res);
 
     // TODO: if necessary integrate last payment date
-    const companyId = Number(req.query.companyId);
+    const businessId = Number(req.query.businessId);
     const subscriptionId = req.body.subscriptionId;
-    // The user can't be trying to update a company who does not belong to them
-    if (companyId !== session!.user.adminOf.id) {
+    // The user can't be trying to update a business who does not belong to them
+    if (businessId !== session!.user.adminOf.id) {
       return res.status(401).send("Unauthorized");
     }
     try {
-      const result = await Company.updateSubscription(
-        companyId,
+      const result = await Business.updateSubscription(
+        businessId,
         subscriptionId
       );
       session!.user = {
         ...session!.user,
         ...{
-          company: result,
+          business: result,
           adminOf: result,
         },
       };

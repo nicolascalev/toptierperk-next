@@ -5,8 +5,8 @@ const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
 function AppSubscriptionCard(props: any) {
   const theme = useMantineTheme();
-  if (!props.planid || !props.companyid) {
-    throw new Error("planid and companyid for PayPal plan is required");
+  if (!props.planid || !props.businessid) {
+    throw new Error("planid and businessid for PayPal plan is required");
   }
   if (!PAYPAL_CLIENT_ID) {
     return (
@@ -26,7 +26,7 @@ function AppSubscriptionCard(props: any) {
   async function onPaypalApprove(data: any) {
     try {
       const { data: updateData } = await axios.patch(
-        `/api/company/${props.companyid}/subscription`,
+        `/api/business/${props.businessid}/subscription`,
         {
           subscriptionId: data.subscriptionID,
         }

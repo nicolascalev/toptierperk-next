@@ -10,50 +10,50 @@ interface Props {
   serverError: any;
 }
 
-const CompanyAdmin: NextPage<Props> = ({ user, serverError }) => {
+const BusinessAdmin: NextPage<Props> = ({ user, serverError }) => {
   if (serverError) {
     return <Error statusCode={serverError} />;
   }
 
   const links: any[] = [
-    { url: "/company/profile", label: "Edit profile", disabled: false },
+    { url: "/business/profile", label: "Edit profile", disabled: false },
     {
-      url: "/company/subscription",
+      url: "/business/subscription",
       label: "Manage subscription",
       disabled: false,
     },
     { url: "/perk/create", label: "Create perk", disabled: false },
     {
-      url: "/company/admin/offers",
+      url: "/business/admin/offers",
       label: "List your offered perks",
       disabled: false,
     },
     {
-      url: "/company/admin/perks",
+      url: "/business/admin/perks",
       label: "Find available perks",
       description: "Perks you can acquire to offer to your employees",
       disabled: false,
     },
     {
-      url: "/company/employees",
+      url: "/business/employees",
       label: "Allowed employees",
       description: "List of active and allowed emloyees",
       disabled: false,
     },
     {
-      url: "/company/verifiers",
+      url: "/business/verifiers",
       label: "Allowed verifiers",
       description: "Employees capable of verifying claims",
       disabled: false,
     },
-    { url: "/company/analitycs", label: "Analytics", disabled: true },
+    { url: "/business/analitycs", label: "Analytics", disabled: true },
   ];
   return (
     <Box sx={{ position: "relative", marginBottom: "49px" }}>
       <Group p="md">
         <Image
-          src={user.company.logo?.url}
-          alt={user.company.name + " Toptierperk"}
+          src={user.business.logo?.url}
+          alt={user.business.name + " Toptierperk"}
           radius={100}
           width={32}
           height={32}
@@ -84,7 +84,7 @@ const CompanyAdmin: NextPage<Props> = ({ user, serverError }) => {
   );
 };
 
-export default CompanyAdmin;
+export default BusinessAdmin;
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
