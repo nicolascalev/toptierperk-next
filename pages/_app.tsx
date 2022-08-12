@@ -77,6 +77,18 @@ export default function App(props: AppProps) {
             colorScheme,
             fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
             colors: {
+              "brand": [
+                "#e7effc",
+                "#b8d0f5",
+                "#89b1ef",
+                "#5a92e9",
+                "#4282e5",
+                "#2b73e2",
+                "#1363df",
+                "#0f4fb2",
+                "#0d459c",
+                "#0b3b86",
+              ],
               "bright-yellow": [
                 "#FFD43B",
                 "#FFD43B",
@@ -88,6 +100,7 @@ export default function App(props: AppProps) {
                 "#FFD43B",
               ],
             },
+            primaryColor: 'brand',
             // loader: "dots",
           }}
         >
