@@ -183,8 +183,24 @@ const Home: NextPage<Props> = ({ user }) => {
       >
         {!user.business?.id && (
           <Paper p="md" withBorder>
-            <Text weight={500} mb="sm">No set business</Text>
-            <Text size="sm" color="dimmed">When you join or create a business, the acquired perks will show here</Text>
+            <Text weight={500} mb="sm">
+              No set business
+            </Text>
+            <Text size="sm" color="dimmed">
+              When you join or create a business, the acquired perks will show
+              here
+            </Text>
+          </Paper>
+        )}
+        {Array.from(new Set(perks)).length == 0 && (
+          <Paper p="md" mb="md" withBorder>
+            <Text weight={500} mb="sm">
+              No available results
+            </Text>
+            <Text size="sm" color="dimmed">
+              When your business acquires perks that fit the criteria they will
+              be displayed here
+            </Text>
           </Paper>
         )}
         <PerkList perks={Array.from(new Set(perks))} />
