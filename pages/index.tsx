@@ -40,6 +40,16 @@ interface Props {
 }
 const now = new Date();
 
+function PerkList({ perks }: { perks: any[] }) {
+  return (
+    <>
+      {perks.map((perk: any) => (
+        <AppPerkCard key={perk.id} perk={perk} />
+      ))}
+    </>
+  );
+}
+
 const Home: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
@@ -74,6 +84,7 @@ const Home: NextPage<Props> = ({ user }) => {
         take: 10,
         skip: 0,
         cursor: undefined,
+        acquired: true,
       },
     });
   }, [filters]);
@@ -169,9 +180,7 @@ const Home: NextPage<Props> = ({ user }) => {
           minHeight: "calc(100vh - 166px)",
         }}
       >
-        {Array.from(new Set(perks)).map((perk: any) => (
-          <AppPerkCard key={perk.id} perk={perk} />
-        ))}
+        <PerkList perks={Array.from(new Set(perks))} />
         {isLoading && (
           <Center>
             <Loader variant="bars" size="sm"></Loader>
