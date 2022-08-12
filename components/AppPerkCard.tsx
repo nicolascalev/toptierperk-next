@@ -8,9 +8,10 @@ import {
   Badge,
   Image,
 } from "@mantine/core";
+import { showNotification } from "@mantine/notifications";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Bookmark } from "tabler-icons-react";
+import { ChevronLeft, ChevronRight, Share } from "tabler-icons-react";
 import { timeAgo } from "helpers/formatDate";
 
 export default function AppPerkCard(props: any) {
@@ -35,6 +36,32 @@ export default function AppPerkCard(props: any) {
       return;
     }
     setDisplayPhoto(displayPhoto + 1);
+  }
+
+  function clickShare(e: any) {
+    e.stopPropagation();
+    // TODO: add drawer, use native share or copy url, or get qr...
+    const shareData = {
+      title: props.perk.name,
+      text: "Toptierperk, making B2B perks available for everyone",
+      url: window.location.origin + `/perk${props.perk.id}`,
+    };
+    navigator
+      .share(shareData)
+      .then(() => {
+        showNotification({
+          title: "Shared",
+          message: "Thanks for sharing this perk!",
+          autoClose: 5000,
+        });
+      })
+      .catch(() => {
+        showNotification({
+          title: "Not available",
+          message: "Sharing is not available for your device",
+          autoClose: 5000,
+        });
+      });
   }
 
   return (
@@ -113,8 +140,12 @@ export default function AppPerkCard(props: any) {
         {/* TODO: add functionality like links and save button */}
         <Group position="apart" py="sm">
           <Text>{props.perk.name}</Text>
-          <ActionIcon style={{ alignSelf: "start" }}>
-            <Bookmark />
+          <ActionIcon
+            style={{ alignSelf: "start" }}
+            size="sm"
+            onClick={clickShare}
+          >
+            <Share />
           </ActionIcon>
         </Group>
 
