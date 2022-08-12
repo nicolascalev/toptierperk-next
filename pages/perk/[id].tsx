@@ -19,13 +19,16 @@ import {
   Center,
   Badge,
   Loader,
+  Box,
 } from "@mantine/core";
 import AppAcquirePerkButton from "components/AppAcquirePerkButton";
+import AppWelcomeGuestModal from "components/AppWelcomeGuestModal";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, AlertCircle } from "tabler-icons-react";
 import formatDate from "helpers/formatDate";
 
 import Benefit from "prisma/models/Benefit";
+import AppPerkViewActions from "components/AppPerkViewActions";
 
 interface Props {
   benefit: any;
@@ -67,14 +70,6 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
   }
 
   const isDark = theme.colorScheme === "dark";
-  const perkActionsStyles = {
-    backgroundColor: isDark ? theme.colors.dark[7] : "white",
-    padding: theme.spacing.md,
-    position: "sticky" as any,
-    top: 49,
-    borderBottom: "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da"),
-    zIndex: 10,
-  };
 
   const startsAtBorder =
     "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
@@ -101,6 +96,13 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
     }
     if (benefit.useLimit && benefit.claimAmount >= benefit.useLimit) {
       return "This perk reached use limit amount";
+    }
+    return "";
+  }
+
+  function userCompanyError(): string {
+    if (!user?.company) {
+      return "Must be a part of a company";
     }
     return "";
   }
@@ -145,8 +147,14 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
           </Badge>
         </div>
       )}
-      <div style={perkActionsStyles}>
-        <Text size="xl" weight={500}>
+      <Box
+        p="md"
+        sx={{
+          borderBottom:
+            "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da"),
+        }}
+      >
+        <Text size="lg" weight={500}>
           {benefit.name}
         </Text>
         <Text>
@@ -161,8 +169,6 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
               companyId={user.adminOfId as number}
             />
           )}
-          <Button variant="default">Claim</Button>
-          <Button variant="default">Save</Button>
           {isPerkAdmin && (
             <Link href={`/perk/${benefit.id}/update`} passHref>
               <Button component="a" variant="default">
@@ -171,7 +177,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
             </Link>
           )}
         </Group>
-      </div>
+      </Box>
       <div style={{ padding: theme.spacing.md }}>
         {getPerkInactiveError() && (
           <Alert
@@ -184,6 +190,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
             {getPerkInactiveError()}
           </Alert>
         )}
+        {/* STATS FOR ADMIN */}
         {isPerkAdmin && (
           // TODO: fetch stats (beneficiaries and available for)
           <Group grow mb="md">
@@ -225,8 +232,10 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
             </Text>
           </div>
         </Group>
+        {/* USE LIMIT */}
         <Text color="dimmed">Use Limit</Text>
         <Text mb="md">{getUseLimitMessage()}</Text>
+        {/* CATEGORIES */}
         <Text color="dimmed">Categories</Text>
         <Group mb="md">
           {benefit.categories.length === 0 && (
@@ -238,6 +247,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
             </Text>
           ))}
         </Group>
+        {/* SUPPLIER */}
         <Text color="dimmed">Supplier</Text>
         <Link href={"/company/" + benefit.supplier.id} passHref>
           <Card
@@ -268,6 +278,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
           </Card>
         </Link>
       </div>
+      <AppPerkViewActions perkName={benefit.name} />
 
       <Drawer
         opened={openedGallery}
@@ -299,6 +310,8 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
           </SimpleGrid>
         </ScrollArea>
       </Drawer>
+
+      <AppWelcomeGuestModal />
     </div>
   );
 };
