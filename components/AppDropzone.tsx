@@ -8,8 +8,8 @@ export default function AppDropzone(props: Partial<DropzoneProps>) {
     <Dropzone
       onDrop={(files) => console.log('accepted files', files)}
       onReject={(files) => console.log('rejected files', files)}
-      maxSize={3 * 1024 ** 2}
-      accept={IMAGE_MIME_TYPE}
+      maxSize={4 * 1024 ** 2}
+      accept={["image/*"]}
       {...props}
     >
       <Group position="center" spacing="xs" style={{ minHeight: 100, pointerEvents: 'none' }}>
