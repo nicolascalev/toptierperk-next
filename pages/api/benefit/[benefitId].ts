@@ -91,8 +91,8 @@ export default async function singleBenefitHandler(
       data.isActive = body.isActive;
       data.useLimit = body.useLimit || undefined;
       data.useLimitPerUser = body.useLimitPerUser || undefined;
-      data.startsAt = body.startsAt || undefined;
-      data.finishesAt = body.finishesAt || undefined;
+      data.startsAt = body.startsAt || null;
+      data.finishesAt = body.finishesAt || null;
 
       const { value: validatedData, error: validationError } =
         updateBenefitSchema.validate(data);
