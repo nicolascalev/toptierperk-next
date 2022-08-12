@@ -12,26 +12,33 @@ import {
   Stack,
   SegmentedControl,
   Select,
+  Indicator,
+  Button,
 } from "@mantine/core";
 import { Filter } from "tabler-icons-react";
-import AppPerkCard from "../components/AppPerkCard";
-import { useState, useEffect } from "react";
+import AppPerkCard from "components/AppPerkCard";
+import AppMainLoader from "components/AppMainLoader";
+import { useState, useEffect, useMemo } from "react";
 import { DatePicker } from "@mantine/dates";
+import useSWR from "swr";
 import axios from "axios";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { useDebouncedValue } from "@mantine/hooks";
+import { isNull, pick } from "lodash";
+import AppPrivacySelect from "components/AppPrivacySelect";
+import AppCategorySelect from "components/AppCategorySelect";
 
-type PrivacyType = "all" | "private" | "public";
-
-type Filters = {
-  searchString: string;
-  category?: string;
-  startsAt?: Date;
-  isPrivate: undefined | boolean;
-};
+const fetcher = (url: string, params: any) =>
+  axios
+    .get(url, {
+      params,
+    })
+    .then((res) => res.data);
 
 interface Props {
   user: any;
 }
+const now = new Date();
 
 const Home: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
@@ -41,102 +48,145 @@ const Home: NextPage<Props> = ({ user }) => {
   const feedBackground = isDark ? theme.colors.dark[8] : theme.colors.gray[1];
 
   const [openedFilters, setOpenedFilters] = useState(false);
-  const [perks, setPerks] = useState([]);
+  const [perks, setPerks] = useState<any[]>([]);
 
-  const privacyOptions = [
-    { label: "All", value: "all" },
-    { label: "Private", value: "private" },
-    { label: "Public", value: "public" },
-  ];
-  const [selectedPrivacy, setSelectedPrivacy] = useState<PrivacyType>("all");
-  function getIsPrivate(value: PrivacyType) {
-    if (value == "private") {
-      return true;
-    }
-    if (value == "public") {
-      return false;
-    }
-    return undefined;
-  }
-  const isPrivate: undefined | boolean = getIsPrivate(selectedPrivacy);
-
-  const [category, setCategory] = useState("");
-  const [startsAt, setStartsAt] = useState<Date | null>(null);
-
-  const [filters, setFilters] = useState<Filters>({
-    searchString: "",
-    isPrivate: undefined,
-    category: undefined,
-    startsAt: undefined,
-  });
-  function onChangeSearchString(e: any) {
-    setFilters({
-      ...filters,
-      ...{ searchString: e.currentTarget?.value || "" },
-    });
-  }
-  function onCloseDrawer() {
-    setOpenedFilters(false);
-
-    if (
-      filters.isPrivate == isPrivate &&
-      filters.category == (category || undefined) &&
-      filters.startsAt == (startsAt || undefined)
-    ) {
-      return;
-    }
-
-    setFilters({
+  const [searchString, setSearchString] = useState("");
+  const [debSearchString] = useDebouncedValue(searchString, 500);
+  const [privacy, setPrivacy] = useState<undefined | boolean>(undefined);
+  const [startsAt, setStartsAt] = useState<Date | undefined>(undefined);
+  const [category, setCategory] = useState<undefined | any>(undefined);
+  const [theresMore, setTheresMore] = useState(false);
+  const [params, setParams] = useState<any>();
+  const filters = useMemo(
+    () => ({
+      searchString: debSearchString,
+      privacy: privacy,
+      startsAt: startsAt,
+      category: category?.value || undefined,
+    }),
+    [category, debSearchString, privacy, startsAt]
+  );
+  useEffect(() => {
+    setPerks([]);
+    setParams({
       ...filters,
       ...{
-        isPrivate: isPrivate,
-        category: category || undefined,
-        startsAt: startsAt || undefined,
+        take: 10,
+        skip: 0,
+        cursor: undefined,
+      },
+    });
+  }, [filters]);
+  function resetFilters() {
+    setSearchString("");
+    setPrivacy(undefined);
+    setStartsAt(undefined);
+    setCategory(undefined);
+  }
+  const { data, error } = useSWR<any[]>(
+    user.company.id
+      ? [`/api/company/${user.company.id}/benefits`, params]
+      : null,
+    fetcher
+  );
+  const isLoading = !data && !error;
+  useEffect(() => {
+    if (data) {
+      setPerks((perks: any[]) => [...perks, ...data]);
+    }
+    if (data && data.length === 10) {
+      setTheresMore(true);
+    }
+    if (data && data.length < 10) {
+      setTheresMore(false);
+    }
+  }, [data]);
+
+  function loadMore() {
+    const newCursor = perks[perks.length - 1].id;
+    setParams({
+      ...filters,
+      ...{
+        take: 10,
+        skip: 1,
+        cursor: newCursor,
       },
     });
   }
 
-  useEffect(() => {
-    // async function loadPerks() {
-    //   try {
-    //     await axios.get(`/api/company/${user.company.id}/benefits`, {
-    //       params: {}
-    //     })
-    //   } catch (err) {
-    //     console.log(err, 'loading perks')
-    //   }
-    // }
-    // loadPerks()
-  }, [filters, user.company.id]);
+  const hasActiveFilters = (): boolean => {
+    const monitoredFilters = pick(filters, ["privacy", "startsAt", "category"]);
+    if (
+      Object.values(monitoredFilters)
+        .map((val: any) => val !== "" && val !== undefined)
+        .includes(true)
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  function onChangeDatePicker(value: null | Date) {
+    if (isNull(value)) {
+      setStartsAt(undefined);
+      return;
+    }
+    setStartsAt(value);
+  }
 
   return (
-    <Box>
+    <Box pb={49}>
       <Group
         p="md"
         sx={{
           position: "sticky",
           top: "50px",
           backgroundColor: filterBackground,
+          zIndex: 10,
         }}
       >
         <TextInput
-          value={filters.searchString}
-          onChange={onChangeSearchString}
+          value={searchString}
+          onChange={(e: any) => setSearchString(e.currentTarget.value)}
           variant="default"
           placeholder="Search available perks"
           style={{ flexGrow: 1 }}
         />
-        <ActionIcon title="Open filters" onClick={() => setOpenedFilters(true)}>
-          <Filter></Filter>
-        </ActionIcon>
+        <Indicator disabled={!hasActiveFilters()}>
+          <ActionIcon
+            title="Open filters"
+            onClick={() => setOpenedFilters(true)}
+          >
+            <Filter></Filter>
+          </ActionIcon>
+        </Indicator>
       </Group>
-      <Box p="md" sx={{ backgroundColor: feedBackground, minHeight: "90vh" }}>
-        {/* <Center><Loader size="sm" /></Center> */}
+
+      <Box
+        p="md"
+        sx={{
+          backgroundColor: feedBackground,
+          minHeight: "calc(100vh - 166px)",
+        }}
+      >
+        {Array.from(new Set(perks)).map((perk: any) => (
+          <AppPerkCard key={perk.id} perk={perk} />
+        ))}
+        {isLoading && (
+          <Center>
+            <Loader variant="bars" size="sm"></Loader>
+          </Center>
+        )}
+        {!isLoading && (
+          <Button onClick={loadMore} disabled={!theresMore} fullWidth>
+            {theresMore ? "Load More" : "Up to date"}
+          </Button>
+        )}
       </Box>
 
       <Drawer
         opened={openedFilters}
-        onClose={onCloseDrawer}
+        onClose={() => setOpenedFilters(false)}
         title="Filters"
         padding="md"
         size="xl"
@@ -144,33 +194,20 @@ const Home: NextPage<Props> = ({ user }) => {
       >
         <Stack spacing="sm">
           <Box sx={{ width: "100%" }}>
-            <Text weight={500} size="sm" mb={1}>
-              Privacy
-            </Text>
-            <SegmentedControl
-              sx={{ width: "100%" }}
-              value={selectedPrivacy}
-              onChange={(val: PrivacyType) => setSelectedPrivacy(val)}
-              data={privacyOptions}
-            />
+            <AppPrivacySelect value={privacy} onChange={setPrivacy} />
           </Box>
-          <Select
-            label="Category"
-            placeholder="Select category"
-            nothingFound="Not found"
-            clearable
-            data={[]}
-            value={category}
-            onChange={(val: string) => setCategory(val)}
-          />
+          <AppCategorySelect onChange={setCategory} value={category} />
           <DatePicker
             placeholder="Pick date"
             label="Available on"
             description="Find perks that will be available on a certain day"
-            minDate={new Date()}
+            minDate={now}
             value={startsAt}
-            onChange={setStartsAt}
+            onChange={onChangeDatePicker}
           />
+          {hasActiveFilters() && (
+            <Button onClick={resetFilters}>Clear filters</Button>
+          )}
         </Stack>
       </Drawer>
     </Box>
