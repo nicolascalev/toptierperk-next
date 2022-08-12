@@ -95,7 +95,7 @@ const Home: NextPage<Props> = ({ user }) => {
     setCategory(undefined);
   }
   const { data, error } = useSWR<any[]>(
-    user.company.id
+    user.company.id && params
       ? [`/api/company/${user.company.id}/benefits`, params]
       : null,
     fetcher
