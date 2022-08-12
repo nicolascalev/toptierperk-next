@@ -16,8 +16,8 @@ export default function BottomNavigation(props: any) {
   const router = useRouter();
   const links = [
     { url: "/", icon: <SmartHome /> },
-    { url: "/scan/company", icon: <Scan /> },
-    { url: "/company", icon: <BuildingSkyscraper /> },
+    { url: "/scan/business", icon: <Scan /> },
+    { url: "/business", icon: <BuildingSkyscraper /> },
     { url: "/profile", icon: <User /> },
   ]
 

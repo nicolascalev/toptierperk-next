@@ -28,7 +28,7 @@ const User = {
           },
         },
         include: {
-          company: {
+          business: {
             include: { logo: true }
           },
           adminOf: {
@@ -53,7 +53,7 @@ const User = {
       const user = await prisma.user.findUnique(<Prisma.UserFindUniqueArgs>{
         where: { auth0sub: sub },
         include: {
-          company: {
+          business: {
             include: { logo: true }
           },
           adminOf: {
@@ -78,7 +78,7 @@ const User = {
           id,
         },
         include: {
-          company: true,
+          business: true,
           adminOf: true,
           picture: true,
         },
@@ -97,7 +97,7 @@ const User = {
         take = undefined,
         orderBy = "desc",
       } = query;
-      const companySelect = {
+      const businessSelect = {
         select: {
           id: true,
           createdAt: true,
@@ -119,8 +119,8 @@ const User = {
           email: true,
           name: true,
           picture: true,
-          company: companySelect,
-          adminOf: companySelect,
+          business: businessSelect,
+          adminOf: businessSelect,
         },
         take: Number(take) || undefined,
         skip: Number(skip) || undefined,

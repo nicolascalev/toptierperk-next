@@ -96,8 +96,8 @@ const Home: NextPage<Props> = ({ user }) => {
     setCategory(undefined);
   }
   const { data, error } = useSWR<any[]>(
-    user.company?.id && params
-      ? [`/api/company/${user.company.id}/benefits`, params]
+    user.business?.id && params
+      ? [`/api/business/${user.business.id}/benefits`, params]
       : null,
     fetcher
   );
@@ -181,19 +181,19 @@ const Home: NextPage<Props> = ({ user }) => {
           minHeight: "calc(100vh - 166px)",
         }}
       >
-        {!user.company?.id && (
+        {!user.business?.id && (
           <Paper p="md" withBorder>
             <Text weight={500} mb="sm">No set business</Text>
             <Text size="sm" color="dimmed">When you join or create a business, the acquired perks will show here</Text>
           </Paper>
         )}
         <PerkList perks={Array.from(new Set(perks))} />
-        {isLoading && user.company?.id && (
+        {isLoading && user.business?.id && (
           <Center>
             <Loader variant="bars" size="sm"></Loader>
           </Center>
         )}
-        {!isLoading && user.company?.id && (
+        {!isLoading && user.business?.id && (
           <Button onClick={loadMore} disabled={!theresMore} fullWidth>
             {theresMore ? "Load More" : "Up to date"}
           </Button>

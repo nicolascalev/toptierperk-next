@@ -112,7 +112,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
     try {
       setLoadingPerks(true);
       const { data } = await axios.get(
-        `/api/company/${user.company.id}/benefits`,
+        `/api/business/${user.business.id}/benefits`,
         {
           params: {
             searchString: filters.searchString,
@@ -150,7 +150,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
     filters.searchString,
     filters.startsAt,
     skip,
-    user.company.id,
+    user.business.id,
   ]);
 
   useEffect(() => {

@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import Company from "../../../prisma/models/Company"
+import Business from "../../../prisma/models/Business"
 
-export default async function findCompanyByNameHandler(req: NextApiRequest, res: NextApiResponse) {
+export default async function findBusinessByNameHandler(req: NextApiRequest, res: NextApiResponse) {
   const searchString = req.query.searchString as string;
   try {
-    const result = await Company.findOneByName(searchString)
+    const result = await Business.findOneByName(searchString)
     return res.status(200).json(result)
   } catch (error) {
     console.log(error)

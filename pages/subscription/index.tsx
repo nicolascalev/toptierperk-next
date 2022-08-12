@@ -21,13 +21,13 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
   if (user.adminOf == null) {
     return (
       <div>
-        You have to be the admin of a company to manage your subscription
+        You have to be the admin of a business to manage your subscription
       </div>
     );
   }
 
-  function onSubscriptionApprove(company: any) {
-    setUser({ ...user, ...{ company } });
+  function onSubscriptionApprove(business: any) {
+    setUser({ ...user, ...{ business } });
     showNotification({
       title: "Subscribed!",
       message:
@@ -57,7 +57,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
       <div style={{ padding: theme.spacing.md }}>
         <h2>Subscription</h2>
 
-        {user.company.paidMembership ? (
+        {user.business.paidMembership ? (
           // TODO: get the actual information of the plan od the user
           <p>You have a basic plan</p>
         ) : (
@@ -66,7 +66,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
           >
             <AppSubscriptionCard
               planid="P-8AT92407XR393120UMLGLXXI"
-              companyid={user.adminOf.id}
+              businessid={user.adminOf.id}
               onSubscriptionApprove={onSubscriptionApprove}
               onSubscriptionError={onSubscriptionError}
             />

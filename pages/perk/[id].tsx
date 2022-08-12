@@ -100,9 +100,9 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
     return "";
   }
 
-  function userCompanyError(): string {
-    if (!user?.company) {
-      return "Must be a part of a company";
+  function userBusinessError(): string {
+    if (!user?.business) {
+      return "Must be a part of a business";
     }
     return "";
   }
@@ -166,7 +166,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
             <AppAcquirePerkButton
               variant="default"
               perkId={benefit.id}
-              companyId={user.adminOfId as number}
+              businessId={user.adminOfId as number}
             />
           )}
           {isPerkAdmin && (
@@ -249,7 +249,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
         </Group>
         {/* SUPPLIER */}
         <Text color="dimmed">Supplier</Text>
-        <Link href={"/company/" + benefit.supplier.id} passHref>
+        <Link href={"/business/" + benefit.supplier.id} passHref>
           <Card
             component="a"
             style={{

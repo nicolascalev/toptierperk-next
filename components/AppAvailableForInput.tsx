@@ -13,27 +13,27 @@ import { Edit, Search, X } from "tabler-icons-react";
 import { debounce } from "lodash";
 import axios from "axios";
 
-const debouncedSearchCompany = debounce(
-  async (setCompaniesSearchItems, availableFor, name) => {
+const debouncedSearchBusiness = debounce(
+  async (setBusinessesSearchItems, availableFor, name) => {
     try {
-      const { data } = await axios.get("/api/company", {
+      const { data } = await axios.get("/api/business", {
         params: { take: 15, searchString: name },
       });
-      const parsedItems = data.map((company: any) => {
+      const parsedItems = data.map((business: any) => {
         const itemOnList = availableFor.find(
-          (com: any) => com.id === company.id
+          (com: any) => com.id === business.id
         );
         return {
-          value: `${company.id}`,
-          label: company.name,
+          value: `${business.id}`,
+          label: business.name,
           disabled: itemOnList ? true : false,
-          group: itemOnList ? "Company already on list" : "Add",
-          company,
+          group: itemOnList ? "Business already on list" : "Add",
+          business,
         };
       });
-      setCompaniesSearchItems(parsedItems);
+      setBusinessesSearchItems(parsedItems);
     } catch (err) {
-      setCompaniesSearchItems([]);
+      setBusinessesSearchItems([]);
       console.log(err);
     }
   },
@@ -54,9 +54,9 @@ function AppAvailableForInput(props: any) {
     setOpenedDrawer(false);
   }
 
-  const [companiesSearchItems, setCompaniesSearchItems] = useState<any>([]);
+  const [businessesSearchItems, setBusinessesSearchItems] = useState<any>([]);
   function setLoadingSearch() {
-    setCompaniesSearchItems([
+    setBusinessesSearchItems([
       { value: "loading", label: "Loading...", disabled: true },
     ]);
   }
@@ -64,15 +64,15 @@ function AppAvailableForInput(props: any) {
   function onSelectChange(val: any) {
     setSelectValue(val);
     if (!val) return;
-    const selectedCompany = companiesSearchItems.find(
+    const selectedBusiness = businessesSearchItems.find(
       (item: any) => item.value === val
-    ).company;
-    setAvailableFor([...availableFor, ...[selectedCompany]]);
+    ).business;
+    setAvailableFor([...availableFor, ...[selectedBusiness]]);
   }
 
-  function removeCompanyItem(companyIndex: number) {
+  function removeBusinessItem(businessIndex: number) {
     const copy = [...availableFor];
-    copy.splice(companyIndex, 1);
+    copy.splice(businessIndex, 1);
     setAvailableFor(copy);
   }
 
@@ -80,8 +80,8 @@ function AppAvailableForInput(props: any) {
   useEffect(() => {
     if (searchString) {
       setLoadingSearch();
-      debouncedSearchCompany(
-        setCompaniesSearchItems,
+      debouncedSearchBusiness(
+        setBusinessesSearchItems,
         availableFor,
         searchString
       );
@@ -94,7 +94,7 @@ function AppAvailableForInput(props: any) {
         Available for
       </Text>
       <Text size="xs" color="dimmed">
-        List of companies allowed to acquire this exclusive perk
+        List of businesses allowed to acquire this exclusive perk
       </Text>
       <Button
         variant="default"
@@ -109,14 +109,14 @@ function AppAvailableForInput(props: any) {
       <Drawer
         opened={openedDrawer}
         onClose={onCloseDrawer}
-        title="Update companies"
+        title="Update businesses"
         padding="md"
         size="xl"
         position="bottom"
       >
         <Select
-          placeholder="Company Name"
-          data={companiesSearchItems}
+          placeholder="Business Name"
+          data={businessesSearchItems}
           value={selectValue}
           onChange={(val: any) => onSelectChange(val)}
           searchable
@@ -129,21 +129,21 @@ function AppAvailableForInput(props: any) {
         <Box mt="md">
           {availableFor.length === 0 && (
             <Text color="dimmed" size="sm">
-              This perk is not available to any companies when private yet
+              This perk is not available to any businesses when private yet
             </Text>
           )}
           {availableFor.length > 0 && (
             <Text color="dimmed" size="sm">
-              Available for {availableFor.length} companies
+              Available for {availableFor.length} businesses
             </Text>
           )}
-          {availableFor.map((company: any, index: number) => (
-            <div key={company.id}>
+          {availableFor.map((business: any, index: number) => (
+            <div key={business.id}>
               {index !== 0 && <Divider></Divider>}
               <Group position="apart" spacing="xs" py="md">
-                <Text>{company.name}</Text>
+                <Text>{business.name}</Text>
                 <ActionIcon size="xs">
-                  <X onClick={() => removeCompanyItem(index)} />
+                  <X onClick={() => removeBusinessItem(index)} />
                 </ActionIcon>
               </Group>
             </div>

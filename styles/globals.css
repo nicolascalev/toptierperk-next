@@ -18,12 +18,12 @@
   background-size: cover;
 }
 
-.company__info {
+.business__info {
   opacity: 1;
   transition: all .5s;
 }
 
-.company__info.company__info_hidden {
+.business__info.business__info_hidden {
   opacity: 0;
 }
 

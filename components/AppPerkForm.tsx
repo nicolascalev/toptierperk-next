@@ -353,7 +353,7 @@ export default function AppPerkForm(props: any) {
           />
           {props.action === "update" && isPrivate === "private" && (
             <Text size="sm" color="dimmed">
-              Perk will be private but the companies that got it while it was
+              Perk will be private but the businesses that got it while it was
               public will keep it.
             </Text>
           )}

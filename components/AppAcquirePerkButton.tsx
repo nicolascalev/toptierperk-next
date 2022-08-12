@@ -7,15 +7,15 @@ import { showNotification } from "@mantine/notifications";
 
 type AcquireButtonProps = {
   perkId: number;
-  companyId: number;
+  businessId: number;
 };
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 function AppAcquirePerkButton({
   perkId,
-  companyId,
+  businessId,
   ...props
 }: AcquireButtonProps & ButtonProps) {
-  const endpoint = `/api/company/${companyId}/benefits/${perkId}`;
+  const endpoint = `/api/business/${businessId}/benefits/${perkId}`;
   const { data, error } = useSWR(endpoint, fetcher);
   const [status, setStatus] = useState<{
     perkIsAvailable: boolean;

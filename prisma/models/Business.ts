@@ -1,29 +1,31 @@
 import prisma from "../prisma.client";
 import { Prisma } from "@prisma/client";
 
-export type CompanyCreateArgs = {
+export type BusinessCreateArgs = {
   name: string;
+  email: string;
   about?: string;
-  logo: Prisma.PhotoCreateWithoutCompanyInput;
+  logo: Prisma.PhotoCreateWithoutBusinessInput;
   employees: number[];
   admins: number[];
 };
 
-export type CompanyFindPublicSearchParams = {
+export type BusinessFindPublicSearchParams = {
   searchString?: string;
   skip?: number;
   take?: number;
   orderBy?: "desc" | "asc";
 };
 
-const Company = {
+const Business = {
   create: async ({
     name,
+    email,
     about,
     logo,
     employees = [],
     admins = [],
-  }: CompanyCreateArgs) => {
+  }: BusinessCreateArgs) => {
     if (employees.length == 0 || admins.length == 0) {
       throw new Error("Employees and admins must contain at least one item");
     }
@@ -32,8 +34,9 @@ const Company = {
       id: employeeId,
     }));
     try {
-      const data: Prisma.CompanyCreateInput = {
+      const data: Prisma.BusinessCreateInput = {
         name,
+        email,
         about,
         logo: logo
           ? {
@@ -47,7 +50,7 @@ const Company = {
           connect: connectAdmins,
         },
       };
-      const newCompany = await prisma.company.create(<Prisma.CompanyCreateArgs>{
+      const newBusiness = await prisma.business.create(<Prisma.BusinessCreateArgs>{
         data,
         include: {
           logo: true,
@@ -55,7 +58,7 @@ const Company = {
           employees: true,
         },
       });
-      return newCompany;
+      return newBusiness;
     } catch (err) {
       return Promise.reject(err);
     }
@@ -66,10 +69,10 @@ const Company = {
     skip = undefined,
     take = undefined,
     orderBy = "desc",
-  }: CompanyFindPublicSearchParams) => {
+  }: BusinessFindPublicSearchParams) => {
     try {
-      const companies = await prisma.company.findMany(<
-        Prisma.CompanyFindManyArgs
+      const businesses = await prisma.business.findMany(<
+        Prisma.BusinessFindManyArgs
       >{
         where: {
           name: { contains: searchString },
@@ -83,13 +86,13 @@ const Company = {
           logo: true,
         },
       });
-      return companies;
+      return businesses;
     } catch (err) {
       return Promise.reject(err);
     }
   },
 
-  getProfile: async (companyId: number) => {
+  getProfile: async (businessId: number) => {
     try {
       const queryDateTime = new Date();
       const perkInclude = {
@@ -110,9 +113,9 @@ const Company = {
           select: { id: true, name: true },
         },
       };
-      const company =
-        await prisma.company.findFirst<Prisma.CompanyFindFirstArgs>({
-          where: { id: companyId },
+      const business =
+        await prisma.business.findFirst<Prisma.BusinessFindFirstArgs>({
+          where: { id: businessId },
           select: {
             id: true,
             name: true,
@@ -152,7 +155,7 @@ const Company = {
             },
           },
         });
-      return company;
+      return business;
     } catch (err) {
       return Promise.reject(err);
     }
@@ -160,14 +163,14 @@ const Company = {
 
   findOneByName: async (name: string) => {
     try {
-      const company = await prisma.company.findUnique(<
-        Prisma.CompanyFindUniqueArgs
+      const business = await prisma.business.findUnique(<
+        Prisma.BusinessFindUniqueArgs
       >{
         where: {
           name: name,
         },
       });
-      return company;
+      return business;
     } catch (err) {
       return Promise.reject(err);
     }
@@ -175,21 +178,21 @@ const Company = {
 
   findById: async (id: number) => {
     try {
-      const company = await prisma.company.findFirst({
+      const business = await prisma.business.findFirst({
         where: { id },
         include: {
           logo: true,
         },
       });
-      return company;
+      return business;
     } catch (err) {
       return Promise.reject(err);
     }
   },
 
-  // check with perk id if that perk is available for company or if it has been acquired
+  // check with perk id if that perk is available for business or if it has been acquired
   checkAvailableBenefit: async (
-    companyId: number,
+    businessId: number,
     benefitId: number
   ): Promise<{ perkIsAvailable: boolean; perkIsAcquired: boolean }> => {
     try {
@@ -200,7 +203,7 @@ const Company = {
             { isPrivate: false },
             {
               availableFor: {
-                some: { id: companyId },
+                some: { id: businessId },
               },
             },
           ],
@@ -211,7 +214,7 @@ const Company = {
         where: {
           id: benefitId,
           beneficiaries: {
-            some: { id: companyId },
+            some: { id: businessId },
           },
         },
         select: { id: true },
@@ -226,53 +229,53 @@ const Company = {
     }
   },
 
-  // PATCH: /company/:id
-  update: async (id: number, data: Prisma.CompanyUpdateInput) => {
+  // PATCH: /business/:id
+  update: async (id: number, data: Prisma.BusinessUpdateInput) => {
     if (!id) {
-      throw new Error("id must be provided to use Company.update()");
+      throw new Error("id must be provided to use Business.update()");
     }
     try {
-      const updatedCompany = await prisma.company.update(<
-        Prisma.CompanyUpdateArgs
+      const updatedBusiness = await prisma.business.update(<
+        Prisma.BusinessUpdateArgs
       >{
         data,
         where: { id },
       });
-      return updatedCompany;
+      return updatedBusiness;
     } catch (err) {
       return Promise.reject(err);
     }
   },
 
-  updateSubscription: async (companyId: number, subscriptionId: string) => {
-    if (companyId === undefined || subscriptionId === undefined) {
+  updateSubscription: async (businessId: number, subscriptionId: string) => {
+    if (businessId === undefined || subscriptionId === undefined) {
       throw new Error(
-        "Company.updateSubscription() required companyId and subscriptionId in the params"
+        "Business.updateSubscription() required businessId and subscriptionId in the params"
       );
     }
 
     try {
-      const updatedCompany = await prisma.company.update(<
-        Prisma.CompanyUpdateArgs
+      const updatedBusiness = await prisma.business.update(<
+        Prisma.BusinessUpdateArgs
       >{
         data: { paypalSubscriptionId: subscriptionId, paidMembership: true },
-        where: { id: companyId },
+        where: { id: businessId },
         include: {
           logo: true,
           admins: true,
           employees: true,
         },
       });
-      return updatedCompany;
+      return updatedBusiness;
     } catch (err) {
       return Promise.reject(err);
     }
   },
 
-  acquireBenefit: async (companyId: number, benefitId: number) => {
+  acquireBenefit: async (businessId: number, benefitId: number) => {
     try {
-      await prisma.company.update({
-        where: { id: companyId },
+      await prisma.business.update({
+        where: { id: businessId },
         data: {
           benefitsFrom: { connect: { id: benefitId } },
         },
@@ -283,10 +286,10 @@ const Company = {
   },
 
   // removes benefit to offer to employees
-  looseBenefit: async (companyId: number, benefitId: number) => {
+  looseBenefit: async (businessId: number, benefitId: number) => {
     try {
-      const updated = await prisma.company.update({
-        where: { id: companyId },
+      const updated = await prisma.business.update({
+        where: { id: businessId },
         data: {
           benefitsFrom: { disconnect: { id: benefitId } },
         },
@@ -298,4 +301,4 @@ const Company = {
   },
 };
 
-export default Company;
+export default Business;

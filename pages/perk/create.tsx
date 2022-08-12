@@ -14,7 +14,7 @@ const CreatePerkPage: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const router = useRouter();
 
-  if (user.adminOf && user.company?.paidMembership == false) {
+  if (user.adminOf && user.business?.paidMembership == false) {
     return (
       <Box p="md">
         <Alert
@@ -46,7 +46,7 @@ const CreatePerkPage: NextPage<Props> = ({ user }) => {
         <AppPerkForm action="create"></AppPerkForm>
       ) : (
         <Box p="md">
-          <Text>You have to be a company admin to create a perk</Text>
+          <Text>You have to be a business admin to create a perk</Text>
         </Box>
       )}
     </div>

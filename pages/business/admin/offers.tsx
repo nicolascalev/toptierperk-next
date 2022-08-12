@@ -19,7 +19,7 @@ interface Props {
   user: any;
 }
 
-const CompanyOffers: NextPage<Props> = ({ user }) => {
+const BusinessOffers: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
   const [status, setStatus] = useState("active");
   const isDark = theme.colorScheme === "dark" ? true : false;
@@ -32,7 +32,7 @@ const CompanyOffers: NextPage<Props> = ({ user }) => {
       setLoadingOffers(true);
       try {
         const { data } = await axios.get(
-          `/api/company/${user.company.id}/offers`,
+          `/api/business/${user.business.id}/offers`,
           { params: { status: "ALL" } }
         );
         setOffers(data);
@@ -44,7 +44,7 @@ const CompanyOffers: NextPage<Props> = ({ user }) => {
       }
     }
     loadOffers();
-  }, [setLoadingOffers, setOffers, user.company.id]);
+  }, [setLoadingOffers, setOffers, user.business.id]);
 
   const [activeOffers, setActiveOffers] = useState([]);
   const [drafts, setDrafts] = useState([]);
@@ -107,7 +107,7 @@ const CompanyOffers: NextPage<Props> = ({ user }) => {
   );
 };
 
-export default CompanyOffers;
+export default BusinessOffers;
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {

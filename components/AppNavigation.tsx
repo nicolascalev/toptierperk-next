@@ -12,13 +12,13 @@ function AppNavigation(props: any) {
       <Box>
         {user && (
           <>
-            <Link href="/company/admin" passHref>
+            <Link href="/business/admin" passHref>
               <NavLink
                 component="a"
                 variant="subtle"
-                label="Your company"
+                label="Your business"
                 icon={<BuildingSkyscraper size={14} />}
-                active={router.pathname == "/company/admin"}
+                active={router.pathname == "/business/admin"}
               />
             </Link>
             <Link href="/scan/costumer" passHref>
