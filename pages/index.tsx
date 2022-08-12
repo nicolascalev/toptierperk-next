@@ -14,6 +14,7 @@ import {
   Select,
   Indicator,
   Button,
+  Paper,
 } from "@mantine/core";
 import { Filter } from "tabler-icons-react";
 import AppPerkCard from "components/AppPerkCard";
@@ -95,7 +96,7 @@ const Home: NextPage<Props> = ({ user }) => {
     setCategory(undefined);
   }
   const { data, error } = useSWR<any[]>(
-    user.company.id && params
+    user.company?.id && params
       ? [`/api/company/${user.company.id}/benefits`, params]
       : null,
     fetcher
@@ -180,13 +181,19 @@ const Home: NextPage<Props> = ({ user }) => {
           minHeight: "calc(100vh - 166px)",
         }}
       >
+        {!user.company?.id && (
+          <Paper p="md" withBorder>
+            <Text weight={500} mb="sm">No set business</Text>
+            <Text size="sm" color="dimmed">When you join or create a business, the acquired perks will show here</Text>
+          </Paper>
+        )}
         <PerkList perks={Array.from(new Set(perks))} />
-        {isLoading && (
+        {isLoading && user.company?.id && (
           <Center>
             <Loader variant="bars" size="sm"></Loader>
           </Center>
         )}
-        {!isLoading && (
+        {!isLoading && user.company?.id && (
           <Button onClick={loadMore} disabled={!theresMore} fullWidth>
             {theresMore ? "Load More" : "Up to date"}
           </Button>
