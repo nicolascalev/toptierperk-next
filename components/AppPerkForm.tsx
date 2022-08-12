@@ -94,15 +94,30 @@ export default function AppPerkForm(props: any) {
       description: perk ? perk.description : "",
       useLimit: perk ? perk.useLimit : null,
       useLimitPerUser: perk ? perk.useLimitPerUser : null,
-      startsAt: perk ? new Date(perk.startsAt) : new Date(),
-      finishesAt: perk ? new Date(perk.finishesAt) : null,
+      startsAt: getInitialDateValue(perk, "startsAt", new Date()),
+      finishesAt: getInitialDateValue(perk, "finishesAt", null),
     },
   });
+
+  function getInitialDateValue(
+    perk: any,
+    attr: string,
+    defaultValue: Date | null
+  ) {
+    if (!perk) {
+      return defaultValue;
+    }
+    if (perk[attr]) {
+      return new Date(perk[attr]);
+    }
+    return defaultValue;
+  }
 
   const initialCategories: string[] = perk?.categories
     ? perk.categories.map((cat: any) => cat.name)
     : [];
   const [categories, setCategories] = useState(initialCategories);
+  const [categoryLengthError, setCategoryLengthError] = useState("");
 
   const privacy = props.perk?.isPrivate ? "private" : "public";
   const [isPrivate, setIsPrivate] = useState(privacy);
@@ -185,7 +200,7 @@ export default function AppPerkForm(props: any) {
           color: "red",
           autoClose: 5000,
         });
-        return
+        return;
       }
       await createPerk(formData);
     }
@@ -380,6 +395,19 @@ export default function AppPerkForm(props: any) {
             creatable
             maxSelectedValues={10}
             getCreateLabel={(query) => `+ Add ${query}`}
+            shouldCreate={(query) => {
+              if (query.length > 0 && query.length <= 20) {
+                setCategoryLengthError("");
+                return true;
+              }
+              if (query.length == 0) {
+                setCategoryLengthError("");
+                return false;
+              }
+              setCategoryLengthError("Must be up to 20 characters.");
+              return false;
+            }}
+            error={categoryLengthError || undefined}
             onCreate={(query) => {
               const item = { value: query, label: query };
               setCategories((current) => [...current, query]);
