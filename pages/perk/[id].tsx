@@ -294,7 +294,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
           </Card>
         </Link>
       </div>
-      <AppPerkViewActions perkName={benefit.name} />
+      <AppPerkViewActions perk={benefit} />
 
       <Drawer
         opened={openedGallery}
