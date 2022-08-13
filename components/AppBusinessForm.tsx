@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   useMantineTheme,
   Stack,
@@ -120,7 +120,7 @@ function AppBusinessForm({
       onSuccess();
     } catch (err: any) {
       if (err.response?.data?.error?.code == "P2002") {
-        form.setFieldError("name", "Name has been taken");
+        form.setFieldError("email", "A business has been registered with that account before");
         onError(err.response?.data);
       }
     } finally {
