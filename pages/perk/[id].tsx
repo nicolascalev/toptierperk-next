@@ -74,6 +74,9 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
   const startsAtBorder =
     "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
 
+  const companyCardBackgroundColor =
+    theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0];
+
   function getUseLimitMessage() {
     if (benefit.useLimit && benefit.useLimitPerUser) {
       return `There are ${benefit.useLimit} available in total, and ${benefit.useLimitPerUser} allowed per user`;
@@ -253,11 +256,10 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
           <Card
             component="a"
             style={{
-              backgroundColor:
-                theme.colorScheme === "dark"
-                  ? theme.colors.dark[6]
-                  : theme.colors.gray[0],
+              position: "relative",
+              backgroundColor: companyCardBackgroundColor,
               marginTop: theme.spacing.md,
+              maxHeight: "8rem",
             }}
           >
             {benefit.supplier.logo && (
@@ -271,10 +273,24 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
                 ></Image>
               </Center>
             )}
-            <Text weight={500} align="center">
-              {benefit.supplier.name}
-            </Text>
-            <Text align="center">{benefit.supplier.about}</Text>
+            <Box px="md" pb="md">
+              <Text weight={500} align="center">
+                {benefit.supplier.name}
+              </Text>
+              <Text align="center" style={{ whiteSpace: "pre-wrap" }}>
+                {benefit.supplier.about}
+              </Text>
+            </Box>
+            <div
+              style={{
+                position: "absolute",
+                bottom: "0px",
+                left: "0px",
+                width: "100%",
+                height: "1.5rem",
+                backgroundImage: `linear-gradient(transparent, ${companyCardBackgroundColor})`,
+              }}
+            ></div>
           </Card>
         </Link>
       </div>
