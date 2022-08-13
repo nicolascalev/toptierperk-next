@@ -390,6 +390,7 @@ export default function AppPerkForm(props: any) {
             label="Select Categories"
             data={categories}
             value={categories}
+            onChange={setCategories}
             placeholder="Select items"
             searchable
             creatable
