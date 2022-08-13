@@ -182,7 +182,7 @@ const Home: NextPage<Props> = ({ user }) => {
         }}
       >
         {!user.business?.id && (
-          <Paper p="md" withBorder>
+          <Paper p="md" withBorder mb="md">
             <Text weight={500} mb="sm">
               No set business
             </Text>
@@ -192,7 +192,7 @@ const Home: NextPage<Props> = ({ user }) => {
             </Text>
           </Paper>
         )}
-        {Array.from(new Set(perks)).length == 0 && (
+        {!isLoading && Array.from(new Set(perks)).length == 0 && (
           <Paper p="md" mb="md" withBorder>
             <Text weight={500} mb="sm">
               No available results
