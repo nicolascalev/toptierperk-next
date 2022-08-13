@@ -51,7 +51,7 @@ const UpdatePerkPage: NextPage<Props> = ({ user }) => {
       </Box>
       {loadingPerk && (
         <Center>
-          <Loader size="sm"></Loader>
+          <Loader size="sm" variant="bars"></Loader>
         </Center>
       )}
       {perk && !loadPerkError && (
