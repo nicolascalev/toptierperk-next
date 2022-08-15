@@ -10,6 +10,10 @@ export default async function userHandler(
   switch (method) {
     case "GET":
       try {
+        if (req.query.username) {
+          const result = await User.findByUsername(req.query.username as string);
+          return res.status(200).json(result);
+        }
         const params: UserSearchParams = {
           searchString: <string>query.searchString || "",
           skip: Number(query.skip) || undefined,
