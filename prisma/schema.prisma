@@ -15,14 +15,15 @@ model User {
   createdAt     DateTime  @default(now())
   username      String    @unique
   email         String    @unique
+  emailVerified Boolean   @default(false)
   auth0sub      String    @unique
   name          String
   picture       Photo?
-  businessId     Int?
+  businessId    Int?
   // TODO: evaluate wether users should have multiple adminOf or businesses
-  business       Business?  @relation(name: "Employees", fields: [businessId], references: [id])
+  business      Business? @relation(name: "Employees", fields: [businessId], references: [id])
   adminOfId     Int?
-  adminOf       Business?  @relation(name: "Admins", fields: [adminOfId], references: [id])
+  adminOf       Business? @relation(name: "Admins", fields: [adminOfId], references: [id])
   canVerify     Boolean   @default(false)
   savedBenefits Benefit[]
   claims        Claim[]
@@ -56,12 +57,12 @@ model Benefit {
   categories      Category[]
   photos          Photo[]
   supplierId      Int
-  supplier        Business    @relation(name: "Suppliers", fields: [supplierId], references: [id])
-  beneficiaries   Business[]  @relation(name: "Beneficiaries")
+  supplier        Business   @relation(name: "Suppliers", fields: [supplierId], references: [id])
+  beneficiaries   Business[] @relation(name: "Beneficiaries")
   startsAt        DateTime   @default(now())
   finishesAt      DateTime?
   isPrivate       Boolean    @default(false)
-  availableFor    Business[]  @relation(name: "AvailableFor")
+  availableFor    Business[] @relation(name: "AvailableFor")
   isActive        Boolean    @default(true)
   claims          Claim[]
   claimAmount     Int        @default(0)
@@ -78,13 +79,13 @@ model Category {
 }
 
 model Photo {
-  id        Int      @id @default(autoincrement())
-  url       String
-  benefitId Int?
-  benefit   Benefit? @relation(fields: [benefitId], references: [id])
-  userId    Int?     @unique
-  user      User?    @relation(fields: [userId], references: [id])
-  businessId Int?     @unique
+  id         Int       @id @default(autoincrement())
+  url        String
+  benefitId  Int?
+  benefit    Benefit?  @relation(fields: [benefitId], references: [id])
+  userId     Int?      @unique
+  user       User?     @relation(fields: [userId], references: [id])
+  businessId Int?      @unique
   business   Business? @relation(fields: [businessId], references: [id])
 }
 
@@ -95,7 +96,7 @@ model Claim {
   benefit    Benefit   @relation(fields: [benefitId], references: [id])
   userId     Int       @unique
   user       User      @relation(fields: [userId], references: [id])
-  businessId  Int       @unique
-  business    Business   @relation(fields: [businessId], references: [id])
+  businessId Int       @unique
+  business   Business  @relation(fields: [businessId], references: [id])
   approvedAt DateTime?
 }
