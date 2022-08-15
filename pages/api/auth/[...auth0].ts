@@ -5,19 +5,24 @@ import User from "../../../prisma/models/User";
 const afterCallback = async (
   req: NextApiRequest,
   res: NextApiResponse,
-  session: any,
+  session: any
 ) => {
   try {
     let auth0User = session.user;
     const [nickname] = auth0User.email.split("@");
     auth0User.username = nickname + Date.now();
     auth0User.auth0sub = auth0User.sub;
+    auth0User.emailVerified = auth0User.email_verified;
 
-    const existingUser = await User.findByAuth0Sub(auth0User.auth0sub)
+    let existingUser = await User.findByAuth0Sub(auth0User.auth0sub);
+    if (existingUser?.emailVerified === false && auth0User.email_verified === true) {
+      existingUser = await User.setVerifiedEmail(existingUser.id, true);
+    }
     session.user = existingUser ? existingUser : null;
 
     if (!session.user) {
-      session.user = await User.create(auth0User)
+      auth0User.name = auth0User.name || auth0User.username;
+      session.user = await User.create(auth0User);
     }
 
     return session;

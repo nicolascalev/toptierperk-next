@@ -23,9 +23,6 @@ const User = {
           name,
           email,
           auth0sub,
-          picture: {
-            create: <Prisma.PhotoCreateWithoutUserInput>picture,
-          },
         },
         include: {
           business: {
@@ -73,7 +70,7 @@ const User = {
       const result = await prisma.user.findFirst({
         where: { username },
         select: { id: true },
-      })
+      });
       return result;
     } catch (err) {
       return Promise.reject(err);
@@ -182,6 +179,27 @@ const User = {
         },
       });
       return updatedUser;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  setVerifiedEmail: async (userId: number, verified: boolean) => {
+    try {
+      const updated = await prisma.user.update<Prisma.UserUpdateArgs>({
+        where: { id: userId },
+        data: { emailVerified: verified },
+        include: {
+          business: {
+            include: { logo: true },
+          },
+          adminOf: {
+            include: { logo: true },
+          },
+          picture: true,
+        },
+      })
+      return updated;
     } catch (err) {
       return Promise.reject(err);
     }
