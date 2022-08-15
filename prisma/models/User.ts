@@ -29,10 +29,10 @@ const User = {
         },
         include: {
           business: {
-            include: { logo: true }
+            include: { logo: true },
           },
           adminOf: {
-            include: { logo: true }
+            include: { logo: true },
           },
           picture: true,
         },
@@ -54,15 +54,27 @@ const User = {
         where: { auth0sub: sub },
         include: {
           business: {
-            include: { logo: true }
+            include: { logo: true },
           },
           adminOf: {
-            include: { logo: true }
+            include: { logo: true },
           },
           picture: true,
         },
       });
       return user;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  findByUsername: async (username: string) => {
+    try {
+      const result = await prisma.user.findFirst({
+        where: { username },
+        select: { id: true },
+      })
+      return result;
     } catch (err) {
       return Promise.reject(err);
     }
@@ -136,14 +148,38 @@ const User = {
   },
 
   // PATCH: /user/:id
-  update: async (id: number, data: Prisma.UserUpdateInput) => {
+  update: async (
+    id: number,
+    {
+      name,
+      username,
+      picture,
+    }: { name: string; username: string; picture?: { url: string } }
+  ) => {
     if (!id) {
       throw new Error("id must be provided to use User.update()");
     }
     try {
-      const updatedUser = await prisma.user.update({
-        data,
+      const updatedUser = await prisma.user.update<Prisma.UserUpdateArgs>({
+        data: {
+          name,
+          username,
+          picture: picture
+            ? {
+                create: picture,
+              }
+            : undefined,
+        },
         where: { id },
+        include: {
+          business: {
+            include: { logo: true },
+          },
+          adminOf: {
+            include: { logo: true },
+          },
+          picture: true,
+        },
       });
       return updatedUser;
     } catch (err) {
