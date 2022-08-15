@@ -13,6 +13,7 @@ const User = {
     username,
     name,
     email,
+    emailVerified,
     auth0sub,
     picture,
   }: Prisma.UserCreateInput) => {
@@ -22,6 +23,7 @@ const User = {
           username,
           name,
           email,
+          emailVerified,
           auth0sub,
         },
         include: {
