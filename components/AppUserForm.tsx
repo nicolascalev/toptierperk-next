@@ -12,7 +12,7 @@ import {
 import { Upload } from "tabler-icons-react";
 import { useForm, joiResolver } from "@mantine/form";
 import Joi from "joi";
-import { isEmpty } from "lodash";
+import { debounce, isEmpty } from "lodash";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -59,6 +59,30 @@ const updateUserSchema = Joi.object({
   email: Joi.string(),
 });
 
+const debFindUsername = debounce(
+  async (username: string, setFieldError) => {
+    try {
+      const data = await axios
+        .get("/api/user", {
+          params: {
+            username,
+          },
+        })
+        .then((res) => res.data);
+      if (data) {
+        setFieldError("username", "That username has been taken already");
+      }
+    } catch (err) {
+      showNotification({
+        title: "Could not verify availability",
+        color: "red",
+        message: "Please try again",
+      });
+    }
+  },
+  500
+);
+
 interface Props {
   user: any;
 }
@@ -74,43 +98,16 @@ function AppUserForm({ user }: Props) {
     validateInputOnChange: true,
   });
 
-  const [username, setUsername] = useState("");
-  const [debUsername] = useDebouncedValue(username, 500);
-  const [usernameError, setUsernameError] = useState("");
   useEffect(() => {
-    if (usernameError == "That username has been taken already") {
-      form.setFieldError("username", usernameError);
+    if (
+      (!form.errors.username &&
+        form.errors.username !== "That username has been taken already") &&
+      form.values.username &&
+      form.values.username !== user.username
+    ) {
+      debFindUsername(form.values.username, form.setFieldError);
     }
-    if (!form.errors.username && usernameError == "") {
-      form.clearFieldError("username");
-    }
-  }, [usernameError, form]);
-  useEffect(() => {
-    setUsernameError("");
-    async function fetchData() {
-      try {
-        const data = await axios
-          .get("/api/user", {
-            params: {
-              username: debUsername,
-            },
-          })
-          .then((res) => res.data);
-        if (data) {
-          setUsernameError("That username has been taken already");
-        }
-      } catch (err) {
-        showNotification({
-          title: "Could not verify availability",
-          color: "red",
-          message: "Please try again",
-        });
-      }
-    }
-    if (!form.errors.username && debUsername && debUsername !== user.username) {
-      fetchData();
-    }
-  }, [debUsername, form.errors.username, user.username]);
+  }, [form.values.username, form.errors.username, form.setFieldError, user.username]);
 
   const { fileInput, changeUploadFile, logo, parsedLogo, clickUploadfile } =
     useFileUpload();
@@ -138,7 +135,9 @@ function AppUserForm({ user }: Props) {
       setTimeout(() => {
         window.location.href = window.location.href;
       }, 3000);
-      form.setErrors({ dirty: 'Set error to disable submit before page refresh'});
+      form.setErrors({
+        dirty: "Set error to disable submit before page refresh",
+      });
     } catch (err) {
       showNotification({
         title: "Please try again",
@@ -207,7 +206,6 @@ function AppUserForm({ user }: Props) {
           label="Username"
           description="You can change your username"
           required
-          onInput={(e: any) => setUsername(e.target.value)}
           {...form.getInputProps("username")}
         />
         <TextInput
