@@ -17,7 +17,6 @@ const afterCallback = async (
     session.user = existingUser ? existingUser : null;
 
     if (!session.user) {
-      auth0User.picture = auth0User.picture ? { url: auth0User.picture } : undefined;
       session.user = await User.create(auth0User)
     }
 
