@@ -15,7 +15,10 @@ export default async function findBusinessBenfits(
 
       // check the logged in user is the adming of the business acquiring the perk
       const businessId = Number(req.query.businessId);
-      if (session!.user.adminOfId !== businessId) {
+      if (
+        session!.user.adminOfId !== businessId &&
+        session!.user.business?.id !== businessId
+      ) {
         return res.status(403).send("Forbidden");
       }
       const benefitId = Number(req.query.benefitId);
