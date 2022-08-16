@@ -44,7 +44,8 @@ model Business {
   benefits                 Benefit[] @relation(name: "Suppliers")
   benefitsFrom             Benefit[] @relation(name: "Beneficiaries")
   privateBenefitsAvailable Benefit[] @relation(name: "AvailableFor")
-  claims                   Claim[]
+  claims                   Claim[]   @relation(name: "ClaimerBusiness")
+  claimsWhereSupplier      Claim[]   @relation(name: "SupplierBusiness")
   claimAmount              Int       @default(0)
   allowedEmployeeEmails    Json      @default("\"[]\"")
 }
@@ -94,9 +95,11 @@ model Claim {
   createdAt  DateTime  @default(now())
   benefitId  Int
   benefit    Benefit   @relation(fields: [benefitId], references: [id])
-  userId     Int       @unique
+  userId     Int
   user       User      @relation(fields: [userId], references: [id])
-  businessId Int       @unique
-  business   Business  @relation(fields: [businessId], references: [id])
+  businessId Int
+  business   Business  @relation(name: "ClaimerBusiness", fields: [businessId], references: [id])
+  supplierId Int
+  supplier   Business  @relation(name: "SupplierBusiness", fields: [supplierId], references: [id])
   approvedAt DateTime?
 }
