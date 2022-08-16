@@ -163,7 +163,7 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
           message: "you have to show the qr to the supplier to verify claim",
           autoClose: 5000,
         });
-        // router.push("/claim/" + claim.id)
+        router.push("/claim/" + claim.id)
       }
     } catch (err) {
       let error = err as any;
