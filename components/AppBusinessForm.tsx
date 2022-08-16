@@ -17,7 +17,7 @@ import { debounce, isEmpty } from "lodash";
 import axios from "axios";
 import Joi from "joi";
 
-const createCompanySchema = Joi.object({
+const createBusinessSchema = Joi.object({
   name: Joi.string().required().max(30),
   email: Joi.string().email({ tlds: { allow: false } }).required(),
   about: Joi.string().required().max(500),
@@ -87,7 +87,7 @@ function AppBusinessForm({
 
   // TODO: add extra validations
   const form = useForm({
-    validate: joiResolver(createCompanySchema),
+    validate: joiResolver(createBusinessSchema),
     initialValues: initialvalues || {
       name: "",
       about: "",
