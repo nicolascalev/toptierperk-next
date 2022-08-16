@@ -113,7 +113,7 @@ export default async function ClaimHandler(
       }
 
       // if finally passed all validations, then create the claim
-      const claim = await Claim.create(userId, perkId, employer!.id);
+      const claim = await Claim.create(userId, perkId, employer!.id, supplier!.id);
       return res.status(200).json(claim);
     } catch (err) {
       return res.status(500).json(err);
