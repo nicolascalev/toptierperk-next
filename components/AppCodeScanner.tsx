@@ -1,0 +1,151 @@
+import QrScanner from "qr-scanner";
+import { useRef, useEffect, useState } from "react";
+import {
+  Text,
+  Button,
+  AspectRatio,
+  Box,
+  useMantineTheme,
+  Center,
+  Group,
+  ActionIcon,
+  Menu,
+} from "@mantine/core";
+import { Bulb, CaretDown } from "tabler-icons-react";
+
+type Camera = {
+  value: string;
+  label: string;
+};
+
+interface Props {
+  onReadSuccess: (result: any) => void;
+}
+function AppCodeScanner({ onReadSuccess }: Props) {
+  const theme = useMantineTheme();
+  const isDark = theme.colorScheme === "dark";
+  const backgroundColor = isDark ? theme.colors.dark[6] : theme.colors.gray[0];
+
+  const videoElement = useRef(null);
+  const scanner: any = useRef(null);
+  const [scanStarted, setscanStarted] = useState(false);
+  const [cameras, setCameras] = useState<Camera[]>([]);
+  const [hasFlash, setHasFlash] = useState(false);
+  const [hasCamera, setHasCamera] = useState(false);
+  useEffect(() => {
+    async function check() {
+      const hasCameraCheck: boolean = await QrScanner.hasCamera();
+      setHasCamera(hasCameraCheck);
+    }
+    check();
+  }, []);
+
+  // init scanner and destroy on useEffect
+  useEffect(() => {
+    if (videoElement.current) {
+      scanner.current = new QrScanner(
+        videoElement.current,
+        (result: any) => {
+          onReadSuccess(result.data);
+          if (!scanner.current) return;
+          scanner.current.stop();
+          setscanStarted(false);
+        },
+        {
+          maxScansPerSecond: 5,
+        }
+      );
+    }
+    return () => {
+      scanner.current = null;
+      setscanStarted(false);
+    };
+  }, [videoElement, onReadSuccess]);
+
+  async function startScan() {
+    if (!scanner.current) return;
+    await scanner.current.start();
+    const deviceHasFlash = await scanner.current.hasFlash();
+    setHasFlash(deviceHasFlash);
+    const listedCameras = await QrScanner.listCameras(true);
+    const foundCameras: Camera[] = listedCameras.map((cam: any) => ({
+      value: cam.id,
+      label: cam.label,
+    }));
+    if (listedCameras.length > 0) {
+      scanner.current.setCamera(listedCameras[0].id);
+    }
+    setCameras(foundCameras);
+    setscanStarted(true);
+  }
+
+  function stopScan() {
+    if (!scanner.current) return;
+    scanner.current.stop();
+    setscanStarted(false);
+  }
+
+  async function toggleFlash() {
+    await scanner.current.toggleFlash();
+  }
+
+  return (
+    <Box sx={{ position: "relative", width: "100%", backgroundColor }}>
+      <AspectRatio ratio={1 / 1} sx={{ width: "100%" }}>
+        <video ref={videoElement} style={{ width: "100%" }}></video>
+      </AspectRatio>
+      {!scanStarted && (
+        <Center
+          sx={{
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            top: "0px",
+            left: "0px",
+          }}
+        >
+          <Button onClick={startScan} disabled={!hasCamera}>
+            {hasCamera ? "Start Scan" : "No camera available"}
+          </Button>
+        </Center>
+      )}
+      {scanStarted && (
+        <Group
+          align="center"
+          position="apart"
+          p="md"
+          sx={{ width: "100%", position: "absolute", top: "0px" }}
+        >
+          <Button onClick={stopScan} variant="default">
+            Stop Scan
+          </Button>
+          <Group>
+            {hasFlash && (
+              <ActionIcon title="Flash" onClick={toggleFlash}>
+                <Bulb />
+              </ActionIcon>
+            )}
+            <Menu shadow="md" width={200}>
+              <Menu.Target>
+                <Button rightIcon={<CaretDown size={16} />}>Camera</Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Label>Cameras</Menu.Label>
+                {cameras.map((cam) => (
+                  <Menu.Item
+                    key={cam.value}
+                    onClick={() => scanner.current.setCamera(cam.value)}
+                  >
+                    {cam.label}
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
+        </Group>
+      )}
+    </Box>
+  );
+}
+
+export default AppCodeScanner;
