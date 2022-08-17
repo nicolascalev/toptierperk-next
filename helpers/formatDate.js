@@ -2,6 +2,7 @@ import moment from "moment-timezone"
 
 const allowedFormats = {
   'SHORT_TEXT': 'MMM Do YY',
+  'DETAILED_READABLE': 'MMMM Do YYYY, h:mm:ss a',
 }
 
 export default function formatDate(timestamp, format) {
