@@ -149,7 +149,7 @@ const ClaimView: NextPage<Props> = ({ user }) => {
             <Text size="sm" weight={500} mb="xs">
               Perk
             </Text>
-            <AppPerkCard perk={claim.benefit} />
+            <AppPerkCard perk={claim.benefit} disableTopBar={true} />
           </Box>
           <Box mb="md">
             <Text
