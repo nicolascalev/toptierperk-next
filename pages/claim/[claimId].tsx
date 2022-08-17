@@ -23,6 +23,7 @@ import {
   BuildingSkyscraper,
   Qrcode,
   Checks,
+  Check,
   DotsVertical,
 } from "tabler-icons-react";
 import { useEffect, useState } from "react";
@@ -65,6 +66,16 @@ const ClaimView: NextPage<Props> = ({ user }) => {
           >
             Verified
             <Checks size="1rem" style={{ marginLeft: 3 }} />
+          </Text>
+        )}
+        {claim && !claim.approvedAt && (
+          <Text
+            size="sm"
+            color={theme.colors.brand[6]}
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            Pending
+            <Check size="1rem" style={{ marginLeft: 3 }} />
           </Text>
         )}
       </Group>
@@ -153,7 +164,7 @@ const ClaimView: NextPage<Props> = ({ user }) => {
             <Text>
               {claim.benefit.finishesAt
                 ? formatDate(claim.benefit.finishesAt, "SHORT_TEXT")
-                : "This perk has no date limit"}
+                : "This perk has no expiration date"}
             </Text>
           </Box>
           <Button
