@@ -32,6 +32,7 @@ function AppCodeScanner({ onReadSuccess }: Props) {
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [hasFlash, setHasFlash] = useState(false);
   const [hasCamera, setHasCamera] = useState(false);
+  const [scanButtonText, setScanButtonText] = useState("Start Scan");
   useEffect(() => {
     async function check() {
       const hasCameraCheck: boolean = await QrScanner.hasCamera();
@@ -48,7 +49,7 @@ function AppCodeScanner({ onReadSuccess }: Props) {
         (result: any) => {
           onReadSuccess(result.data);
           if (!scanner.current) return;
-          scanner.current.stop();
+          stopScan();
           setscanStarted(false);
         },
         {
@@ -64,6 +65,7 @@ function AppCodeScanner({ onReadSuccess }: Props) {
 
   async function startScan() {
     if (!scanner.current) return;
+    setScanButtonText("Loading");
     await scanner.current.start();
     const deviceHasFlash = await scanner.current.hasFlash();
     setHasFlash(deviceHasFlash);
@@ -83,6 +85,7 @@ function AppCodeScanner({ onReadSuccess }: Props) {
     if (!scanner.current) return;
     scanner.current.stop();
     setscanStarted(false);
+    setScanButtonText("Start Scan");
   }
 
   async function toggleFlash() {
@@ -91,7 +94,7 @@ function AppCodeScanner({ onReadSuccess }: Props) {
 
   return (
     <Box sx={{ position: "relative", width: "100%", backgroundColor }}>
-      <AspectRatio ratio={1 / 1} sx={{ width: "100%" }}>
+      <AspectRatio ratio={3 / 4} sx={{ width: "100%" }}>
         <video ref={videoElement} style={{ width: "100%" }}></video>
       </AspectRatio>
       {!scanStarted && (
@@ -105,7 +108,7 @@ function AppCodeScanner({ onReadSuccess }: Props) {
           }}
         >
           <Button onClick={startScan} disabled={!hasCamera}>
-            {hasCamera ? "Start Scan" : "No camera available"}
+            {hasCamera ? scanButtonText : "No camera available"}
           </Button>
         </Center>
       )}
