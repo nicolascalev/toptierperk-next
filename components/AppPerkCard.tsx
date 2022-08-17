@@ -14,7 +14,12 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Share } from "tabler-icons-react";
 import { timeAgo } from "helpers/formatDate";
 
-export default function AppPerkCard(props: any) {
+interface Props {
+  perk: any,
+  disableTopBar?: boolean,
+}
+
+export default function AppPerkCard(props: Props) {
   const theme = useMantineTheme();
   const router = useRouter();
 
@@ -73,26 +78,28 @@ export default function AppPerkCard(props: any) {
         zIndex: 1,
       }}
     >
-      <Group position="apart" align="center" py="sm">
-        <Group align="center" spacing={4}>
-          <Image
-            width={25}
-            height={25}
-            radius={100}
-            src={
-              props.perk.supplier.logo?.url ||
-              "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
-            }
-            alt={"Toptierperk " + props.perk.supplier.name}
-          />
+      {props.disableTopBar !== true && (
+        <Group position="apart" align="center" py="sm">
+          <Group align="center" spacing={4}>
+            <Image
+              width={25}
+              height={25}
+              radius={100}
+              src={
+                props.perk.supplier.logo?.url ||
+                "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+              }
+              alt={"Toptierperk " + props.perk.supplier.name}
+            />
+            <Text size="sm" color="dimmed">
+              {props.perk.supplier.name}
+            </Text>
+          </Group>
           <Text size="sm" color="dimmed">
-            {props.perk.supplier.name}
+            {timeAgo(props.perk.createdAt)}
           </Text>
         </Group>
-        <Text size="sm" color="dimmed">
-          {timeAgo(props.perk.createdAt)}
-        </Text>
-      </Group>
+      )}
       <Card p="sm" onClick={() => router.push("/perk/" + props.perk.id)}>
         <Card.Section>
           {props.perk.photos.length > 0 && (
