@@ -99,6 +99,22 @@ const ClaimView: NextPage<Props> = ({ user }) => {
             </Text>
             <Text>{formatDate(claim.createdAt, "DETAILED_READABLE")}</Text>
           </Box>
+          <Box mb="md">
+            <Text
+              size="sm"
+              color="dimmed"
+              weight={500}
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              <Calendar size="1rem" style={{ marginRight: 3 }} />
+              Claim before
+            </Text>
+            <Text>
+              {claim.benefit.finishesAt
+                ? formatDate(claim.benefit.finishesAt, "SHORT_TEXT")
+                : "This perk has no expiration date"}
+            </Text>
+          </Box>
           {claim.approvedAt && (
             <Box mb="md">
               <Text
@@ -159,47 +175,35 @@ const ClaimView: NextPage<Props> = ({ user }) => {
             </Text>
             <AppPerkCard perk={claim.benefit} disableTopBar={true} />
           </Box>
-          <Box mb="md">
-            <Text
-              size="sm"
-              color="dimmed"
-              weight={500}
-              sx={{ display: "flex", alignItems: "center" }}
-            >
-              <Calendar size="1rem" style={{ marginRight: 3 }} />
-              Claim before
-            </Text>
-            <Text>
-              {claim.benefit.finishesAt
-                ? formatDate(claim.benefit.finishesAt, "SHORT_TEXT")
-                : "This perk has no expiration date"}
-            </Text>
-          </Box>
           <Button
+            mt={-theme.spacing.md}
             fullWidth
             leftIcon={<DotsVertical size={18} />}
             onClick={() => setOpenedOptionsDrawer(true)}
           >
             Options
           </Button>
-
-          <Drawer
-            opened={openedOptionsDrawer}
-            onClose={() => setOpenedOptionsDrawer(false)}
-            position="bottom"
-            title="Options"
-            padding="md"
-            size="sm"
-          >
-            <Stack spacing="xs">
-              <Button variant="default">Report issue</Button>
-              <Button variant="filled" color="red">
-                Delete claim
-              </Button>
-            </Stack>
-          </Drawer>
+          <Text mt="md" size="xs" color="dimmed" align="center">
+            The QR is meant to be shown to the supplier of the perk only, if you
+            try to scan it you will not be able to verify it
+          </Text>
         </>
       )}
+      <Drawer
+        opened={openedOptionsDrawer}
+        onClose={() => setOpenedOptionsDrawer(false)}
+        position="bottom"
+        title="Options"
+        padding="md"
+        size="sm"
+      >
+        <Stack spacing="xs">
+          <Button variant="default">Report issue</Button>
+          <Button variant="filled" color="red">
+            Delete claim
+          </Button>
+        </Stack>
+      </Drawer>
     </Box>
   );
 };
