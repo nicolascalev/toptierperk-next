@@ -4,7 +4,6 @@ import { useMantineTheme, Text } from "@mantine/core";
 import AppBusinessForm from "components/AppBusinessForm";
 import confetti from "canvas-confetti";
 import { showNotification } from "@mantine/notifications";
-import { useRouter } from 'next/router'
 
 interface Props {
   user: any;
@@ -12,22 +11,25 @@ interface Props {
 
 const BusinessCreate: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
-  const router = useRouter()
 
   function handleOnSuccess() {
     showNotification({
       title: "Business created 🎉",
       message:
-        "Congratulations, you added your business, now you can get a subscription.",
+        "Congratulations! You will be redirected in 3s",
       color: "green",
-      autoClose: 5000,
+      autoClose: 3000,
     });
     confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 },
     });
-    router.push("/business")
+    // router.push("/business");
+    // not using router because this will help refresh session
+    setTimeout(() => {
+      window.location.href = "/business";
+    }, 3000);
   }
 
   function handleOnError(error: any) {
@@ -42,7 +44,9 @@ const BusinessCreate: NextPage<Props> = ({ user }) => {
 
   return (
     <div style={{ marginBottom: "49px", padding: theme.spacing.md }}>
-      <Text weight={500} size="xl" mb="md">Create business</Text>
+      <Text weight={500} size="xl" mb="md">
+        Create business
+      </Text>
       <AppBusinessForm
         action="create"
         onSuccess={handleOnSuccess}
