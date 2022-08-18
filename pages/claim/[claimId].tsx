@@ -12,6 +12,7 @@ import {
   Group,
   Button,
   Stack,
+  Paper,
 } from "@mantine/core";
 import axios from "axios";
 import useSWR from "swr";
@@ -88,6 +89,42 @@ const ClaimView: NextPage<Props> = ({ user }) => {
       )}
       {claim && (
         <>
+          {!claim.approvedAt &&
+            claim.benefit!.useLimit &&
+            claim.benefit!.useLimit <= claim.benefit!.claimAmount && (
+              <Paper withBorder p="md" mb="md">
+                <Text weight={500} color="red" size="sm">
+                  Can not redeem
+                </Text>
+                <Text size="sm" color="dimmed">
+                  This perk reached use limit amount before you redeemed it
+                </Text>
+              </Paper>
+            )}
+          {!claim.supplier.paidMembership && (
+            <Paper withBorder p="md" mb="md">
+              <Text weight={500} color="red" size="sm">
+                Can not redeem
+              </Text>
+              <Text size="sm" color="dimmed">
+                The supplier needs to renew their subscription
+              </Text>
+            </Paper>
+          )}
+          {claim.approvedAt && (
+            <Box mb="md">
+              <Text
+                size="sm"
+                color="dimmed"
+                weight={500}
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <Checks size="1rem" style={{ marginRight: 3 }} />
+                Verified At
+              </Text>
+              <Text>{formatDate(claim.approvedAt, "DETAILED_READABLE")}</Text>
+            </Box>
+          )}
           <Box mb="md">
             <Text
               size="sm"
@@ -130,20 +167,6 @@ const ClaimView: NextPage<Props> = ({ user }) => {
                 : "This perk has no expiration date"}
             </Text>
           </Box>
-          {claim.approvedAt && (
-            <Box mb="md">
-              <Text
-                size="sm"
-                color="dimmed"
-                weight={500}
-                sx={{ display: "flex", alignItems: "center" }}
-              >
-                <Checks size="1rem" style={{ marginRight: 3 }} />
-                Approved At
-              </Text>
-              <Text>{formatDate(claim.approvedAt, "DETAILED_READABLE")}</Text>
-            </Box>
-          )}
           <Box mb="md">
             <Text
               size="sm"
