@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import type { User, Claim, Benefit, Business } from "@prisma/client";
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import {
   Box,
   Text,
@@ -80,7 +80,7 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
       return "The claim you tried to verify was not found, it was probably deleted";
     }
     if (axiosError.response?.status === 403) {
-      return "You are not allowed to verify this claim, the perk that was attempted to be use was likely supplied by another business";
+      return "You are not allowed to verify this claim, the perk that was attempted to be used was likely supplied by another business";
     }
   }
 
@@ -210,4 +210,12 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
 
 export default ScanClaimView;
 
-export const getServerSideProps = withPageAuthRequired();
+export const getServerSideProps = withPageAuthRequired({
+  async getServerSideProps(ctx: any) {
+    const session = getSession(ctx.req, ctx.res);
+    if (!session!.user.adminOfId && !session!.user.canVerify) {
+      return { redirect: { destination: "/401", permanent: false } };
+    }
+    return { props: {} };
+  },
+});
