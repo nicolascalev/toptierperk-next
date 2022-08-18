@@ -25,6 +25,7 @@ import {
   Checks,
   Check,
   DotsVertical,
+  Package,
 } from "tabler-icons-react";
 import { useEffect, useState } from "react";
 
@@ -146,7 +147,14 @@ const ClaimView: NextPage<Props> = ({ user }) => {
             <Text>{claim.supplier.name}</Text>
           </Box>
           <Box mb="md">
-            <Text size="sm" weight={500} mb="xs">
+            <Text
+              size="sm"
+              color="dimmed"
+              weight={500}
+              sx={{ display: "flex", alignItems: "center" }}
+              mb={5}
+            >
+              <Package size="1rem" style={{ marginRight: 3 }} />
               Perk
             </Text>
             <AppPerkCard perk={claim.benefit} disableTopBar={true} />
@@ -185,7 +193,9 @@ const ClaimView: NextPage<Props> = ({ user }) => {
           >
             <Stack spacing="xs">
               <Button variant="default">Report issue</Button>
-              <Button variant="filled" color="red">Delete claim</Button>
+              <Button variant="filled" color="red">
+                Delete claim
+              </Button>
             </Stack>
           </Drawer>
         </>
