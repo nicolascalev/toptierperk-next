@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { NextPage } from "next";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import { useMantineTheme } from "@mantine/core";
+import { useMantineTheme, Text } from "@mantine/core";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import AppSubscriptionCard from "../../components/AppSubscriptionCard";
+import AppSubscriptionCard from "components/AppSubscriptionCard";
 import confetti from "canvas-confetti";
 import { showNotification } from "@mantine/notifications";
 
@@ -53,9 +53,9 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
   }
 
   return (
-    <div style={{ minHeight: "100vh", marginBottom: "49px" }}>
+    <div style={{ minHeight: "calc(100vh - 98px)", marginBottom: "49px" }}>
       <div style={{ padding: theme.spacing.md }}>
-        <h2>Subscription</h2>
+        <Text weight={500} size="xl" mb="md">Subscription</Text>
 
         {user.business.paidMembership ? (
           // TODO: get the actual information of the plan od the user
