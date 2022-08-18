@@ -26,6 +26,7 @@ import {
   Check,
   DotsVertical,
   Package,
+  Key,
 } from "tabler-icons-react";
 import { useEffect, useState } from "react";
 
@@ -87,6 +88,20 @@ const ClaimView: NextPage<Props> = ({ user }) => {
       )}
       {claim && (
         <>
+          <Box mb="md">
+            <Text
+              size="sm"
+              color="dimmed"
+              weight={500}
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              <Key size="1rem" style={{ marginRight: 3 }} />
+              Claim Id
+            </Text>
+            <Text>
+              #{claim.id}, show it in case the supplier can not scan your code
+            </Text>
+          </Box>
           <Box mb="md">
             <Text
               size="sm"
