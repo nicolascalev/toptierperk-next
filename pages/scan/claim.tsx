@@ -15,7 +15,7 @@ import {
 import AppCodeScanner from "components/AppCodeScanner";
 import AppPerkCard from "components/AppPerkCard";
 import { useRouter } from "next/router";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import useSWR from "swr";
 import { showNotification } from "@mantine/notifications";
 import { useState, useEffect } from "react";
@@ -33,18 +33,30 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 interface UseFetchClaim {
   loadingClaim: boolean;
   claim: ClaimWithRelations | null;
+  errorLoadingClaim: any;
 }
+
 function useFetchClaim(claimId?: Number): UseFetchClaim {
   // TODO: let user know if the claim was not found
   // TODO: notify user if they are forbidden from verifing a perk
   const { data, error } = useSWR(
     claimId ? `/api/claim/${claimId}` : null,
-    fetcher
+    fetcher,
+    {
+      // disable retry for some of these
+      onErrorRetry: (error) => {
+        // Never retry on 404.
+        if (error.status === 404) return;
+        // Never retry on 403.
+        if (error.status === 403) return;
+      },
+    }
   );
   const loading = !data && !error && claimId ? true : false;
   return {
     loadingClaim: loading,
     claim: data,
+    errorLoadingClaim: error,
   };
 }
 
@@ -55,13 +67,22 @@ interface Props {
 const ScanClaimView: NextPage<Props> = ({ user }) => {
   const router = useRouter();
   const [claimId, setClaimId] = useState<undefined | number>(undefined);
-  const { loadingClaim, claim } = useFetchClaim(claimId);
+  const { loadingClaim, claim, errorLoadingClaim } = useFetchClaim(claimId);
   // in case the user got here scaning from os camera, take the claimId from url
   useEffect(() => {
     if (router.query.claimId) {
       setClaimId(Number(router.query.claimId));
     }
   }, [router.query.claimId]);
+
+  function getErrorMessage(axiosError: AxiosError) {
+    if (axiosError.response?.status === 404) {
+      return "The claim you tried to verify was not found, it was probably deleted";
+    }
+    if (axiosError.response?.status === 403) {
+      return "You are not allowed to verify this claim, the perk that was attempted to be use was likely supplied by another business";
+    }
+  }
 
   function onReadSuccess(result: string) {
     const queryString = result.split("?")[1];
@@ -99,7 +120,7 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
         position="bottom"
         title="Claim details"
         padding="md"
-        size="full"
+        size={errorLoadingClaim ? "sm" : "full"}
       >
         <ScrollArea style={{ height: "100%" }} type="never">
           {loadingClaim && (
@@ -107,11 +128,18 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
               <Loader variant="bars" size="sm"></Loader>
             </Center>
           )}
-          {!loadingClaim && !claim && (
-            // i can put the result here if its 404 or 403
-            <Text>
-              There was not a perk found reason being PUT ERROR FROM API HERE
-            </Text>
+          {!loadingClaim && !claim && errorLoadingClaim && (
+            <>
+              <Text>{getErrorMessage(errorLoadingClaim)}</Text>
+              <Button
+                fullWidth
+                mt="md"
+                variant="default"
+                onClick={() => setClaimId(undefined)}
+              >
+                Close
+              </Button>
+            </>
           )}
           {!loadingClaim && claim && (
             <Box pb="md">
@@ -153,10 +181,10 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
                   <UserCircle size="1rem" style={{ marginRight: 3 }} />
                   User
                 </Text>
-                <Text>
-                  {claim.user.name}
+                <Text>{claim.user.name}</Text>
+                <Text size="xs" color="dimmed">
+                  {claim.user.email}
                 </Text>
-                <Text size="xs" color="dimmed">{claim.user.email}</Text>
               </Box>
               <Box mb="md">
                 <Text
