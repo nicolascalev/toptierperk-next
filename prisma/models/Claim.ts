@@ -1,8 +1,20 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, Claim as ClaimType, Benefit, Business, User } from "@prisma/client";
 import prisma from "prisma/prisma.client";
 
+type ClaimWithRelations = ClaimType & {
+  benefit?: Benefit;
+  user?: User;
+  supplier?: Business;
+  business?: Business;
+}
+
 const Claim = {
-  async create(userId: number, benefitId: number, businessId: number, supplierId: number) {
+  async create(
+    userId: number,
+    benefitId: number,
+    businessId: number,
+    supplierId: number
+  ) {
     try {
       const claim = await prisma.claim.create<Prisma.ClaimCreateArgs>({
         data: {
@@ -26,7 +38,7 @@ const Claim = {
     }
   },
 
-  async findById(claimId: number) {
+  async findById(claimId: number) : Promise<ClaimWithRelations | null> {
     try {
       const claim = await prisma.claim.findFirst<Prisma.ClaimFindFirstArgs>({
         where: {
@@ -60,6 +72,33 @@ const Claim = {
         },
       });
       return result;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  async approve(claimId: number, approvedAt: Date) {
+    try {
+      // update claim and set approvedAt
+      const updatedClaim = await prisma.claim.update({
+        where: { id: claimId },
+        data: { approvedAt },
+      });
+      // increase benefit claimAmount
+      await prisma.business.update({
+        where: { id: updatedClaim.supplierId },
+        data: {
+          claimAmount: { increment: 1 },
+        },
+      });
+      // increase supplier claimAmount
+      await prisma.benefit.update({
+        where: { id: updatedClaim.benefitId },
+        data: {
+          claimAmount: { increment: 1 },
+        },
+      });
+      return updatedClaim;
     } catch (err) {
       return Promise.reject(err);
     }
