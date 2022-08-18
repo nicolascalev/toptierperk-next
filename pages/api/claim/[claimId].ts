@@ -35,6 +35,79 @@ export default async function claimHandler(
     }
   }
 
+  if (req.method === "PATCH") {
+    try {
+      await isAuthenticated(req, res);
+      let session = getSession(req, res);
+      const user: User = session!.user as User;
+
+      const claimId = Number(req.query.claimId);
+      const claim = await Claim.findById(claimId);
+      if (!claim) {
+        return res
+          .status(404)
+          .send("We could not find that claim, it was possibly deleted");
+      }
+
+      const isAdminOrVerifier = user.adminOfId || user.canVerify;
+      const belongsToSupplier = user.businessId === claim.supplierId;
+      if (!isAdminOrVerifier || !belongsToSupplier) {
+        return res
+          .status(403)
+          .send("You don't have permission to confirm this claim");
+      }
+
+      // check supplier has a paid sub
+      if (!claim.supplier!.paidMembership) {
+        return res
+          .status(402)
+          .send("The supplier needs to renew their subscription");
+      }
+
+      // validate that logged user still belongs to the company that acquired the perk
+      if (user.businessId !== claim.businessId) {
+        return res
+          .status(403)
+          .send(
+            "User no longer belongs to the business that acquired this perk"
+          );
+      }
+
+      if (claim.approvedAt !== null) {
+        return res
+          .status(400)
+          .send("This claim was already verified, user can't redeem twice");
+      }
+
+      if (
+        claim.benefit!.useLimit &&
+        claim.benefit!.useLimit <= claim.benefit!.claimAmount
+      ) {
+        return res
+          .status(400)
+          .send("This perk reached use limit amount before user redeemed it");
+      }
+
+      const approvedAt =
+        "Invalid Date" == new Date(req.body.approvedAt).toString()
+          ? new Date()
+          : new Date(req.body.approvedAt);
+
+      // check for expiration date, if now is after finishesAt then not allowed
+      if (
+        claim.benefit!.finishesAt &&
+        approvedAt.getTime() > claim.benefit!.finishesAt.getTime()
+      ) {
+        return res.status(400).send("That perk expired");
+      }
+
+      const updatedClaim = await Claim.approve(claimId, approvedAt);
+      return res.status(200).json(updatedClaim);
+    } catch (err) {
+      return res.status(500).json({ error: err });
+    }
+  }
+
   return res
     .status(405)
     .json({ message: "Method or endpoint not implemented." });
