@@ -27,7 +27,7 @@ export default async function ClaimHandler(
       // get claiming perk
       const perkId = Number(req.query.benefitId);
       const perk = await Benefit.findById(perkId);
-      console.log({ perk });
+
       if (!perk!.isActive) {
         return res.status(400).json({
           code: "E_NOT_ALLOWED",
