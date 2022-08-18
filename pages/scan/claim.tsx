@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import type { User, Claim } from "@prisma/client";
+import type { User, Claim, Benefit, Business } from "@prisma/client";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import {
   Box,
@@ -13,20 +13,30 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import AppCodeScanner from "components/AppCodeScanner";
+import AppPerkCard from "components/AppPerkCard";
 import { useRouter } from "next/router";
 import axios from "axios";
 import useSWR from "swr";
 import { showNotification } from "@mantine/notifications";
 import { useState, useEffect } from "react";
+import { Calendar, Package, UserCircle } from "tabler-icons-react";
+import formatDate from "helpers/formatDate";
+
+type ClaimWithRelations = Claim & {
+  user: User;
+  benefit: Benefit;
+  supplier: Business;
+};
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 interface UseFetchClaim {
   loadingClaim: boolean;
-  claim: Claim | null;
+  claim: ClaimWithRelations | null;
 }
 function useFetchClaim(claimId?: Number): UseFetchClaim {
   // TODO: let user know if the claim was not found
+  // TODO: notify user if they are forbidden from verifing a perk
   const { data, error } = useSWR(
     claimId ? `/api/claim/${claimId}` : null,
     fetcher
@@ -74,7 +84,7 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
     <Box mb={49}>
       <Group p="md" position="apart" align="center">
         <Text size="xl" weight={500}>
-          Scan Claim QR
+          Scan Costumer Claim QR
         </Text>
       </Group>
       {!loadingClaim && (
@@ -89,20 +99,81 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
         position="bottom"
         title="Claim details"
         padding="md"
-        size="xl"
-      > 
-        <ScrollArea style={{ height: "440px" }} type="auto">
+        size="full"
+      >
+        <ScrollArea style={{ height: "100%" }} type="never">
           {loadingClaim && (
             <Center mb="md">
               <Loader variant="bars" size="sm"></Loader>
             </Center>
           )}
-          <Stack spacing="xs">
-            <Button variant="default">Report issue</Button>
-            <Button variant="filled" color="red">
-              Delete claim
-            </Button>
-          </Stack>
+          {!loadingClaim && !claim && (
+            // i can put the result here if its 404 or 403
+            <Text>
+              There was not a perk found reason being PUT ERROR FROM API HERE
+            </Text>
+          )}
+          {!loadingClaim && claim && (
+            <Box pb="md">
+              <Box mb="md">
+                <Text
+                  size="sm"
+                  color="dimmed"
+                  weight={500}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <Calendar size="1rem" style={{ marginRight: 3 }} />
+                  Created At
+                </Text>
+                <Text>{formatDate(claim.createdAt, "DETAILED_READABLE")}</Text>
+              </Box>
+              <Box mb="md">
+                <Text
+                  size="sm"
+                  color="dimmed"
+                  weight={500}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <Calendar size="1rem" style={{ marginRight: 3 }} />
+                  Finishes At
+                </Text>
+                <Text>
+                  {claim.benefit.finishesAt
+                    ? formatDate(claim.benefit.finishesAt, "SHORT_TEXT")
+                    : "This perk has no expiration date"}
+                </Text>
+              </Box>
+              <Box mb="md">
+                <Text
+                  size="sm"
+                  color="dimmed"
+                  weight={500}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <UserCircle size="1rem" style={{ marginRight: 3 }} />
+                  User
+                </Text>
+                <Text>
+                  {claim.user.name}
+                </Text>
+                <Text size="xs" color="dimmed">{claim.user.email}</Text>
+              </Box>
+              <Box mb="md">
+                <Text
+                  size="sm"
+                  color="dimmed"
+                  weight={500}
+                  mb="xs"
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <Package size="1rem" style={{ marginRight: 3 }} />
+                  Perk
+                </Text>
+                <AppPerkCard perk={claim.benefit} disableTopBar={true} />
+              </Box>
+              <Button fullWidth>Confirm</Button>
+            </Box>
+          )}
         </ScrollArea>
       </Drawer>
     </Box>
