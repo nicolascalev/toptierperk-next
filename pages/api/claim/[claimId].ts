@@ -22,7 +22,10 @@ export default async function claimHandler(
       const userIsClaimer = claim.userId === user.id;
       // if user can verify and belongs to perk supplier business
       const userIsVerifierOfSupplier =
-        user.canVerify && user.businessId === claim.supplierId ? true : false;
+        (user.canVerify || user.adminOfId) &&
+        user.businessId === claim.supplierId
+          ? true
+          : false;
       if (!userIsClaimer && !userIsVerifierOfSupplier) {
         return res.status(403).send("Forbidden");
       }
