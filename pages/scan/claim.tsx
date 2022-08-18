@@ -9,7 +9,7 @@ import {
   Loader,
   Button,
   Drawer,
-  Stack,
+  NumberInput,
   ScrollArea,
 } from "@mantine/core";
 import AppCodeScanner from "components/AppCodeScanner";
@@ -19,7 +19,7 @@ import axios, { AxiosError } from "axios";
 import useSWR from "swr";
 import { showNotification } from "@mantine/notifications";
 import { useState, useEffect } from "react";
-import { Calendar, Package, UserCircle } from "tabler-icons-react";
+import { Calendar, Package, UserCircle, Search, Hash } from "tabler-icons-react";
 import formatDate from "helpers/formatDate";
 
 type ClaimWithRelations = Claim & {
@@ -67,6 +67,9 @@ interface Props {
 const ScanClaimView: NextPage<Props> = ({ user }) => {
   const router = useRouter();
   const [claimId, setClaimId] = useState<undefined | number>(undefined);
+  const [inputClaimId, setInputClaimId] = useState<undefined | number>(
+    undefined
+  );
   const { loadingClaim, claim, errorLoadingClaim } = useFetchClaim(claimId);
   // in case the user got here scaning from os camera, take the claimId from url
   useEffect(() => {
@@ -101,26 +104,55 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
     setClaimId(claimId);
   }
 
+  function onCloseDrawer() {
+    setClaimId(undefined);
+    setInputClaimId(undefined);
+  }
+
   return (
     <Box mb={49}>
       <Group p="md" position="apart" align="center">
         <Text size="xl" weight={500}>
-          Scan Costumer Claim QR
+          Scan costumer claim QR
         </Text>
       </Group>
       {!loadingClaim && (
-        <Box style={{ width: "100%" }}>
-          <AppCodeScanner onReadSuccess={onReadSuccess} />
-        </Box>
+        <>
+          <Box style={{ width: "100%" }}>
+            <AppCodeScanner onReadSuccess={onReadSuccess} />
+          </Box>
+          <Box p="md">
+            <NumberInput
+              defaultValue={undefined}
+              placeholder="Claim id"
+              label="Claim Id"
+              description="If the scanner is not available, you can put the claim id here"
+              hideControls
+              min={1}
+              icon={<Hash size={16} />}
+              value={inputClaimId}
+              onChange={(val) => setInputClaimId(val)}
+            />
+            <Group position="right" mt="md">
+              <Button
+                rightIcon={<Search size={16} />}
+                disabled={inputClaimId === undefined || inputClaimId <= 0}
+                onClick={() => setClaimId(inputClaimId)}
+              >
+                Search
+              </Button>
+            </Group>
+          </Box>
+        </>
       )}
 
       <Drawer
         opened={claimId !== undefined}
-        onClose={() => setClaimId(undefined)}
+        onClose={onCloseDrawer}
         position="bottom"
         title="Claim details"
         padding="md"
-        size={errorLoadingClaim ? "sm" : "full"}
+        size={!loadingClaim && errorLoadingClaim ? "sm" : "full"}
       >
         <ScrollArea style={{ height: "100%" }} type="never">
           {loadingClaim && (
@@ -135,7 +167,7 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
                 fullWidth
                 mt="md"
                 variant="default"
-                onClick={() => setClaimId(undefined)}
+                onClick={onCloseDrawer}
               >
                 Close
               </Button>
