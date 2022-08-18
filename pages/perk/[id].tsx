@@ -34,6 +34,8 @@ interface Props {
   benefit: any;
 }
 
+const now = Date.now();
+
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
@@ -74,7 +76,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
   const startsAtBorder =
     "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
 
-  const companyCardBackgroundColor =
+  const businessCardBackgroundColor =
     theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0];
 
   function getUseLimitMessage() {
@@ -92,7 +94,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
 
   function getPerkInactiveError(): string {
     if (!benefit.isActive) {
-      return "This perk is not available for claims at the moment";
+      return "This perk has been disabled by the supplier";
     }
     if (!benefit.supplier.paidMembership) {
       return "Perk currently unavailable, needs confirmation from supplier";
@@ -100,12 +102,11 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
     if (benefit.useLimit && benefit.claimAmount >= benefit.useLimit) {
       return "This perk reached use limit amount";
     }
-    return "";
-  }
-
-  function userBusinessError(): string {
-    if (!user?.business) {
-      return "Must be a part of a business";
+    if (benefit.startsAt && (now < benefit.startsAt)) {
+      return `This perk will be available on ${formatDate(benefit.startsAt, "SHORT_TEXT")}`;
+    }
+    if (benefit.finishesAt && (now > benefit.finishesAt)) {
+      return `This perk has not been available since ${formatDate(benefit.finishesAt, "SHORT_TEXT")}`;
     }
     return "";
   }
@@ -221,6 +222,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
         <Text mb="md" style={{ whiteSpace: "pre-wrap" }}>
           {benefit.description}
         </Text>
+        {/* START AND FINISH */}
         <Group grow mb="md">
           <div style={{ borderRight: startsAtBorder }}>
             <Text color="dimmed">Starts At</Text>
@@ -257,7 +259,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
             component="a"
             style={{
               position: "relative",
-              backgroundColor: companyCardBackgroundColor,
+              backgroundColor: businessCardBackgroundColor,
               marginTop: theme.spacing.md,
               maxHeight: "8rem",
             }}
@@ -288,13 +290,13 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
                 left: "0px",
                 width: "100%",
                 height: "1.5rem",
-                backgroundImage: `linear-gradient(transparent, ${companyCardBackgroundColor})`,
+                backgroundImage: `linear-gradient(transparent, ${businessCardBackgroundColor})`,
               }}
             ></div>
           </Card>
         </Link>
       </div>
-      <AppPerkViewActions perk={benefit} />
+      <AppPerkViewActions perk={benefit} user={user} initialError={getPerkInactiveError()} />
 
       <Drawer
         opened={openedGallery}
