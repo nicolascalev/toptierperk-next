@@ -21,13 +21,13 @@ function AppNavigation(props: any) {
                 active={router.pathname == "/business/admin"}
               />
             </Link>
-            <Link href="/scan/costumer" passHref>
+            <Link href="/scan/claim" passHref>
               <NavLink
                 component="a"
                 variant="subtle"
-                label="Verify Costumer QR"
+                label="Verify Claim QR"
                 icon={<Scan size={14} />}
-                active={router.pathname == "/scan/costumer"}
+                active={router.pathname == "/scan/claim"}
               />
             </Link>
             <Link href="/api/auth/logout" passHref>
