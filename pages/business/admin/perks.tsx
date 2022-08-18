@@ -13,6 +13,7 @@ import {
   SegmentedControl,
   Button,
   Indicator,
+  Paper,
 } from "@mantine/core";
 import { Filter } from "tabler-icons-react";
 import AppPerkCard from "components/AppPerkCard";
@@ -46,7 +47,7 @@ const debSetFilter = debounce((resetSearch, setFilters, searchString) => {
     ...fil,
     ...{ searchString },
   }));
-}, 500)
+}, 500);
 
 const AvailablePerksView: NextPage<Props> = ({ user }) => {
   const theme = useMantineTheme();
@@ -54,12 +55,13 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
 
   const filterBackground = isDark ? theme.colors.dark[7] : theme.white;
   const feedBackground = isDark ? theme.colors.dark[8] : theme.colors.gray[1];
-  const borderBottom = "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
+  const borderBottom =
+    "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da");
 
   const [openedFilters, setOpenedFilters] = useState(false);
   const [perks, setPerks] = useState<any[]>([]);
 
-  const [searchString, setSearchString] = useState('')
+  const [searchString, setSearchString] = useState("");
 
   const [isPrivate, setIsPrivate] = useState<undefined | boolean>(undefined);
   const [acquired, setAcquired] = useState<undefined | boolean>(undefined);
@@ -74,11 +76,11 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
     category: undefined,
     startsAt: undefined,
   });
-  
+
   // on search string change
   useEffect(() => {
-    debSetFilter(resetSearch, setFilters, searchString)
-  }, [searchString])
+    debSetFilter(resetSearch, setFilters, searchString);
+  }, [searchString]);
 
   function onCloseDrawer() {
     setOpenedFilters(false);
@@ -173,11 +175,15 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
   }
 
   const hasActiveFilters = () => {
-    if (Object.values(filters).map((val: any) => (val !== '' && val !== undefined)).includes(true)) {
-      return true
+    if (
+      Object.values(filters)
+        .map((val: any) => val !== "" && val !== undefined)
+        .includes(true)
+    ) {
+      return true;
     }
-    return false
-  }
+    return false;
+  };
 
   return (
     <Box sx={{ marginBottom: "49px" }}>
@@ -199,14 +205,29 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
           style={{ flexGrow: 1 }}
         />
         <Indicator disabled={!hasActiveFilters()}>
-          <ActionIcon title="Open filters" onClick={() => setOpenedFilters(true)}>
+          <ActionIcon
+            title="Open filters"
+            onClick={() => setOpenedFilters(true)}
+          >
             <Filter></Filter>
           </ActionIcon>
         </Indicator>
       </Group>
-      <Box p="md" sx={{ backgroundColor: feedBackground, minHeight: "calc(100vh - 168px)" }}>
+      <Box
+        p="md"
+        sx={{
+          backgroundColor: feedBackground,
+          minHeight: "calc(100vh - 168px)",
+        }}
+      >
         {perks.length == 0 && !loadingPerks && (
-          <Text>No results at the moment</Text>
+          <Paper p="md" withBorder mb="md">
+            <Text weight={500} mb="sm">No results</Text>
+            <Text color="dimmed" size="sm">
+              When there are perks available to your business that fit the
+              search criteria, they will be displayed here
+            </Text>
+          </Paper>
         )}
         {perks.length > 0 &&
           uniqBy(perks, "id").map((perk: any) => (
@@ -214,7 +235,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
           ))}
         {loadingPerks && (
           <Center>
-            <Loader size="sm" />
+            <Loader variant="bars" size="sm" />
           </Center>
         )}
         {theresMore && !loadingPerks && (
@@ -251,7 +272,9 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
             value={startsAt}
             onChange={setStartsAt}
           />
-          {hasActiveFilters() && <Button onClick={clearFilters}>Clear filters</Button>}
+          {hasActiveFilters() && (
+            <Button onClick={clearFilters}>Clear filters</Button>
+          )}
         </Stack>
       </Drawer>
     </Box>
@@ -264,7 +287,7 @@ export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
     const session = getSession(ctx.req, ctx.res);
     if (!session?.user.adminOf) {
-      return { redirect: { destination: '/401', permanent: false } };
+      return { redirect: { destination: "/401", permanent: false } };
     }
     return { props: {} };
   },
