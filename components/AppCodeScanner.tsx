@@ -11,7 +11,7 @@ import {
   ActionIcon,
   Menu,
 } from "@mantine/core";
-import { Bulb, CaretDown } from "tabler-icons-react";
+import { Bulb, CaretDown, Scan } from "tabler-icons-react";
 
 type Camera = {
   value: string;
@@ -65,7 +65,7 @@ function AppCodeScanner({ onReadSuccess }: Props) {
 
   async function startScan() {
     if (!scanner.current) return;
-    setScanButtonText("Loading");
+    setScanButtonText("Loading...");
     await scanner.current.start();
     const deviceHasFlash = await scanner.current.hasFlash();
     setHasFlash(deviceHasFlash);
@@ -107,9 +107,18 @@ function AppCodeScanner({ onReadSuccess }: Props) {
             left: "0px",
           }}
         >
-          <Button onClick={startScan} disabled={!hasCamera}>
-            {hasCamera ? scanButtonText : "No camera available"}
-          </Button>
+          <Group position="center">
+            <Button
+              onClick={startScan}
+              disabled={!hasCamera}
+              leftIcon={<Scan size={16} />}
+            >
+              {hasCamera ? scanButtonText : "No camera available"}
+            </Button>
+            <Text pl="md" pr="md" color="dimmed" size="sm" align="center">
+              All Toptierperk QR codes will work with any QR scanner
+            </Text>
+          </Group>
         </Center>
       )}
       {scanStarted && (
