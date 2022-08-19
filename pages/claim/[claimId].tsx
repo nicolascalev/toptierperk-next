@@ -101,7 +101,7 @@ const ClaimView: NextPage<Props> = ({ user }) => {
                 </Text>
               </Paper>
             )}
-          {!claim.supplier.paidMembership && (
+          {!claim.approvedAt && !claim.supplier.paidMembership && (
             <Paper withBorder p="md" mb="md">
               <Text weight={500} color="red" size="sm">
                 Can not redeem
