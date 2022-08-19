@@ -11,6 +11,7 @@ import {
   Drawer,
   NumberInput,
   ScrollArea,
+  Paper,
 } from "@mantine/core";
 import AppCodeScanner from "components/AppCodeScanner";
 import AppPerkCard from "components/AppPerkCard";
@@ -19,7 +20,13 @@ import axios, { AxiosError } from "axios";
 import useSWR from "swr";
 import { showNotification } from "@mantine/notifications";
 import { useState, useEffect } from "react";
-import { Calendar, Package, UserCircle, Search, Hash } from "tabler-icons-react";
+import {
+  Calendar,
+  Package,
+  UserCircle,
+  Search,
+  Hash,
+} from "tabler-icons-react";
 import formatDate from "helpers/formatDate";
 
 type ClaimWithRelations = Claim & {
@@ -109,6 +116,36 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
     setInputClaimId(undefined);
   }
 
+  const [loadingConfirm, setLoadingConfirm] = useState(false);
+  async function confirmClaim() {
+    if (!claimId) return;
+    try {
+      setLoadingConfirm(true);
+      const updated = await axios
+        .patch("/api/claim/" + claimId, {
+          approvedAt: new Date(),
+        })
+        .then((res) => res.data);
+      if (updated) {
+        showNotification({
+          title: "Claim verified successfully",
+          message: "The costumer can now enjoy the perk",
+          autoClose: 5000,
+        });
+      }
+    } catch (err) {
+      showNotification({
+        title: "Error on claim",
+        message: (err as any).response?.data,
+        color: "red",
+        autoClose: 5000,
+      });
+    } finally {
+      onCloseDrawer();
+      setLoadingConfirm(false);
+    }
+  }
+
   return (
     <Box mb={49}>
       <Group p="md" position="apart" align="center">
@@ -175,6 +212,18 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
           )}
           {!loadingClaim && claim && (
             <Box pb="md">
+              {!claim.approvedAt &&
+                claim.benefit!.useLimit &&
+                claim.benefit!.useLimit <= claim.benefit!.claimAmount && (
+                  <Paper withBorder p="md" mb="md">
+                    <Text weight={500} color="red" size="sm">
+                      Can not redeem
+                    </Text>
+                    <Text size="sm" color="dimmed">
+                      This perk reached use limit amount before user redeemed it
+                    </Text>
+                  </Paper>
+                )}
               <Box mb="md">
                 <Text
                   size="sm"
@@ -231,7 +280,14 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
                 </Text>
                 <AppPerkCard perk={claim.benefit} disableTopBar={true} />
               </Box>
-              <Button fullWidth>Confirm</Button>
+              <Button
+                fullWidth
+                loading={loadingConfirm}
+                disabled={claim.approvedAt !== null}
+                onClick={confirmClaim}
+              >
+                {claim.approvedAt === null ? "Confirm" : "Already verified"}
+              </Button>
             </Box>
           )}
         </ScrollArea>
