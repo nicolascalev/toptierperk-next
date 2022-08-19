@@ -1,24 +1,16 @@
 import type { NextPage } from "next";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import {
-  Text,
-  Box,
-  Alert,
-  useMantineTheme,
-  Anchor,
-  Paper,
-} from "@mantine/core";
+import { Text, Box, Anchor, Paper } from "@mantine/core";
 import AppPerkForm from "components/AppPerkForm";
-import { AlertCircle } from "tabler-icons-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import refreshSessionUser from "helpers/refreshSessionUser";
 
 interface Props {
   user: any;
 }
 
 const CreatePerkPage: NextPage<Props> = ({ user }) => {
-  const theme = useMantineTheme();
   const router = useRouter();
 
   return (
@@ -32,7 +24,7 @@ const CreatePerkPage: NextPage<Props> = ({ user }) => {
         <AppPerkForm action="create"></AppPerkForm>
       )}
       {!user.adminOf && (
-        <Paper p="md" withBorder>
+        <Paper mx="md" p="md" withBorder>
           <Text weight={500} mb="sm">
             Not a business admin
           </Text>
@@ -42,7 +34,12 @@ const CreatePerkPage: NextPage<Props> = ({ user }) => {
         </Paper>
       )}
       {user.adminOf && user.business?.paidMembership == false && (
-        <Paper p="md" mx="md" withBorder onClick={() => router.push("/subscription")}>
+        <Paper
+          p="md"
+          mx="md"
+          withBorder
+          onClick={() => router.push("/subscription")}
+        >
           <Text weight={500} mb="sm">
             Subscription issue
           </Text>
@@ -61,4 +58,17 @@ const CreatePerkPage: NextPage<Props> = ({ user }) => {
 
 export default CreatePerkPage;
 
-export const getServerSideProps = withPageAuthRequired();
+export const getServerSideProps = withPageAuthRequired({
+  async getServerSideProps(ctx: any) {
+    const errorRedirectUrl = await refreshSessionUser(ctx.req, ctx.res);
+    if (errorRedirectUrl) {
+      return {
+        redirect: {
+          destination: "/email-verify",
+          permanent: false,
+        },
+      };
+    }
+    return { props: {} };
+  },
+});
