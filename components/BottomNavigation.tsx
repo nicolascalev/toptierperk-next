@@ -28,6 +28,7 @@ export default function BottomNavigation(props: any) {
         position: "fixed",
         bottom: "0px",
         width: "100%",
+        zIndex: 10,
       }}
     >
       <Divider />
