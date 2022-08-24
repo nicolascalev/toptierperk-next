@@ -22,6 +22,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import useSWR from "swr";
 import confetti from "canvas-confetti";
+import AppPerkViewActionsSave from "components/AppPerkViewActionsSave";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -49,20 +50,13 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
   const router = useRouter();
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
+  // TODO IMPORTANT prevent requests from being sent everytime this is rendered, it goes for actions save too
   const { acquireStatus, loadingAcquireStatus } = useAcquiredStatus(
     user?.business.id,
     perk.id
   );
-  const componentRef = useRef<any>(null);
-  const [actionsHeight, setActionsHeight] = useState(49);
 
   const [openedActions, setOpenedActions] = useState(false);
-
-  useEffect(() => {
-    if (componentRef.current?.offsetHeight) {
-      setActionsHeight(componentRef.current.offsetHeight);
-    }
-  }, []);
 
   function clickShare() {
     const shareData = {
@@ -163,7 +157,7 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
           message: "you have to show the qr to the supplier to verify claim",
           autoClose: 5000,
         });
-        router.push("/claim/" + claim.id)
+        router.push("/claim/" + claim.id);
       }
     } catch (err) {
       let error = err as any;
@@ -188,9 +182,7 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
   // TODO: get errors or validations from props, and disable claim or actions
   return (
     <>
-      <div style={{ height: actionsHeight }}></div>
       <Box
-        ref={componentRef}
         sx={{
           width: "100%",
           position: "fixed",
@@ -236,7 +228,7 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
         position="bottom"
       >
         <Box>
-          <NavLink label="Save" icon={<Bookmark size={16} />} />
+          <AppPerkViewActionsSave perk={perk} user={user} />
           <NavLink
             label="Share"
             icon={<Upload size={16} />}
