@@ -16,13 +16,13 @@ import {
 } from "@mantine/core";
 import { useRouter } from "next/router";
 import { NotificationsProvider } from "@mantine/notifications";
+import { UserInterfaceProvider } from "helpers/useUserInterfaceContext";
 import { Sun, MoonStars } from "tabler-icons-react";
-
-import BottomNavigation from "components/BottomNavigation";
-
 import { UserProvider } from "@auth0/nextjs-auth0";
+import BottomNavigation from "components/BottomNavigation";
 import AppLogo from "components/AppLogo";
 import AppNavigation from "components/AppNavigation";
+import AppHeader from "components/AppHeader";
 
 export default function App(props: AppProps) {
   const router = useRouter();
@@ -30,7 +30,6 @@ export default function App(props: AppProps) {
   const { Component, pageProps } = props;
 
   const [opened, setOpened] = useState(false);
-  const title = opened ? "Close navigation" : "Open navigation";
 
   const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
   const toggleColorScheme = (value?: ColorScheme) => {
@@ -77,7 +76,7 @@ export default function App(props: AppProps) {
             colorScheme,
             fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
             colors: {
-              "brand": [
+              brand: [
                 "#e7effc",
                 "#b8d0f5",
                 "#89b1ef",
@@ -100,69 +99,53 @@ export default function App(props: AppProps) {
                 "#FFD43B",
               ],
             },
-            primaryColor: 'brand',
-            // loader: "dots",
+            primaryColor: "brand",
           }}
         >
-          <NotificationsProvider position="bottom-center">
-            <AppShell
-              styles={{
-                body: { minHeight: "100vh" },
-              }}
-              padding={0}
-              header={
-                <Header
-                  height={50}
-                  p="xs"
-                  style={{ borderBottom: "none" }}
-                  fixed
-                >
-                  <Group position="apart">
-                    <Burger
-                      size={14}
-                      opened={opened}
-                      onClick={() => setOpened((o) => !o)}
-                      title={title}
-                    />
-                    {/* <ActionIcon
-                      onClick={() => toggleColorScheme()}
-                      title="Toggle scheme"
-                    >
-                      {isDark ? <Sun /> : <MoonStars />}
-                    </ActionIcon> */}
+          <UserInterfaceProvider>
+            <NotificationsProvider position="bottom-center">
+              <AppShell
+                styles={{
+                  body: { minHeight: "100vh" },
+                }}
+                padding={0}
+                header={
+                  <AppHeader
+                    openedNavigation={opened}
+                    setOpenedNavigation={setOpened}
+                  />
+                }
+              >
+                <Component {...pageProps} />
+              </AppShell>
+              <BottomNavigation />
+              <Drawer
+                position="bottom"
+                opened={opened}
+                onClose={() => setOpened(false)}
+                title={
+                  <Group>
+                    <AppLogo />
+                    <Text size="lg" weight={700}>
+                      Toptierperk
+                    </Text>
                   </Group>
-                </Header>
-              }
-            >
-              <Component {...pageProps} />
-            </AppShell>
-            <BottomNavigation />
-            <Drawer
-              position="bottom"
-              opened={opened}
-              onClose={() => setOpened(false)}
-              title={
-                <Group>
-                  <AppLogo />
-                  <Text size="lg" weight={700}>
-                    Toptierperk
-                  </Text>
-                </Group>
-              }
-              padding="md"
-            >
-              <AppNavigation>
-                <Button
-                  fullWidth
-                  color={isDark ? "primary" : "dark"}
-                  onClick={() => toggleColorScheme()}
-                  rightIcon={isDark ? <Sun /> : <MoonStars />}
-                >
-                  Toggle theme
-                </Button>
-              </AppNavigation>
-            </Drawer>
-          </NotificationsProvider>
+                }
+                padding="md"
+              >
+                <AppNavigation>
+                  <Button
+                    fullWidth
+                    color={isDark ? "primary" : "dark"}
+                    onClick={() => toggleColorScheme()}
+                    rightIcon={isDark ? <Sun /> : <MoonStars />}
+                  >
+                    Toggle theme
+                  </Button>
+                </AppNavigation>
+              </Drawer>
+            </NotificationsProvider>
+          </UserInterfaceProvider>
         </MantineProvider>
       </ColorSchemeProvider>
     </UserProvider>
