@@ -5,6 +5,7 @@ import AppPerkForm from "components/AppPerkForm";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import refreshSessionUser from "helpers/refreshSessionUser";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 interface Props {
   user: any;
@@ -15,11 +16,7 @@ const CreatePerkPage: NextPage<Props> = ({ user }) => {
 
   return (
     <div style={{ minHeight: "calc(100vh - 98px)", marginBottom: "49px" }}>
-      <Box p="md">
-        <Text size="xl" weight={500}>
-          Create perk
-        </Text>
-      </Box>
+      <AppHeaderTitle title="Create perk" />
       {user.adminOf && user.adminOf.paidMembership && (
         <AppPerkForm action="create"></AppPerkForm>
       )}

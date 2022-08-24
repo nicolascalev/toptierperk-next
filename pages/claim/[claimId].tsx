@@ -30,6 +30,7 @@ import {
   Key,
 } from "tabler-icons-react";
 import { useEffect, useState } from "react";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -57,15 +58,17 @@ const ClaimView: NextPage<Props> = ({ user }) => {
 
   return (
     <Box p="md" mb={49}>
-      <Group position="apart" align="center" mb="xl">
-        <Text size="xl" weight={500}>
-          Claim details
-        </Text>
+      <AppHeaderTitle title="Claim details" />
+      <Box mb="xl">
         {claim && claim.approvedAt && (
           <Text
             size="sm"
             color={theme.colors.green[6]}
-            style={{ display: "flex", alignItems: "center" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             Verified
             <Checks size="1rem" style={{ marginLeft: 3 }} />
@@ -73,15 +76,20 @@ const ClaimView: NextPage<Props> = ({ user }) => {
         )}
         {claim && !claim.approvedAt && (
           <Text
+            align="center"
             size="sm"
             color={theme.colors.brand[6]}
-            style={{ display: "flex", alignItems: "center" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             Pending
             <Check size="1rem" style={{ marginLeft: 3 }} />
           </Text>
         )}
-      </Group>
+      </Box>
       {loadingClaim && (
         <Center>
           <Loader variant="bars" size="sm"></Loader>

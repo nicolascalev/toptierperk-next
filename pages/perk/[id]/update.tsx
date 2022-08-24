@@ -6,6 +6,7 @@ import { useMantineTheme, Text, Box, Loader, Center } from "@mantine/core";
 import AppPerkForm from "components/AppPerkForm";
 import axios from "axios";
 import Benefit from "prisma/models/Benefit";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 interface Props {
   user: any;
@@ -46,15 +47,13 @@ const UpdatePerkPage: NextPage<Props> = ({ user }) => {
 
   return (
     <div style={{ marginBottom: "49px" }}>
-      <Box p="md">
-        <Text size="xl" mb={0}>Update Perk</Text>
-      </Box>
+      <AppHeaderTitle title="Update perk" />
       {loadingPerk && (
         <Center>
           <Loader size="sm" variant="bars"></Loader>
         </Center>
       )}
-      {perk && !loadPerkError && (
+      {perk && !loadingPerk && !loadPerkError && (
         <AppPerkForm action="update" perk={perk}></AppPerkForm>
       )}
     </div>

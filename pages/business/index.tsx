@@ -20,6 +20,7 @@ import { AlertCircle } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 interface Props {
   user: any;
@@ -42,7 +43,7 @@ function BusinessLogo(props: any) {
     >
       <div
         className="logo"
-        style={{ backgroundImage: `url(${props.logo})` }}
+        style={{ backgroundImage: `url('${props.logo}')` }}
       ></div>
     </div>
   );
@@ -66,7 +67,7 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
     borderBottom: "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da"),
   };
 
-  let tabPanelStyles: any = { minHeight: "calc(100vh - 349px)" };
+  let tabPanelStyles: any = { minHeight: "calc(100vh - 305px)" };
   if (isDark) {
     tabPanelStyles.backgroundColor = theme.colors.dark[8];
   } else {
@@ -76,6 +77,7 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
   if (!user.business) {
     return (
       <Box p="md">
+        <AppHeaderTitle title="Toptierperk" />
         <Paper p="md" withBorder>
           <Text weight={500} mb="sm">Business not set</Text>
           <Text>
@@ -95,6 +97,7 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
 
   return (
     <div style={{ position: "relative", marginBottom: "49px" }}>
+      <AppHeaderTitle title={business.name} />
       <Center
         p="xs"
         sx={{
@@ -122,28 +125,25 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
         }}
       >
         <div style={{ width: "100%", textAlign: "center" }}>
-          <Text mt="xs" size="xl" weight={500}>
-            {business.name}
-          </Text>
           <Paper radius="md" p="md">
             <SimpleGrid cols={3}>
               <div>
-                <Text weight="bold" size="lg">
+                <Text size="lg">
                   {business._count.benefitsFrom}
                 </Text>
-                <Text>Perks</Text>
+                <Text size="sm" color="dimmed">Perks</Text>
               </div>
               <div>
-                <Text weight="bold" size="lg">
+                <Text size="lg">
                   {business._count.benefits}
                 </Text>
-                <Text>Offers</Text>
+                <Text size="sm" color="dimmed">Offers</Text>
               </div>
               <div>
-                <Text weight="bold" size="lg">
+                <Text size="lg">
                   {business.claimAmount}
                 </Text>
-                <Text>Claims</Text>
+                <Text size="sm" color="dimmed">Claims</Text>
               </div>
             </SimpleGrid>
           </Paper>

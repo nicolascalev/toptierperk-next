@@ -28,6 +28,8 @@ import {
   Hash,
 } from "tabler-icons-react";
 import formatDate from "helpers/formatDate";
+import { useUserInterfaceContext } from "helpers/useUserInterfaceContext";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 type ClaimWithRelations = Claim & {
   user: User;
@@ -148,11 +150,7 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
 
   return (
     <Box mb={49}>
-      <Group p="md" position="apart" align="center">
-        <Text size="xl" weight={500}>
-          Scan costumer claim QR
-        </Text>
-      </Group>
+      <AppHeaderTitle title="Scan costumer claim QR" />
       {!loadingClaim && (
         <>
           <Box style={{ width: "100%" }}>
@@ -301,6 +299,7 @@ export default ScanClaimView;
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx: any) {
     const session = getSession(ctx.req, ctx.res);
+    // TODO refresh session with business, to check membership status
     if (!session!.user.adminOfId && !session!.user.canVerify) {
       return { redirect: { destination: "/401", permanent: false } };
     }
