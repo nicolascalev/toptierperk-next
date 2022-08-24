@@ -18,6 +18,7 @@ import AppHeaderTitle from "components/AppHeaderTitle";
 import axios from "axios";
 import useSWR from "swr";
 import AppPerkCard from "components/AppPerkCard";
+import AppClaimCard from "components/AppClaimCard";
 
 const fetcher = (url: string, params: any) =>
   axios.get(url, { params }).then((res) => res.data);
@@ -211,7 +212,7 @@ const Profile: NextPage<Props> = ({ user }) => {
             {claims.length > 0 && (
               <>
                 {Array.from(new Set(claims)).map((claim: any) => (
-                  <Text key={claim.id}>Claim {claim.id}</Text>
+                  <AppClaimCard key={claim.id} claim={claim} />
                 ))}
                 <Button
                   fullWidth
