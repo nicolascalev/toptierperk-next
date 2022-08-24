@@ -147,7 +147,7 @@ export default function AppPerkCard(props: Props) {
         </Card.Section>
 
         {/* TODO: add functionality like links and save button */}
-        <Group position="apart" py="sm">
+        <Group position="apart" py="sm" noWrap>
           <Text>{props.perk.name}</Text>
           <ActionIcon
             style={{ alignSelf: "start" }}
