@@ -6,12 +6,21 @@ import {
   Text,
   Box,
   Tabs,
+  Loader,
+  Group,
+  Button,
 } from "@mantine/core";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useWindowScroll } from "react-use";
 import { useState, useEffect } from "react";
 import AppUserForm from "components/AppUserForm";
 import AppHeaderTitle from "components/AppHeaderTitle";
+import axios from "axios";
+import useSWR from "swr";
+import AppPerkCard from "components/AppPerkCard";
+
+const fetcher = (url: string, params: any) =>
+  axios.get(url, { params }).then((res) => res.data);
 
 function UserPicture(props: any) {
   const { y } = useWindowScroll();
@@ -53,6 +62,32 @@ interface Props {
 }
 
 const Profile: NextPage<Props> = ({ user }) => {
+  const [params, setParams] = useState({
+    skip: 0,
+    cursor: undefined,
+  });
+  const { data: savedPerksData, error: savedPerksError } = useSWR(
+    [`/api/user/${user.id}/saved`, params],
+    fetcher
+  );
+  const loadingSaved = !savedPerksData && !savedPerksError;
+  const [savedPerks, setSavedPerks] = useState<any>([]);
+  const [moreSaved, setMoreSaved] = useState(true);
+  useEffect(() => {
+    if (savedPerksData) {
+      setSavedPerks((perks: any) => [...perks, ...savedPerksData]);
+      if (savedPerksData.length === 0) {
+        setMoreSaved(false);
+      }
+    }
+  }, [savedPerksData]);
+  function loadMoreSaved() {
+    setParams({
+      skip: 1,
+      cursor: savedPerks[savedPerks.length - 1].id,
+    });
+  }
+
   const theme = useMantineTheme();
 
   const isDark = theme.colorScheme === "dark";
@@ -61,7 +96,7 @@ const Profile: NextPage<Props> = ({ user }) => {
 
   const tabListStyles: any = {
     position: "sticky",
-    top: "114px",
+    top: "112px",
     zIndex: 10,
     backgroundColor: isDark ? theme.colors.dark[7] : theme.white,
     borderBottom: "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da"),
@@ -98,7 +133,9 @@ const Profile: NextPage<Props> = ({ user }) => {
         <Text align="center" size="lg">
           {user.name}
         </Text>
-        <Text align="center" color="dimmed" size="xs">{user.email}</Text>
+        <Text align="center" color="dimmed" size="xs">
+          {user.email}
+        </Text>
       </Box>
       <Tabs variant="pills" color="primary" defaultValue="saved">
         <Tabs.List grow p="sm" sx={tabListStyles}>
@@ -106,12 +143,29 @@ const Profile: NextPage<Props> = ({ user }) => {
           <Tabs.Tab value="claims">Claims</Tabs.Tab>
           <Tabs.Tab value="profile">Profile</Tabs.Tab>
         </Tabs.List>
-        <Tabs.Panel value="saved" pt="md" sx={tabPanelStyles}>
+        <Tabs.Panel value="saved" sx={tabPanelStyles}>
           <Box p="md">
-            <Message
-              title="No saved items"
-              message="When you save perks they will be displayed here"
-            />
+            {loadingSaved && (
+              <Group position="center">
+                <Loader size="sm" variant="bars"></Loader>
+              </Group>
+            )}
+            {!loadingSaved && savedPerks.length > 0 && (
+              <>
+                {Array.from(new Set(savedPerks)).map((perk: any) => (
+                  <AppPerkCard key={perk.id} perk={perk} />
+                ))}
+                <Button fullWidth disabled={!moreSaved} onClick={loadMoreSaved}>
+                  {moreSaved ? "Load more" : "Up to date"}
+                </Button>
+              </>
+            )}
+            {!loadingSaved && savedPerks.length === 0 && (
+              <Message
+                title="No saved items"
+                message="When you save perks they will be displayed here"
+              />
+            )}
           </Box>
         </Tabs.Panel>
         <Tabs.Panel value="claims" pt="md" sx={tabPanelStyles}>
