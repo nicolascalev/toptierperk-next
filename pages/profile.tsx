@@ -68,6 +68,12 @@ const Profile: NextPage<Props> = ({ user }) => {
     skip: 0,
     cursor: undefined,
   });
+  useEffect(() => {
+    setParams({
+      skip: 0,
+      cursor: undefined,
+    });
+  }, []);
   const { data: savedPerksData, error: savedPerksError } = useSWR(
     [`/api/user/${user.id}/saved`, params],
     fetcher
@@ -95,6 +101,12 @@ const Profile: NextPage<Props> = ({ user }) => {
     skip: 0,
     cursor: undefined,
   });
+  useEffect(() => {
+    setClaimParams({
+      skip: 0,
+      cursor: undefined,
+    });
+  }, []);
   const { data: claimsData, error: claimsDataError } = useSWR(
     [`/api/user/${user.id}/claims`, claimParams],
     fetcher
