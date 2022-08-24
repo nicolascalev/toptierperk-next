@@ -286,6 +286,40 @@ const User = {
       return Promise.reject(err);
     }
   },
+
+  findClaims: async (
+    userId: number,
+    skip: number,
+    cursor: number | undefined
+  ) => {
+    try {
+      const userClaims = await prisma.claim.findMany<Prisma.ClaimFindManyArgs>({
+        where: { userId },
+        skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        include: {
+          user: { include: { picture: true } },
+          benefit: {
+            include: {
+              photos: true,
+              supplier: { include: { logo: true } },
+              categories: true,
+            },
+          },
+          business: { include: { logo: true } },
+          supplier: { include: { logo: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return userClaims;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
 };
 
 export default User;
