@@ -62,6 +62,7 @@ interface Props {
 }
 
 const Profile: NextPage<Props> = ({ user }) => {
+  // load saved perks
   const [params, setParams] = useState({
     skip: 0,
     cursor: undefined,
@@ -85,6 +86,33 @@ const Profile: NextPage<Props> = ({ user }) => {
     setParams({
       skip: 1,
       cursor: savedPerks[savedPerks.length - 1].id,
+    });
+  }
+
+  // load claims
+  const [claimParams, setClaimParams] = useState({
+    skip: 0,
+    cursor: undefined,
+  });
+  const { data: claimsData, error: claimsDataError } = useSWR(
+    [`/api/user/${user.id}/claims`, claimParams],
+    fetcher
+  );
+  const loadingClaims = !claimsData && !claimsDataError;
+  const [claims, setClaims] = useState<any>([]);
+  const [moreClaims, setMoreClaims] = useState(true);
+  useEffect(() => {
+    if (claimsData) {
+      setClaims((claims: any) => [...claims, ...claimsData]);
+      if (claimsData.length === 0) {
+        setMoreClaims(false);
+      }
+    }
+  }, [claimsData]);
+  function loadMoreClaims() {
+    setClaimParams({
+      skip: 1,
+      cursor: claims[claims.length - 1].id,
     });
   }
 
@@ -145,17 +173,22 @@ const Profile: NextPage<Props> = ({ user }) => {
         </Tabs.List>
         <Tabs.Panel value="saved" sx={tabPanelStyles}>
           <Box p="md">
-            {loadingSaved && (
+            {loadingSaved && savedPerks.length === 0 && (
               <Group position="center">
                 <Loader size="sm" variant="bars"></Loader>
               </Group>
             )}
-            {!loadingSaved && savedPerks.length > 0 && (
+            {savedPerks.length > 0 && (
               <>
                 {Array.from(new Set(savedPerks)).map((perk: any) => (
                   <AppPerkCard key={perk.id} perk={perk} />
                 ))}
-                <Button fullWidth disabled={!moreSaved} onClick={loadMoreSaved}>
+                <Button
+                  fullWidth
+                  disabled={!moreSaved}
+                  onClick={loadMoreSaved}
+                  loading={loadingSaved}
+                >
                   {moreSaved ? "Load more" : "Up to date"}
                 </Button>
               </>
@@ -170,10 +203,32 @@ const Profile: NextPage<Props> = ({ user }) => {
         </Tabs.Panel>
         <Tabs.Panel value="claims" pt="md" sx={tabPanelStyles}>
           <Box p="md">
-            <Message
-              title="No claims to show"
-              message="When you claim perks they will be displayed here"
-            />
+            {loadingClaims && claims.length === 0 && (
+              <Group position="center">
+                <Loader size="sm" variant="bars"></Loader>
+              </Group>
+            )}
+            {claims.length > 0 && (
+              <>
+                {Array.from(new Set(claims)).map((claim: any) => (
+                  <Text key={claim.id}>Claim {claim.id}</Text>
+                ))}
+                <Button
+                  fullWidth
+                  disabled={!moreClaims}
+                  onClick={loadMoreClaims}
+                  loading={loadingClaims}
+                >
+                  {moreClaims ? "Load more" : "Up to date"}
+                </Button>
+              </>
+            )}
+            {!loadingClaims && claims.length === 0 && (
+              <Message
+                title="No claims to show"
+                message="When you claim perks they will be displayed here"
+              />
+            )}
           </Box>
         </Tabs.Panel>
         <Tabs.Panel value="profile" pt="md" sx={tabPanelStyles}>
