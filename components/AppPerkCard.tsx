@@ -11,7 +11,7 @@ import {
 import { showNotification } from "@mantine/notifications";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Share } from "tabler-icons-react";
+import { ChevronLeft, ChevronRight, Upload } from "tabler-icons-react";
 import { timeAgo } from "helpers/formatDate";
 
 interface Props {
@@ -110,26 +110,28 @@ export default function AppPerkCard(props: Props) {
                   alt={"Photo of " + props.perk.name}
                 />
               </AspectRatio>
-              <Group
-                position="right"
-                spacing="xs"
-                style={{
-                  position: "absolute",
-                  bottom: theme.spacing.md,
-                  right: theme.spacing.md,
-                }}
-              >
-                <ActionIcon color="dark" variant="light" onClick={carouselLeft}>
-                  <ChevronLeft></ChevronLeft>
-                </ActionIcon>
-                <ActionIcon
-                  color="dark"
-                  variant="light"
-                  onClick={carouselRight}
+              {props.perk.photos > 1 && (
+                <Group
+                  position="right"
+                  spacing="xs"
+                  style={{
+                    position: "absolute",
+                    bottom: theme.spacing.md,
+                    right: theme.spacing.md,
+                  }}
                 >
-                  <ChevronRight></ChevronRight>
-                </ActionIcon>
-              </Group>
+                  <ActionIcon color="dark" variant="light" onClick={carouselLeft}>
+                    <ChevronLeft></ChevronLeft>
+                  </ActionIcon>
+                  <ActionIcon
+                    color="dark"
+                    variant="light"
+                    onClick={carouselRight}
+                  >
+                    <ChevronRight></ChevronRight>
+                  </ActionIcon>
+                </Group>
+              )}
               <Badge
                 color="gray"
                 style={{
@@ -152,7 +154,7 @@ export default function AppPerkCard(props: Props) {
             size="sm"
             onClick={clickShare}
           >
-            <Share />
+            <Upload />
           </ActionIcon>
         </Group>
 
