@@ -13,7 +13,7 @@ import {
 import {
   Bookmark,
   DotsVertical,
-  Share,
+  Upload,
   Link as LinkIcon,
   MessageReport,
 } from "tabler-icons-react";
@@ -239,7 +239,7 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
           <NavLink label="Save" icon={<Bookmark size={16} />} />
           <NavLink
             label="Share"
-            icon={<Share size={16} />}
+            icon={<Upload size={16} />}
             onClick={clickShare}
           />
           <NavLink
