@@ -200,8 +200,88 @@ const User = {
           },
           picture: true,
         },
-      })
+      });
       return updated;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  // TODO find a way to sort them in the order the user saved them
+  findSavedPerks: async (
+    userId: number,
+    skip: number,
+    cursor: number | undefined
+  ) => {
+    try {
+      const saved = await prisma.benefit.findMany({
+        where: {
+          savedBy: {
+            some: { id: userId },
+          },
+        },
+        take: 10,
+        skip: skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        include: {
+          categories: true,
+          photos: true,
+          supplier: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+            },
+          },
+        },
+      });
+      return saved;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  checkSavedPerk: async (userId: number, perkId: number) => {
+    try {
+      const check = await prisma.user.findFirst({
+        where: {
+          id: userId,
+          savedBenefits: { some: { id: perkId } },
+        },
+      });
+      return check;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  savePerk: async (userId: number, perkId: number) => {
+    try {
+      const saved = await prisma.user.update<Prisma.UserUpdateArgs>({
+        where: { id: userId },
+        data: {
+          savedBenefits: { connect: { id: perkId } },
+        },
+      });
+      return saved;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  deleteSavedPerk: async (userId: number, perkId: number) => {
+    try {
+      const removed = await prisma.user.update<Prisma.UserUpdateArgs>({
+        where: { id: userId },
+        data: {
+          savedBenefits: { disconnect: { id: perkId } },
+        },
+      });
+      return removed;
     } catch (err) {
       return Promise.reject(err);
     }
