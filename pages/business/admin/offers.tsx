@@ -10,10 +10,12 @@ import {
   Group,
   Button,
   Center,
+  Paper,
 } from "@mantine/core";
 import AppPerkCard from "components/AppPerkCard";
 import axios from "axios";
 import Link from "next/link";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 interface Props {
   user: any;
@@ -55,8 +57,10 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
 
   return (
     <Box mb={49}>
+      <AppHeaderTitle title="Your business offers" />
       <Box p="md">
-        <Group align="center" position="apart" py="sm">
+        {/* TODO link to create perk page in a way that looks pretty */}
+        {/* <Group align="center" position="apart" py="sm">
           <Text size="lg">
             Perks you are offering
           </Text>
@@ -65,7 +69,7 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
               Create
             </Button>
           </Link>
-        </Group>
+        </Group> */}
         <SegmentedControl
           fullWidth
           value={status}
@@ -82,25 +86,40 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
           ]}
         />
       </Box>
-      <Box p="md" sx={{ minHeight: "calc(100vh - 231px)", backgroundColor }}>
+      <Box p="md" sx={{ minHeight: "calc(100vh - 173px)", backgroundColor }}>
         {loadingOffers && (
           <Center>
             <Loader ml="md" size="sm" />
           </Center>
         )}
         {!loadingOffers && status === "active" && activeOffers.length === 0 && (
-          <Text>No active perks found here</Text>
+          <Paper p="md" withBorder>
+            <Text weight={500} mb="md">
+              No perks to show
+            </Text>
+            <Text color="dimmed">
+              When you create active perks, they will be shown here
+            </Text>
+          </Paper>
         )}
         {!loadingOffers && status === "draft" && drafts.length === 0 && (
-          <Text>No drafts found here</Text>
+          <Paper p="md" withBorder>
+            <Text weight={500} mb="md">
+              No drafts to show
+            </Text>
+            <Text color="dimmed">
+              When you manually disable a perk, it will be shown here. Also if
+              you save it to publish later
+            </Text>
+          </Paper>
         )}
         {status === "active" &&
           activeOffers.map((offer: any) => (
-            <AppPerkCard key={offer.id} perk={offer} />
+            <AppPerkCard key={offer.id} perk={offer} disableTopBar={true} />
           ))}
         {status === "draft" &&
           drafts.map((offer: any) => (
-            <AppPerkCard key={offer.id} perk={offer} />
+            <AppPerkCard key={offer.id} perk={offer} disableTopBar={true} />
           ))}
       </Box>
     </Box>

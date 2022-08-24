@@ -11,6 +11,7 @@ import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useWindowScroll } from "react-use";
 import { useState, useEffect } from "react";
 import AppUserForm from "components/AppUserForm";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 function UserPicture(props: any) {
   const { y } = useWindowScroll();
@@ -75,6 +76,7 @@ const Profile: NextPage<Props> = ({ user }) => {
 
   return (
     <div style={{ position: "relative", marginBottom: "49px" }}>
+      <AppHeaderTitle title={user.username} />
       <Center
         p="xs"
         sx={{
@@ -96,7 +98,7 @@ const Profile: NextPage<Props> = ({ user }) => {
         <Text align="center" size="lg">
           {user.name}
         </Text>
-        <Text align="center" color="dimmed" size="xs">@{user.username}</Text>
+        <Text align="center" color="dimmed" size="xs">{user.email}</Text>
       </Box>
       <Tabs variant="pills" color="primary" defaultValue="saved">
         <Tabs.List grow p="sm" sx={tabListStyles}>

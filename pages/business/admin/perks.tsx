@@ -26,6 +26,7 @@ import axios from "axios";
 import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useCallback } from "react";
 import { uniqBy, debounce } from "lodash";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 type AquiredType = "all" | "acquired" | "notacquired";
 
@@ -187,6 +188,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
 
   return (
     <Box sx={{ marginBottom: "49px" }}>
+      <AppHeaderTitle title="Acquire perks" />
       <Group
         p="md"
         sx={{
@@ -222,7 +224,9 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
       >
         {perks.length == 0 && !loadingPerks && (
           <Paper p="md" withBorder mb="md">
-            <Text weight={500} mb="sm">No results</Text>
+            <Text weight={500} mb="sm">
+              No results
+            </Text>
             <Text color="dimmed" size="sm">
               When there are perks available to your business that fit the
               search criteria, they will be displayed here
@@ -244,7 +248,9 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
           </Button>
         )}
         {perks.length !== 0 && !theresMore && !loadingPerks && (
-          <Text align="center">Up to date</Text>
+          <Button fullWidth disabled>
+            Up to date
+          </Button>
         )}
       </Box>
 

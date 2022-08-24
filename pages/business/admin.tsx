@@ -4,6 +4,7 @@ import { Text, Box, NavLink, Group, Image } from "@mantine/core";
 import { ChevronRight } from "tabler-icons-react";
 import Link from "next/link";
 import Error from "next/error";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 interface Props {
   user: any;
@@ -18,7 +19,7 @@ const BusinessAdmin: NextPage<Props> = ({ user, serverError }) => {
   const links: any[] = [
     { url: "/business/profile", label: "Edit profile", disabled: false },
     {
-      url: "/business/subscription",
+      url: "/subscription",
       label: "Manage subscription",
       disabled: false,
     },
@@ -50,23 +51,7 @@ const BusinessAdmin: NextPage<Props> = ({ user, serverError }) => {
   ];
   return (
     <Box sx={{ position: "relative", marginBottom: "49px" }}>
-      <Group p="md">
-        <Image
-          src={user.business.logo?.url}
-          alt={user.business.name + " Toptierperk"}
-          radius={100}
-          width={32}
-          height={32}
-        ></Image>
-        <div>
-          <Text size="xl" weight={500}>
-            {user.adminOf.name} admin
-          </Text>
-          <Text color="dimmed" size="sm">
-            Allowed actions for admins
-          </Text>
-        </div>
-      </Group>
+      <AppHeaderTitle title="Admin" />
       <Box p="sm">
         {links.map((link: any, index: number) => (
           <Link key={index} href={link.url} passHref>

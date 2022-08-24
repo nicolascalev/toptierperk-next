@@ -6,6 +6,7 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import AppSubscriptionCard from "components/AppSubscriptionCard";
 import confetti from "canvas-confetti";
 import { showNotification } from "@mantine/notifications";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
@@ -20,9 +21,12 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
   // TODO: do other validations
   if (user.adminOf == null) {
     return (
-      <div>
-        You have to be the admin of a business to manage your subscription
-      </div>
+      <>
+        <AppHeaderTitle title="Subscription" />
+        <div>
+          You have to be the admin of a business to manage your subscription
+        </div>
+      </>
     );
   }
 
@@ -30,8 +34,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
     setUser({ ...user, ...{ business } });
     showNotification({
       title: "Subscribed!",
-      message:
-        "Congratulations on your new subscription.",
+      message: "Congratulations on your new subscription.",
       color: "green",
       autoClose: 5000,
     });
@@ -45,8 +48,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
   function onSubscriptionError() {
     showNotification({
       title: "Oops!",
-      message:
-        "There was an error while processing your subscription.",
+      message: "There was an error while processing your subscription.",
       color: "red",
       autoClose: 5000,
     });
@@ -55,7 +57,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
   return (
     <div style={{ minHeight: "calc(100vh - 98px)", marginBottom: "49px" }}>
       <div style={{ padding: theme.spacing.md }}>
-        <Text weight={500} size="xl" mb="md">Subscription</Text>
+        <AppHeaderTitle title="Subscription" />
 
         {user.business.paidMembership ? (
           // TODO: get the actual information of the plan od the user

@@ -28,6 +28,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { isNull, pick } from "lodash";
 import AppPrivacySelect from "components/AppPrivacySelect";
 import AppCategorySelect from "components/AppCategorySelect";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 const fetcher = (url: string, params: any) =>
   axios
@@ -148,6 +149,7 @@ const Home: NextPage<Props> = ({ user }) => {
 
   return (
     <Box pb={49}>
+      <AppHeaderTitle title="Available Perks" />
       <Group
         p="md"
         sx={{
