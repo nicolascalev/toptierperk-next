@@ -70,6 +70,7 @@ const Profile: NextPage<Props> = ({ user }) => {
     cursor: undefined,
   });
   useEffect(() => {
+    setSavedPerks([]);
     setParams({
       skip: 0,
       cursor: undefined,
@@ -103,6 +104,7 @@ const Profile: NextPage<Props> = ({ user }) => {
     cursor: undefined,
   });
   useEffect(() => {
+    setClaims([]);
     setClaimParams({
       skip: 0,
       cursor: undefined,
@@ -147,7 +149,7 @@ const Profile: NextPage<Props> = ({ user }) => {
     borderBottom: "1px solid " + (isDark ? theme.colors.dark[5] : "#ced4da"),
   };
 
-  let tabPanelStyles: any = { minHeight: "calc(100vh - 301px)" };
+  let tabPanelStyles: any = { minHeight: "calc(100vh - 223px)" };
   if (isDark) {
     tabPanelStyles.backgroundColor = theme.colors.dark[8];
   } else {
@@ -174,14 +176,6 @@ const Profile: NextPage<Props> = ({ user }) => {
           }
         />
       </Center>
-      <Box p="md">
-        <Text align="center" size="lg">
-          {user.name}
-        </Text>
-        <Text align="center" color="dimmed" size="xs">
-          {user.email}
-        </Text>
-      </Box>
       <Tabs variant="pills" color="primary" defaultValue="saved">
         <Tabs.List grow p="sm" sx={tabListStyles}>
           <Tabs.Tab value="saved">Saved</Tabs.Tab>
