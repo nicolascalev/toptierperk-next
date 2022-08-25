@@ -19,6 +19,7 @@ import axios from "axios";
 import useSWR from "swr";
 import AppPerkCard from "components/AppPerkCard";
 import AppClaimCard from "components/AppClaimCard";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const fetcher = (url: string, params: any) =>
   axios.get(url, { params }).then((res) => res.data);
@@ -129,6 +130,9 @@ const Profile: NextPage<Props> = ({ user }) => {
     });
   }
 
+  const [animationParentSaved] = useAutoAnimate<HTMLDivElement>();
+  const [animationParentClaims] = useAutoAnimate<HTMLDivElement>();
+
   const theme = useMantineTheme();
 
   const isDark = theme.colorScheme === "dark";
@@ -193,9 +197,11 @@ const Profile: NextPage<Props> = ({ user }) => {
             )}
             {savedPerks.length > 0 && (
               <>
-                {Array.from(new Set(savedPerks)).map((perk: any) => (
-                  <AppPerkCard key={perk.id} perk={perk} />
-                ))}
+                <div ref={animationParentSaved}>
+                  {savedPerks.map((perk: any) => (
+                    <AppPerkCard key={perk.id} perk={perk} />
+                  ))}
+                </div>
                 <Button
                   fullWidth
                   disabled={!moreSaved}
@@ -223,9 +229,11 @@ const Profile: NextPage<Props> = ({ user }) => {
             )}
             {claims.length > 0 && (
               <>
-                {Array.from(new Set(claims)).map((claim: any) => (
-                  <AppClaimCard key={claim.id} claim={claim} />
-                ))}
+                <div ref={animationParentClaims}>
+                  {claims.map((claim: any) => (
+                    <AppClaimCard key={claim.id} claim={claim} />
+                  ))}
+                </div>
                 <Button
                   fullWidth
                   disabled={!moreClaims}
