@@ -296,6 +296,7 @@ const User = {
       const userClaims = await prisma.claim.findMany<Prisma.ClaimFindManyArgs>({
         where: { userId },
         skip,
+        take: 10,
         cursor: cursor
           ? {
               id: cursor,
