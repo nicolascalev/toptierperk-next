@@ -29,6 +29,7 @@ import { isNull, pick } from "lodash";
 import AppPrivacySelect from "components/AppPrivacySelect";
 import AppCategorySelect from "components/AppCategorySelect";
 import AppHeaderTitle from "components/AppHeaderTitle";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const fetcher = (url: string, params: any) =>
   axios
@@ -43,12 +44,13 @@ interface Props {
 const now = new Date();
 
 function PerkList({ perks }: { perks: any[] }) {
+  const [animationParent] = useAutoAnimate<HTMLDivElement>();
   return (
-    <>
+    <div ref={animationParent}>
       {perks.map((perk: any) => (
         <AppPerkCard key={perk.id} perk={perk} />
       ))}
-    </>
+    </div>
   );
 }
 
