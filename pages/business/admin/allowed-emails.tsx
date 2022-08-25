@@ -18,6 +18,8 @@ import AppHeaderTitle from "components/AppHeaderTitle";
 import { useEffect, useState } from "react";
 import { showNotification } from "@mantine/notifications";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import axios from "axios";
+import refreshSessionUser from "helpers/refreshSessionUser";
 
 interface Props {
   user: any;
@@ -86,6 +88,33 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
 
   const existingChanges =
     user.adminOf.allowedEmployeeEmails !== JSON.stringify(allowedEmails);
+
+  const [loadingUpdateList, setLoadingUpdateList] = useState(false);
+  async function updateAllowedEmails() {
+    try {
+      setLoadingUpdateList(true);
+      const updated = await axios
+        .patch(`/api/business/${user.adminOfId}/allowed-emails`, {
+          allowedEmails: JSON.stringify(allowedEmails),
+        })
+        .then((res) => res.data);
+      user.adminOf.allowedEmployeeEmails = JSON.stringify(updated);
+      showNotification({
+        title: "Updated list",
+        message: "Changes have been applied",
+        autoClose: 5000,
+      });
+    } catch (err) {
+      showNotification({
+        title: "Error",
+        message: "Please try again",
+        autoClose: 5000,
+        color: "red",
+      });
+    } finally {
+      setLoadingUpdateList(false);
+    }
+  }
 
   return (
     <>
@@ -195,11 +224,15 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
             <Divider />
             <Group p="md" align="center" noWrap spacing="xs">
               <Text sx={{ flexGrow: 1 }}>
-                {existingChanges
-                  ? "Pending save changes"
-                  : "No changes"}
+                {existingChanges ? "Pending save changes" : "No changes"}
               </Text>
-              <Button disabled={!existingChanges}>Save</Button>
+              <Button
+                disabled={!existingChanges}
+                onClick={updateAllowedEmails}
+                loading={loadingUpdateList}
+              >
+                Save
+              </Button>
             </Group>
           </Box>
 
@@ -239,7 +272,16 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
 export default AllowedEmailsView;
 
 export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(ctx) {
+  async getServerSideProps(ctx: any) {
+    const errorRedirectUrl = await refreshSessionUser(ctx.req, ctx.res);
+    if (errorRedirectUrl) {
+      return {
+        redirect: {
+          destination: "/email-verify",
+          permanent: false,
+        },
+      };
+    }
     const session = getSession(ctx.req, ctx.res);
     if (!session?.user.adminOf) {
       return { props: { serverError: 401 } };
