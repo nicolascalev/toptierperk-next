@@ -64,6 +64,7 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
         <Link href="/perk/create" passHref>
           <ActionIcon
             component="a"
+            color="dark"
             size="md"
             title="Create perk"
             style={{

@@ -131,6 +131,7 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
               description="Emails on this list will be able to join your business"
             />
             <ActionIcon
+              color="dark"
               size="md"
               title="Add email"
               style={{
