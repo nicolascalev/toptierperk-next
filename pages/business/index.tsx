@@ -21,6 +21,7 @@ import { useRouter } from "next/router";
 import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
+import NumericLabel from "react-pretty-numbers";
 
 interface Props {
   user: any;
@@ -79,7 +80,9 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
       <Box p="md">
         <AppHeaderTitle title="Toptierperk" />
         <Paper p="md" withBorder>
-          <Text weight={500} mb="sm">Business not set</Text>
+          <Text weight={500} mb="sm">
+            Business not set
+          </Text>
           <Text>
             You are not a part of a business yet, you can either
             <Link href="/business/join" passHref>
@@ -129,21 +132,54 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
             <SimpleGrid cols={3}>
               <div>
                 <Text size="lg">
-                  {business._count.benefitsFrom}
+                  <NumericLabel
+                    params={{
+                      currency: false,
+                      commafy: true,
+                      shortFormat: true,
+                      justification: "L",
+                    }}
+                  >
+                    {business._count.benefitsFrom}
+                  </NumericLabel>
                 </Text>
-                <Text size="sm" color="dimmed">Perks</Text>
+                <Text size="sm" color="dimmed">
+                  Perks
+                </Text>
               </div>
               <div>
                 <Text size="lg">
-                  {business._count.benefits}
+                  <NumericLabel
+                    params={{
+                      currency: false,
+                      commafy: true,
+                      shortFormat: true,
+                      justification: "L",
+                    }}
+                  >
+                    {business._count.benefits}
+                  </NumericLabel>
                 </Text>
-                <Text size="sm" color="dimmed">Offers</Text>
+                <Text size="sm" color="dimmed">
+                  Offers
+                </Text>
               </div>
               <div>
                 <Text size="lg">
-                  {business.claimAmount}
+                  <NumericLabel
+                    params={{
+                      currency: false,
+                      commafy: true,
+                      shortFormat: true,
+                      justification: "L",
+                    }}
+                  >
+                    {business.claimAmount}
+                  </NumericLabel>
                 </Text>
-                <Text size="sm" color="dimmed">Claims</Text>
+                <Text size="sm" color="dimmed">
+                  Claims
+                </Text>
               </div>
             </SimpleGrid>
           </Paper>
@@ -173,7 +209,9 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
           <Tabs.Tab value="about">About</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="newest" pt="md" sx={tabPanelStyles}>
-          <Text color="dimmed" px="md" size="sm">10 Newest Perks</Text>
+          <Text color="dimmed" px="md" size="sm">
+            10 Newest Perks
+          </Text>
           {business.benefitsFrom.length === 0 && (
             <Text align="center">0 results found</Text>
           )}
@@ -187,7 +225,9 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
           )}
         </Tabs.Panel>
         <Tabs.Panel value="offers" pt="md" sx={tabPanelStyles}>
-          <Text color="dimmed" px="md" size="sm">All Business Offers</Text>
+          <Text color="dimmed" px="md" size="sm">
+            All Business Offers
+          </Text>
           {business.benefits.length === 0 && (
             <Text align="center">0 results found</Text>
           )}
@@ -216,7 +256,7 @@ export const getServerSideProps = withPageAuthRequired({
       const business: any = await Business.getProfile(businessId);
       const parseDate = (perk: any) => {
         perk.createdAt = perk.createdAt.getTime();
-      }
+      };
       business?.benefits.forEach(parseDate);
       business?.benefitsFrom.forEach(parseDate);
 
