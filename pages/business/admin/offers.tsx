@@ -11,11 +11,13 @@ import {
   Button,
   Center,
   Paper,
+  ActionIcon,
 } from "@mantine/core";
 import AppPerkCard from "components/AppPerkCard";
 import axios from "axios";
 import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
+import { SquarePlus } from "tabler-icons-react";
 
 interface Props {
   user: any;
@@ -59,17 +61,21 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
     <Box mb={49}>
       <AppHeaderTitle title="Your business offers" />
       <Box p="md">
-        {/* TODO link to create perk page in a way that looks pretty */}
-        {/* <Group align="center" position="apart" py="sm">
-          <Text size="lg">
-            Perks you are offering
-          </Text>
-          <Link href="/perk/create" passHref>
-            <Button component="a" variant="filled">
-              Create
-            </Button>
-          </Link>
-        </Group> */}
+        <Link href="/perk/create" passHref>
+          <ActionIcon
+            component="a"
+            size="md"
+            title="Create perk"
+            style={{
+              position: "absolute",
+              right: "10px",
+              top: "10px",
+              zIndex: 101,
+            }}
+          >
+            <SquarePlus />
+          </ActionIcon>
+        </Link>
         <SegmentedControl
           fullWidth
           value={status}
@@ -89,7 +95,7 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
       <Box p="md" sx={{ minHeight: "calc(100vh - 173px)", backgroundColor }}>
         {loadingOffers && (
           <Center>
-            <Loader ml="md" size="sm" />
+            <Loader ml="md" size="sm" variant="bars" />
           </Center>
         )}
         {!loadingOffers && status === "active" && activeOffers.length === 0 && (
