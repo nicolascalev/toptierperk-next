@@ -15,11 +15,13 @@ import {
 import { SquarePlus, X } from "tabler-icons-react";
 import Error from "next/error";
 import AppHeaderTitle from "components/AppHeaderTitle";
-import { useEffect, useState } from "react";
+import AppLoadExcelEmailsButton from "components/AppLoadExcelEmailsButton";
+import { useCallback, useEffect, useState } from "react";
 import { showNotification } from "@mantine/notifications";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import axios from "axios";
 import refreshSessionUser from "helpers/refreshSessionUser";
+import { isEqual, sortBy } from "lodash";
 
 interface Props {
   user: any;
@@ -86,8 +88,10 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
     setAllowedEmails(allowedEmails.filter((item: string) => item !== email));
   }
 
-  const existingChanges =
-    user.adminOf.allowedEmployeeEmails !== JSON.stringify(allowedEmails);
+  const existingChanges = !isEqual(
+    sortBy(initiaAllowedEmails),
+    sortBy(allowedEmails)
+  );
 
   const [loadingUpdateList, setLoadingUpdateList] = useState(false);
   async function updateAllowedEmails() {
@@ -95,7 +99,7 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
       setLoadingUpdateList(true);
       const updated = await axios
         .patch(`/api/business/${user.adminOfId}/allowed-emails`, {
-          allowedEmails: JSON.stringify(allowedEmails),
+          allowedEmails: JSON.stringify(sortBy(allowedEmails)),
         })
         .then((res) => res.data);
       user.adminOf.allowedEmployeeEmails = JSON.stringify(updated);
@@ -114,6 +118,26 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
     } finally {
       setLoadingUpdateList(false);
     }
+  }
+
+  const [processingEmails, setProcessingEmails] = useState(false);
+  const isListed = useCallback((email: string) => {
+    const found = allowedEmails.find(
+      (listedEmail: string) => listedEmail === email
+    );
+    return found ? true : false;
+  }, [allowedEmails]);
+  function onReadEmails(readEmails: string[]) {
+    console.log("emited on read emails");
+    setProcessingEmails(true);
+    const nonDuplicateEmails = readEmails.filter((email) => !isListed(email));
+    setAllowedEmails((allowed) => [...nonDuplicateEmails, ...allowed]);
+    showNotification({
+      title: "Emails added",
+      message: nonDuplicateEmails.length + " new emails were added",
+      autoClose: 3000,
+    });
+    setProcessingEmails(false);
   }
 
   return (
@@ -263,6 +287,12 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
                 </Button>
               </Group>
             </form>
+            <Box py="sm">
+              <AppLoadExcelEmailsButton
+                onRead={onReadEmails}
+                processing={processingEmails}
+              />
+            </Box>
           </Drawer>
         </Box>
       )}
