@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { Text, Box, NavLink, Group, Image } from "@mantine/core";
+import { Box, NavLink } from "@mantine/core";
 import { ChevronRight } from "tabler-icons-react";
 import Link from "next/link";
 import Error from "next/error";
@@ -17,7 +17,11 @@ const BusinessAdmin: NextPage<Props> = ({ user, serverError }) => {
   }
 
   const links: any[] = [
-    { url: "/business/profile", label: "Edit profile", disabled: false },
+    {
+      url: "/business/admin/profile",
+      label: "Edit business profile",
+      disabled: false,
+    },
     {
       url: "/subscription",
       label: "Manage subscription",
@@ -26,7 +30,8 @@ const BusinessAdmin: NextPage<Props> = ({ user, serverError }) => {
     { url: "/perk/create", label: "Create perk", disabled: false },
     {
       url: "/business/admin/offers",
-      label: "List your offered perks",
+      label: "List your perk offers",
+      description: "These are the perks you offer to other businesses",
       disabled: false,
     },
     {
@@ -36,18 +41,18 @@ const BusinessAdmin: NextPage<Props> = ({ user, serverError }) => {
       disabled: false,
     },
     {
-      url: "/business/employees",
+      url: "/business/admin/allowed-emails",
+      label: "Allowed emails",
+      description: "Emails on this list can join your business",
+      disabled: false,
+    },
+    {
+      url: "/business/admin/employees",
       label: "Allowed employees",
       description: "List of active and allowed emloyees",
       disabled: false,
     },
-    {
-      url: "/business/verifiers",
-      label: "Allowed verifiers",
-      description: "Employees capable of verifying claims",
-      disabled: false,
-    },
-    { url: "/business/analitycs", label: "Analytics", disabled: true },
+    { url: "/business/admin/analitycs", label: "Analytics", disabled: true },
   ];
   return (
     <Box sx={{ position: "relative", marginBottom: "49px" }}>
