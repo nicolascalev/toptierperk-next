@@ -321,6 +321,24 @@ const User = {
       return Promise.reject(err);
     }
   },
+
+  joinBusiness: async (userId: number, businessId: number) => {
+    try {
+      const updated = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          business: {
+            connect: {
+              id: businessId,
+            },
+          },
+        },
+      });
+      return updated;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
 };
 
 export default User;
