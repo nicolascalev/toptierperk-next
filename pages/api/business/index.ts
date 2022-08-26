@@ -28,8 +28,10 @@ export default async function businessHandler(
 ) {
   if (req.method == "GET") {
     try {
-      const { query } = req;
-      const result = await Business.find(query);
+      const searchString = req.query.searchString as string || "";
+      const skip = req.query.skip ? Number(req.query.skip) : 0;
+      const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
+      const result = await Business.find({ searchString, skip, cursor });
       return res.status(200).json(result);
     } catch (err) {
       return res.status(500).json({ error: err });

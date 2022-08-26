@@ -13,8 +13,7 @@ export type BusinessCreateArgs = {
 export type BusinessFindPublicSearchParams = {
   searchString?: string;
   skip?: number;
-  take?: number;
-  orderBy?: "desc" | "asc";
+  cursor?: number;
 };
 
 const Business = {
@@ -50,7 +49,9 @@ const Business = {
           connect: connectAdmins,
         },
       };
-      const newBusiness = await prisma.business.create(<Prisma.BusinessCreateArgs>{
+      const newBusiness = await prisma.business.create(<
+        Prisma.BusinessCreateArgs
+      >{
         data,
         include: {
           logo: true,
@@ -67,8 +68,7 @@ const Business = {
   find: async ({
     searchString = "",
     skip = undefined,
-    take = undefined,
-    orderBy = "desc",
+    cursor = undefined,
   }: BusinessFindPublicSearchParams) => {
     try {
       const businesses = await prisma.business.findMany(<
@@ -77,10 +77,15 @@ const Business = {
         where: {
           name: { contains: searchString },
         },
-        take: Number(take) || undefined,
-        skip: Number(skip) || undefined,
+        take: 10,
+        skip: skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
         orderBy: {
-          createdAt: orderBy,
+          createdAt: "desc",
         },
         include: {
           logo: true,
@@ -292,6 +297,23 @@ const Business = {
         where: { id: businessId },
         data: {
           benefitsFrom: { disconnect: { id: benefitId } },
+        },
+      });
+      return updated;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  updateAllowedEmails: async (
+    businessId: number,
+    allowedEmailsJson: Prisma.InputJsonValue
+  ) => {
+    try {
+      const updated = await prisma.business.update<Prisma.BusinessUpdateArgs>({
+        where: { id: businessId },
+        data: {
+          allowedEmployeeEmails: allowedEmailsJson,
         },
       });
       return updated;
