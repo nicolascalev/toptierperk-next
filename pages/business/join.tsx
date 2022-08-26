@@ -261,9 +261,9 @@ export const getServerSideProps = withPageAuthRequired({
       };
     }
     const session = getSession(ctx.req, ctx.res);
-    // if (session?.user.businessId) {
-    //   return { redirect: { destination: "/business", permanent: false } };
-    // }
+    if (session?.user.businessId) {
+      return { redirect: { destination: "/business", permanent: false } };
+    }
     return { props: { serverError: 0 } };
   },
 });
