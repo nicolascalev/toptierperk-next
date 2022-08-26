@@ -11,8 +11,8 @@ async function refresh(req: NextApiRequest, res: NextApiResponse, next: any) {
   if (session && session.user.emailVerified === false) {
     next(new Error("Email not verified"));
   }
-  if (session && session.user.businessId) {
-    const user: any = await User.findById(session.user.businessId);
+  if (session && session.user) {
+    const user: any = await User.findById(session.user.id);
     session.user = JSON.parse(JSON.stringify(user));
   }
   next();
