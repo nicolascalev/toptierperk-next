@@ -22,6 +22,7 @@ import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
 import NumericLabel from "react-pretty-numbers";
+import refreshSessionUser from "helpers/refreshSessionUser";
 
 interface Props {
   user: any;
@@ -246,21 +247,29 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
 export default BusinessView;
 
 export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(ctx) {
+  async getServerSideProps(ctx: any) {
     try {
+      const errorRedirectUrl = await refreshSessionUser(ctx.req, ctx.res);
+      if (errorRedirectUrl) {
+        return {
+          redirect: {
+            destination: "/email-verify",
+            permanent: false,
+          },
+        };
+      }
       const session = getSession(ctx.req, ctx.res);
       const businessId = session!.user.business?.id;
       if (!businessId) {
         return { props: { business: null } };
       }
       const business: any = await Business.getProfile(businessId);
-      const parseDate = (perk: any) => {
-        perk.createdAt = perk.createdAt.getTime();
-      };
-      business?.benefits.forEach(parseDate);
-      business?.benefitsFrom.forEach(parseDate);
+      if (business) {
+        const parsedBusiness = JSON.parse(JSON.stringify(business));
+        return { props: { business: parsedBusiness } };
+      }
 
-      return { props: { business } };
+      return { props: { business: null } };
     } catch (err) {
       throw err;
     }
