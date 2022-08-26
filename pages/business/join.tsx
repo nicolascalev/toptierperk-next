@@ -4,14 +4,13 @@ import {
   Box,
   Text,
   TextInput,
-  ActionIcon,
   useMantineTheme,
   Drawer,
   Paper,
   Group,
   Button,
   Divider,
-  Menu,
+  Image,
 } from "@mantine/core";
 import { ChevronRight, UserX } from "tabler-icons-react";
 import Error from "next/error";
@@ -108,12 +107,47 @@ const JoinBusinessView: NextPage<Props> = ({ user, serverError }) => {
               {businesses.map((business: any, index: number) => (
                 <div key={index}>
                   <Group pt="sm" pb="sm" align="center" noWrap>
-                    <Text>{business.name}</Text>
+                    <Image
+                      width={34}
+                      height={34}
+                      radius={34}
+                      fit="cover"
+                      src={business.logo.url}
+                      alt={business.name}
+                    />
+                    <div style={{ flexGrow: 1 }}>
+                      <Text>{business.name}</Text>
+                      <Text color="dimmed" size="sm">{business.email}</Text>
+                    </div>
+                    <Button variant="subtle">Join</Button>
                   </Group>
                   <Divider />
                 </div>
               ))}
             </div>
+            {/* no results with no search string */}
+            {!loadingBusinesses && businesses.length === 0 && !debSearchString && (
+              <Paper withBorder p="md" mb="md">
+                <Text weight={500} mb="sm">
+                  No results
+                </Text>
+                <Text color="dimmed" size="sm">
+                  When we have businesses to show they will be displayed here
+                </Text>
+              </Paper>
+            )}
+            {/* no results with search string */}
+            {!loadingBusinesses && businesses.length === 0 && debSearchString && (
+              <Paper withBorder p="md" mb="md">
+                <Text weight={500} mb="sm">
+                  No results
+                </Text>
+                <Text color="dimmed" size="sm">
+                  When we have businesses that match that search criteria they
+                  will be displayed here
+                </Text>
+              </Paper>
+            )}
             <Button
               fullWidth
               loading={loadingBusinesses}
