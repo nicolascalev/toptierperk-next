@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Drawer, Select } from "@mantine/core";
+import { ActionIcon, Button, Drawer, Select, Text } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import axios from "axios";
@@ -8,9 +8,13 @@ import { DotsVertical, UserX } from "tabler-icons-react";
 type Props = {
   user: User;
   businessId: number;
+  sessionUserId: number;
+  onRemoveEmployee: (employeeId: number) => void;
 };
-function AppEmployeeUpdateButton({ user, businessId }: Props) {
+function AppEmployeeUpdateButton({ user, businessId, sessionUserId, onRemoveEmployee }: Props) {
   const [opened, setOpened] = useState(false);
+
+  const disabled = user.id === sessionUserId;
 
   function getUserRole() {
     if (user.adminOfId) {
@@ -29,7 +33,7 @@ function AppEmployeeUpdateButton({ user, businessId }: Props) {
     setLoadingUserChange(true);
     setOpened(false);
     try {
-      const updated = await axios
+      await axios
         .patch(`/api/business/${businessId}/employee/${user.id}`, { role })
         .then((res) => res.data);
       showNotification({
@@ -37,6 +41,30 @@ function AppEmployeeUpdateButton({ user, businessId }: Props) {
         message: "User's role has been updated",
         autoClose: 3000,
       });
+    } catch (err) {
+      showNotification({
+        title: "Error processing your request",
+        message: "Please try again",
+        color: "red",
+      });
+    } finally {
+      setLoadingUserChange(false);
+    }
+  }
+
+  async function onClickRemoveUser() {
+    setLoadingUserChange(true);
+    setOpened(false);
+    try {
+      await axios
+        .delete(`/api/business/${businessId}/employee/${user.id}`)
+        .then((res) => res.data);
+      showNotification({
+        title: "User removed",
+        message: "User was removed from employee list",
+        autoClose: 3000,
+      });
+      onRemoveEmployee(user.id);
     } catch (err) {
       showNotification({
         title: "Error processing your request",
@@ -61,6 +89,11 @@ function AppEmployeeUpdateButton({ user, businessId }: Props) {
         size="md"
         padding="md"
       >
+        {disabled && (
+          <Text mb="md" color="dimmed" size="sm">
+            You can not remove yourself or update your role
+          </Text>
+        )}
         <Select
           label="User authorization"
           placeholder="Pick one"
@@ -68,6 +101,7 @@ function AppEmployeeUpdateButton({ user, businessId }: Props) {
           color="dark"
           value={role}
           onChange={onChangeRole}
+          disabled={disabled}
           data={[
             { value: "basic", label: "Basic" },
             {
@@ -88,6 +122,8 @@ function AppEmployeeUpdateButton({ user, businessId }: Props) {
           mt="md"
           variant="outline"
           leftIcon={<UserX size={14} />}
+          onClick={onClickRemoveUser}
+          disabled={disabled}
         >
           Remove from business
         </Button>
