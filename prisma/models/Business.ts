@@ -358,6 +358,43 @@ const Business = {
       return Promise.reject(err);
     }
   },
+
+  removeEmployee: async (businessId: number, employeeId: number) => {
+    try {
+      const employee = await prisma.user.findFirst({
+        where: { id: employeeId },
+      });
+      if (!employee) {
+        return Promise.reject({
+          code: "E_NOT_FOUND",
+          error: "Employee with that id not found",
+        });
+      }
+      if (employee.businessId !== businessId) {
+        return Promise.reject({
+          code: "E_NOT_ALLOWED",
+          error: "Employee does not belong to your business",
+        });
+      }
+
+      await prisma.user.update({
+        where: { id: employeeId },
+        data: {
+          business: {
+            disconnect: true,
+          },
+          adminOf: {
+            disconnect: true,
+          },
+          canVerify: false,
+          authorizationChanged: true,
+        },
+      });
+      return;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
 };
 
 export default Business;
