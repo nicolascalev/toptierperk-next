@@ -97,6 +97,43 @@ const Business = {
     }
   },
 
+  findEmployees: async ({
+    businessId,
+    searchString = "",
+    skip = undefined,
+    cursor = undefined,
+  }: BusinessFindPublicSearchParams & { businessId: number }) => {
+    try {
+      const employees = await prisma.user.findMany({
+        where: {
+          businessId,
+          OR: [
+            {
+              email: {
+                contains: searchString,
+              },
+            },
+            {
+              name: {
+                contains: searchString,
+              },
+            },
+          ],
+        },
+        take: 10,
+        skip: skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+      });
+      return employees;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
   getProfile: async (businessId: number) => {
     try {
       const queryDateTime = new Date();
