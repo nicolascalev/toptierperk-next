@@ -23,6 +23,7 @@ import BottomNavigation from "components/BottomNavigation";
 import AppLogo from "components/AppLogo";
 import AppNavigation from "components/AppNavigation";
 import AppHeader from "components/AppHeader";
+import { SWRConfig } from "swr";
 
 export default function App(props: AppProps) {
   const router = useRouter();
@@ -102,50 +103,64 @@ export default function App(props: AppProps) {
             primaryColor: "brand",
           }}
         >
-          <UserInterfaceProvider>
-            <NotificationsProvider position="bottom-center">
-              <AppShell
-                styles={{
-                  body: { minHeight: "100vh" },
-                }}
-                padding={0}
-                header={
-                  <AppHeader
-                    openedNavigation={opened}
-                    setOpenedNavigation={setOpened}
-                  />
-                }
-              >
-                <Component {...pageProps} />
-              </AppShell>
-              <BottomNavigation />
-              <Drawer
-                position="bottom"
-                opened={opened}
-                onClose={() => setOpened(false)}
-                title={
-                  <Group>
-                    <AppLogo />
-                    <Text size="lg" weight={700}>
-                      Toptierperk
-                    </Text>
-                  </Group>
-                }
-                padding="md"
-              >
-                <AppNavigation>
-                  <Button
-                    fullWidth
-                    color={isDark ? "primary" : "dark"}
-                    onClick={() => toggleColorScheme()}
-                    rightIcon={isDark ? <Sun /> : <MoonStars />}
-                  >
-                    Toggle theme
-                  </Button>
-                </AppNavigation>
-              </Drawer>
-            </NotificationsProvider>
-          </UserInterfaceProvider>
+          <SWRConfig
+            value={{
+              // disable retry for some of these
+              onErrorRetry: (error) => {
+                // Never retry on 404.
+                if (error.status === 404) return;
+                // Never retry on 403.
+                if (error.status === 403) return;
+                // Never retry on 403.
+                if (error.status === 401) return;
+              },
+            }}
+          >
+            <UserInterfaceProvider>
+              <NotificationsProvider position="bottom-center">
+                <AppShell
+                  styles={{
+                    body: { minHeight: "100vh" },
+                  }}
+                  padding={0}
+                  header={
+                    <AppHeader
+                      openedNavigation={opened}
+                      setOpenedNavigation={setOpened}
+                    />
+                  }
+                >
+                  <Component {...pageProps} />
+                </AppShell>
+                <BottomNavigation />
+                <Drawer
+                  position="bottom"
+                  opened={opened}
+                  onClose={() => setOpened(false)}
+                  title={
+                    <Group>
+                      <AppLogo />
+                      <Text size="lg" weight={700}>
+                        Toptierperk
+                      </Text>
+                    </Group>
+                  }
+                  padding="md"
+                >
+                  <AppNavigation>
+                    <Button
+                      fullWidth
+                      color={isDark ? "primary" : "dark"}
+                      onClick={() => toggleColorScheme()}
+                      rightIcon={isDark ? <Sun /> : <MoonStars />}
+                    >
+                      Toggle theme
+                    </Button>
+                  </AppNavigation>
+                </Drawer>
+              </NotificationsProvider>
+            </UserInterfaceProvider>
+          </SWRConfig>
         </MantineProvider>
       </ColorSchemeProvider>
     </UserProvider>
