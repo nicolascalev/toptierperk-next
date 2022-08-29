@@ -80,6 +80,12 @@ const EmployeesView: NextPage<Props> = ({ user, serverError }) => {
     setSkip(1);
   }
 
+  function onRemoveEmployee(employeeId: number) {
+    setEmployees((employees) =>
+      employees.filter((employee: User) => employee.id !== employeeId)
+    );
+  }
+
   return (
     <>
       {serverError ? (
@@ -123,6 +129,8 @@ const EmployeesView: NextPage<Props> = ({ user, serverError }) => {
                     <AppEmployeeUpdateButton
                       user={employee}
                       businessId={user.adminOfId}
+                      sessionUserId={user.id}
+                      onRemoveEmployee={onRemoveEmployee}
                     />
                   </Group>
                   <Divider />
