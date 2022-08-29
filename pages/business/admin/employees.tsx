@@ -4,23 +4,21 @@ import {
   Box,
   Text,
   TextInput,
-  ActionIcon,
   useMantineTheme,
   Group,
   Button,
   Divider,
-  Popover,
-  Select,
+  Center,
+  Loader,
+  Paper,
 } from "@mantine/core";
-import { ChevronRight, UserX } from "tabler-icons-react";
 import Error from "next/error";
 import AppHeaderTitle from "components/AppHeaderTitle";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { showNotification } from "@mantine/notifications";
+import { useEffect, useMemo, useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import axios from "axios";
 import refreshSessionUser from "helpers/refreshSessionUser";
-import AppRoleButton from "components/AppRoleButton";
+import AppEmployeeUpdateButton from "components/AppEmployeeUpdateButton";
 import { useDebouncedValue } from "@mantine/hooks";
 import useSWR from "swr";
 import { User } from "@prisma/client";
@@ -122,18 +120,55 @@ const EmployeesView: NextPage<Props> = ({ user, serverError }) => {
                         {employee.email}
                       </Text>
                     </div>
-                    <Group spacing="xs">
-                      <AppRoleButton />
-
-                      <ActionIcon>
-                        <UserX size={14} />
-                      </ActionIcon>
-                    </Group>
+                    <AppEmployeeUpdateButton
+                      user={employee}
+                      businessId={user.adminOfId}
+                    />
                   </Group>
                   <Divider />
                 </div>
               ))}
             </div>
+            {/* loader for initial load */}
+            {loadingEmployees && employees.length === 0 && (
+              <Center>
+                <Loader size="sm" variant="bars"></Loader>
+              </Center>
+            )}
+            {/* no results with no search string */}
+            {!loadingEmployees && employees.length === 0 && !debSearchString && (
+              <Paper withBorder p="md" mb="md">
+                <Text weight={500} mb="sm">
+                  No results
+                </Text>
+                <Text color="dimmed" size="sm">
+                  When a user joins your business it will be displayed here
+                </Text>
+              </Paper>
+            )}
+            {/* no results with search string */}
+            {!loadingEmployees && employees.length === 0 && debSearchString && (
+              <Paper withBorder p="md" mb="md">
+                <Text weight={500} mb="sm">
+                  No results
+                </Text>
+                <Text color="dimmed" size="sm">
+                  When a user that matched that criteria joins your business it
+                  will be displayed here
+                </Text>
+              </Paper>
+            )}
+            {employees.length > 0 && (
+              <Button
+                mt="md"
+                fullWidth
+                loading={loadingEmployees}
+                disabled={!theresMore}
+                onClick={loadMore}
+              >
+                {theresMore ? "Load more" : "Up to date"}
+              </Button>
+            )}
           </Box>
         </Box>
       )}
