@@ -21,6 +21,7 @@ import { useRouter } from "next/router";
 import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
+// @ts-ignore
 import NumericLabel from "react-pretty-numbers";
 import refreshSessionUser from "helpers/refreshSessionUser";
 
