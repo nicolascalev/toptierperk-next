@@ -11,22 +11,22 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  createdAt     DateTime  @default(now())
-  username      String    @unique
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  auth0sub      String    @unique
-  name          String
-  picture       Photo?
-  businessId    Int?
-  // TODO: evaluate wether users should have multiple adminOf or businesses
-  business      Business? @relation(name: "Employees", fields: [businessId], references: [id])
-  adminOfId     Int?
-  adminOf       Business? @relation(name: "Admins", fields: [adminOfId], references: [id])
-  canVerify     Boolean   @default(false)
-  savedBenefits Benefit[]
-  claims        Claim[]
+  id                   Int       @id @default(autoincrement())
+  createdAt            DateTime  @default(now())
+  username             String    @unique
+  email                String    @unique
+  emailVerified        Boolean   @default(false)
+  auth0sub             String    @unique
+  name                 String
+  picture              Photo?
+  businessId           Int?
+  authorizationChanged Boolean   @default(false)
+  canVerify            Boolean   @default(false)
+  business             Business? @relation(name: "Employees", fields: [businessId], references: [id])
+  adminOfId            Int?
+  adminOf              Business? @relation(name: "Admins", fields: [adminOfId], references: [id])
+  savedBenefits        Benefit[]
+  claims               Claim[]
 }
 
 model Business {
