@@ -353,6 +353,7 @@ const User = {
         data: {
           canVerify,
           adminOf,
+          authorizationChanged: true,
         },
       });
       return updated;
