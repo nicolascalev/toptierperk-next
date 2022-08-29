@@ -12,19 +12,18 @@ import {
   Loader,
   Paper,
 } from "@mantine/core";
-import Error from "next/error";
+import AppError from "components/AppError";
 import AppHeaderTitle from "components/AppHeaderTitle";
 import { useEffect, useMemo, useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import axios from "axios";
-import refreshSessionUser from "helpers/refreshSessionUser";
 import AppEmployeeUpdateButton from "components/AppEmployeeUpdateButton";
 import { useDebouncedValue } from "@mantine/hooks";
+import api from "config/api";
 import useSWR from "swr";
 import { User } from "@prisma/client";
 
 const fetcher = (url: string, params: any) =>
-  axios.get(url, { params }).then((res) => res.data);
+  api.get(url, { params }).then((res) => res.data);
 
 interface Props {
   user: any;
@@ -89,7 +88,7 @@ const EmployeesView: NextPage<Props> = ({ user, serverError }) => {
   return (
     <>
       {serverError ? (
-        <Error statusCode={serverError} />
+        <AppError status={serverError} message="Unauthorized" />
       ) : (
         <Box sx={{ marginBottom: "49px" }}>
           <AppHeaderTitle title="Employees" />
@@ -188,15 +187,6 @@ export default EmployeesView;
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx: any) {
-    const errorRedirectUrl = await refreshSessionUser(ctx.req, ctx.res);
-    if (errorRedirectUrl) {
-      return {
-        redirect: {
-          destination: "/email-verify",
-          permanent: false,
-        },
-      };
-    }
     const session = getSession(ctx.req, ctx.res);
     if (!session?.user.adminOf) {
       return { props: { serverError: 401 } };
