@@ -8,6 +8,12 @@ export type UserSearchParams = {
   orderBy: "desc" | "asc";
 };
 
+export type UpdateRole = {
+  userId: number;
+  canVerify: boolean;
+  adminOf: Prisma.BusinessUpdateOneWithoutAdminsNestedInput;
+};
+
 const User = {
   create: async ({
     username,
@@ -332,6 +338,21 @@ const User = {
               id: businessId,
             },
           },
+        },
+      });
+      return updated;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  updateRole: async ({ userId, canVerify, adminOf }: UpdateRole) => {
+    try {
+      const updated = await prisma.user.update<Prisma.UserUpdateArgs>({
+        where: { id: userId },
+        data: {
+          canVerify,
+          adminOf,
         },
       });
       return updated;
