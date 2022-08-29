@@ -21,11 +21,10 @@ async function refresh(req: NextApiRequest, res: NextApiResponse, next: any) {
 export default async function refreshSessionUser(
   req: NextApiRequest,
   res: NextApiResponse
-): Promise<string | undefined> {
+) {
   try {
     await runMiddleware(req, res, refresh);
-    return undefined;
   } catch {
-    return "/email-verify";
+    return res.redirect("/email-verify");
   }
 }
