@@ -18,6 +18,10 @@ const afterCallback = async (
     if (existingUser?.emailVerified === false && auth0User.email_verified === true) {
       existingUser = await User.setVerifiedEmail(existingUser.id, true);
     }
+    if (existingUser) {
+      await User.setAuthorizationChanged(existingUser.id, false);
+      existingUser.authorizationChanged = false;
+    }
     session.user = existingUser ? existingUser : null;
 
     if (!session.user) {

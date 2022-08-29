@@ -361,6 +361,23 @@ const User = {
       return Promise.reject(err);
     }
   },
+
+  setAuthorizationChanged: async (
+    userId: number,
+    authorizationChanged: boolean
+  ) => {
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          authorizationChanged,
+        },
+      });
+      return;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
 };
 
 export default User;
