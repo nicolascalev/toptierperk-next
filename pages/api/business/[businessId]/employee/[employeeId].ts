@@ -1,11 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import Benefit from "prisma/models/Benefit";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
 import Business from "prisma/models/Business";
-import isAdmin from "helpers/isAdmin";
 import User, { UpdateRole } from "prisma/models/User";
-import { Prisma } from "@prisma/client";
 
 export default async function findBusinessBenfits(
   req: NextApiRequest,
@@ -83,18 +80,32 @@ export default async function findBusinessBenfits(
       await isAuthenticated(req, res);
       let session = getSession(req, res);
 
-      // check the logged in user is the adming of the business acquiring the perk
+      // check session user to be the admin of the business
       const businessId = Number(req.query.businessId);
       if (session!.user.adminOfId !== businessId) {
         return res.status(403).send("Forbidden");
       }
 
-      const benefitId = Number(req.query.benefitId);
+      // check the employee exists and is a part of the business
+      const employeeId = Number(req.query.employeeId);
+      const employee = await User.findById(employeeId);
+      if (!employee) {
+        return res.status(404).send("Not Found");
+      }
+      if (employee.businessId !== businessId) {
+        return res.status(403).send("Forbidden");
+      }
 
-      await Business.looseBenefit(businessId, benefitId);
+      await Business.removeEmployee(businessId, employeeId);
 
-      return res.status(204).end();
+      return res.status(200).end();
     } catch (error) {
+      if ((error as any).code === "E_NOT_FOUND") {
+        return res.status(404).send("Not Found");
+      }
+      if ((error as any).code === "E_NOT_ALLOWED") {
+        return res.status(403).send("Forbidden");
+      }
       return res.status(500).json({ error });
     }
   }
