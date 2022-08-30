@@ -13,14 +13,13 @@ import {
   Divider,
 } from "@mantine/core";
 import { SquarePlus, X } from "tabler-icons-react";
-import Error from "next/error";
+import AppError from "components/AppError";
 import AppHeaderTitle from "components/AppHeaderTitle";
 import AppLoadExcelEmailsButton from "components/AppLoadExcelEmailsButton";
 import { useCallback, useEffect, useState } from "react";
 import { showNotification } from "@mantine/notifications";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import axios from "axios";
-import refreshSessionUser from "helpers/refreshSessionUser";
 import { isEqual, sortBy } from "lodash";
 
 interface Props {
@@ -143,7 +142,7 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
   return (
     <>
       {serverError ? (
-        <Error statusCode={serverError} />
+        <AppError status={serverError} message="Unauthorized" />
       ) : (
         <Box sx={{ marginBottom: "49px" }}>
           <AppHeaderTitle title="Allowed emails" />
@@ -304,15 +303,6 @@ export default AllowedEmailsView;
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx: any) {
-    const errorRedirectUrl = await refreshSessionUser(ctx.req, ctx.res);
-    if (errorRedirectUrl) {
-      return {
-        redirect: {
-          destination: "/email-verify",
-          permanent: false,
-        },
-      };
-    }
     const session = getSession(ctx.req, ctx.res);
     if (!session?.user.adminOf) {
       return { props: { serverError: 401 } };
