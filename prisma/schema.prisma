@@ -70,6 +70,7 @@ model Benefit {
   savedBy         User[]
   useLimit        Int?
   useLimitPerUser Int?
+  feedback        Feedback[]
 }
 
 model Category {
@@ -91,15 +92,29 @@ model Photo {
 }
 
 model Claim {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
+  id         Int        @id @default(autoincrement())
+  createdAt  DateTime   @default(now())
   benefitId  Int
-  benefit    Benefit   @relation(fields: [benefitId], references: [id])
+  benefit    Benefit    @relation(fields: [benefitId], references: [id])
   userId     Int
-  user       User      @relation(fields: [userId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
   businessId Int
-  business   Business  @relation(name: "ClaimerBusiness", fields: [businessId], references: [id])
+  business   Business   @relation(name: "ClaimerBusiness", fields: [businessId], references: [id])
   supplierId Int
-  supplier   Business  @relation(name: "SupplierBusiness", fields: [supplierId], references: [id])
+  supplier   Business   @relation(name: "SupplierBusiness", fields: [supplierId], references: [id])
   approvedAt DateTime?
+  feedback   Feedback[]
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  benefitId Int
+  benefit   Benefit? @relation(fields: [benefitId], references: [id])
+  claimId   Int
+  claim     Claim?   @relation(fields: [claimId], references: [id])
+  feedback  String   @db.VarChar(1000)
+  type      String
+  location  String
+  mood      Int
 }
