@@ -25,6 +25,8 @@ export default async function refreshSessionUser(
   try {
     await runMiddleware(req, res, refresh);
   } catch {
-    return res.redirect("/email-verify");
+    return res
+      .status(400)
+      .json({ code: "E_VERIFY_EMAIL", message: "Email needs to be verified" });
   }
 }

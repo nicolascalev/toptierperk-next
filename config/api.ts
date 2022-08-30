@@ -10,7 +10,7 @@ api.interceptors.response.use(
   async (error) => {
     // if response status is 401 or 403, check if user has authorizationChanged
     if (error.response.status && [401, 403].includes(error.response.status)) {
-      const user = await api.get("/api/me").then(res => res.data);
+      const user = await api.get("/api/me").then((res) => res.data);
       if (!user) return Promise.reject(error);
       // if authorizationChanged then notify and return no other error
       if (user.authorizationChanged === true) {
@@ -22,6 +22,12 @@ api.interceptors.response.use(
         });
         return;
       }
+    }
+    if (
+      error.response?.status === 400 &&
+      error.response?.data?.code === "E_VERIFY_EMAIL"
+    ) {
+      window.location.href = "/verify-email";
     }
     return Promise.reject(error);
   }
