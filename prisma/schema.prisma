@@ -11,22 +11,23 @@ datasource db {
 }
 
 model User {
-  id                   Int       @id @default(autoincrement())
-  createdAt            DateTime  @default(now())
-  username             String    @unique
-  email                String    @unique
-  emailVerified        Boolean   @default(false)
-  auth0sub             String    @unique
+  id                   Int        @id @default(autoincrement())
+  createdAt            DateTime   @default(now())
+  username             String     @unique
+  email                String     @unique
+  emailVerified        Boolean    @default(false)
+  auth0sub             String     @unique
   name                 String
   picture              Photo?
   businessId           Int?
-  authorizationChanged Boolean   @default(false)
-  canVerify            Boolean   @default(false)
-  business             Business? @relation(name: "Employees", fields: [businessId], references: [id])
+  authorizationChanged Boolean    @default(false)
+  canVerify            Boolean    @default(false)
+  business             Business?  @relation(name: "Employees", fields: [businessId], references: [id])
   adminOfId            Int?
-  adminOf              Business? @relation(name: "Admins", fields: [adminOfId], references: [id])
+  adminOf              Business?  @relation(name: "Admins", fields: [adminOfId], references: [id])
   savedBenefits        Benefit[]
   claims               Claim[]
+  feedback             Feedback[]
 }
 
 model Business {
@@ -107,14 +108,16 @@ model Claim {
 }
 
 model Feedback {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  benefitId Int
-  benefit   Benefit? @relation(fields: [benefitId], references: [id])
-  claimId   Int
-  claim     Claim?   @relation(fields: [claimId], references: [id])
-  feedback  String   @db.VarChar(1000)
-  type      String
-  location  String
-  mood      Int
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  feedback   String   @db.VarChar(1000)
+  type       String
+  location   String
+  mood       Int
+  reporterId Int
+  reporter   User     @relation(fields: [reporterId], references: [id])
+  benefitId  Int
+  benefit    Benefit? @relation(fields: [benefitId], references: [id])
+  claimId    Int
+  claim      Claim?   @relation(fields: [claimId], references: [id])
 }
