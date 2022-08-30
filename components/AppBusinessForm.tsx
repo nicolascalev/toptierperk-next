@@ -14,7 +14,7 @@ import {
 import { useForm, joiResolver } from "@mantine/form";
 import { Photo } from "tabler-icons-react";
 import { debounce, isEmpty } from "lodash";
-import axios from "axios";
+import api from "config/api";
 import Joi from "joi";
 
 const createBusinessSchema = Joi.object({
@@ -58,7 +58,7 @@ function useFileUpload() {
 const debounceFindBusiness = debounce(async (name, form) => {
   if (!name || !form) return;
   if (name.length > 30) return;
-  const { data } = await axios.get("/api/business/findByName", {
+  const { data } = await api.get("/api/business/findByName", {
     params: {
       searchString: name,
     },
@@ -116,7 +116,7 @@ function AppBusinessForm({
   async function submitBusiness(formData: FormData) {
     setLoading(true);
     try {
-      await axios.post("/api/business", formData);
+      await api.post("/api/business", formData);
       onSuccess();
     } catch (err: any) {
       if (err.response?.data?.error?.code == "P2002") {

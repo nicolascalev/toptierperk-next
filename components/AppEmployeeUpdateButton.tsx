@@ -1,7 +1,7 @@
 import { ActionIcon, Button, Drawer, Select, Text } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { User } from "@prisma/client";
-import axios from "axios";
+import api from "config/api";
 import { useState } from "react";
 import { DotsVertical, UserX } from "tabler-icons-react";
 
@@ -33,7 +33,7 @@ function AppEmployeeUpdateButton({ user, businessId, sessionUserId, onRemoveEmpl
     setLoadingUserChange(true);
     setOpened(false);
     try {
-      await axios
+      await api
         .patch(`/api/business/${businessId}/employee/${user.id}`, { role })
         .then((res) => res.data);
       showNotification({
@@ -56,9 +56,9 @@ function AppEmployeeUpdateButton({ user, businessId, sessionUserId, onRemoveEmpl
     setLoadingUserChange(true);
     setOpened(false);
     try {
-      await axios
+      await api
         .delete(`/api/business/${businessId}/employee/${user.id}`)
-        .then((res) => res.data);
+        .then((res:any) => res.data);
       showNotification({
         title: "User removed",
         message: "User was removed from employee list",

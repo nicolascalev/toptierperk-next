@@ -13,7 +13,7 @@ import { Upload } from "tabler-icons-react";
 import { useForm, joiResolver } from "@mantine/form";
 import Joi from "joi";
 import { debounce, isEmpty } from "lodash";
-import axios from "axios";
+import api from "config/api";
 import { showNotification } from "@mantine/notifications";
 import { useDebouncedValue } from "@mantine/hooks";
 
@@ -62,7 +62,7 @@ const updateUserSchema = Joi.object({
 const debFindUsername = debounce(
   async (username: string, setFieldError) => {
     try {
-      const data = await axios
+      const data = await api
         .get("/api/user", {
           params: {
             username,
@@ -127,7 +127,7 @@ function AppUserForm({ user }: Props) {
   async function updateProfile(formData: FormData) {
     try {
       setLoading(true);
-      const updated = await axios.patch("/api/user/" + user.id, formData);
+      const updated = await api.patch("/api/user/" + user.id, formData);
       showNotification({
         title: "Profile updated",
         message: "Page will refresh in 3 seconds",

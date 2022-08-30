@@ -11,12 +11,12 @@ import {
 } from "@mantine/core";
 import { Edit, Search, X } from "tabler-icons-react";
 import { debounce } from "lodash";
-import axios from "axios";
+import api from "config/api";
 
 const debouncedSearchBusiness = debounce(
   async (setBusinessesSearchItems, availableFor, name) => {
     try {
-      const { data } = await axios.get("/api/business", {
+      const { data } = await api.get("/api/business", {
         params: { take: 15, searchString: name },
       });
       const parsedItems = data.map((business: any) => {

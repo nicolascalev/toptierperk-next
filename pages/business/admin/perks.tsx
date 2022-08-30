@@ -22,7 +22,7 @@ import AppPrivacySelect from "components/AppPrivacySelect";
 import AppAquiredSelect from "components/AppAquiredSelect";
 import { useState, useEffect } from "react";
 import { DatePicker } from "@mantine/dates";
-import axios from "axios";
+import api from "config/api";
 import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useCallback } from "react";
 import { uniqBy, debounce } from "lodash";
@@ -114,7 +114,7 @@ const AvailablePerksView: NextPage<Props> = ({ user }) => {
   const loadPerks = useCallback(async () => {
     try {
       setLoadingPerks(true);
-      const { data } = await axios.get(
+      const { data } = await api.get(
         `/api/business/${user.business.id}/benefits`,
         {
           params: {

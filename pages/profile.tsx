@@ -15,14 +15,14 @@ import { useWindowScroll } from "react-use";
 import { useState, useEffect } from "react";
 import AppUserForm from "components/AppUserForm";
 import AppHeaderTitle from "components/AppHeaderTitle";
-import axios from "axios";
+import api from "config/api";
 import useSWR from "swr";
 import AppPerkCard from "components/AppPerkCard";
 import AppClaimCard from "components/AppClaimCard";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const fetcher = (url: string, params: any) =>
-  axios.get(url, { params }).then((res) => res.data);
+  api.get(url, { params }).then((res) => res.data);
 
 function UserPicture(props: any) {
   const { y } = useWindowScroll();

@@ -14,7 +14,7 @@ import {
   Stack,
   Paper,
 } from "@mantine/core";
-import axios from "axios";
+import api from "config/api";
 import useSWR from "swr";
 import formatDate from "helpers/formatDate";
 import AppPerkCard from "components/AppPerkCard";
@@ -32,7 +32,7 @@ import {
 import { useEffect, useState } from "react";
 import AppHeaderTitle from "components/AppHeaderTitle";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
 interface Props {
   user: any;

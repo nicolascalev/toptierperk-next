@@ -1,6 +1,6 @@
 import { useMantineTheme, Card, Text, List, Title } from "@mantine/core";
 import { PayPalButtons } from "@paypal/react-paypal-js";
-import axios from "axios";
+import api from "config/api";
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
 function AppSubscriptionCard(props: any) {
@@ -25,7 +25,7 @@ function AppSubscriptionCard(props: any) {
 
   async function onPaypalApprove(data: any) {
     try {
-      const { data: updateData } = await axios.patch(
+      const { data: updateData } = await api.patch(
         `/api/business/${props.businessid}/subscription`,
         {
           subscriptionId: data.subscriptionID,

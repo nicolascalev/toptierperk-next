@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Bookmark } from "tabler-icons-react";
 import { showNotification } from "@mantine/notifications";
 import { useRouter } from "next/router";
-import axios from "axios";
+import api from "config/api";
 import useSWR from "swr";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data);
 function useSavedStatus(userId?: number, benefitId?: number) {
   const { data, error } = useSWR(
     userId && benefitId ? `/api/user/${userId}/saved/${benefitId}` : null,
@@ -48,7 +48,7 @@ function AppPerkViewActionsSave({ perk, user }: Props) {
   async function savePerk() {
     try {
       setLoadingSave(true);
-      await axios
+      await api
         .post(`/api/user/${user.id}/saved/${perk.id}`)
         .then((res) => res.data);
       setPerkSavedStatus(true);
@@ -65,7 +65,7 @@ function AppPerkViewActionsSave({ perk, user }: Props) {
   async function removeFromSaved() {
     try {
       setLoadingSave(true);
-      await axios
+      await api
         .delete(`/api/user/${user.id}/saved/${perk.id}`)
         .then((res) => res.data);
       setPerkSavedStatus(false);

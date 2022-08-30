@@ -1,5 +1,5 @@
 import { Button, ButtonProps, Tooltip } from "@mantine/core";
-import axios from "axios";
+import api from "config/api";
 import { useEffect } from "react";
 import { useState } from "react";
 import useSWR from "swr";
@@ -9,7 +9,7 @@ type AcquireButtonProps = {
   perkId: number;
   businessId: number;
 };
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data);
 function AppAcquirePerkButton({
   perkId,
   businessId,
@@ -34,7 +34,7 @@ function AppAcquirePerkButton({
   async function acquireBenefit() {
     try {
       setLoading(true);
-      await axios.put(endpoint);
+      await api.put(endpoint);
       setLabel("Loose");
       setStatus((status) => {
         if (!status) {
@@ -61,7 +61,7 @@ function AppAcquirePerkButton({
   async function looseBenefit() {
     try {
       setLoading(true);
-      await axios.delete(endpoint);
+      await api.delete(endpoint);
       setLabel("Acquire");
       setStatus((status) => {
         if (!status) {

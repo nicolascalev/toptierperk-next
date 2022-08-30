@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useUser } from "@auth0/nextjs-auth0";
-import axios from "axios";
+import api from "config/api";
 import useSWR from "swr";
 import {
   useMantineTheme,
@@ -39,7 +39,7 @@ interface Props {
 
 const now = Date.now();
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
 const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
   const theme = useMantineTheme();

@@ -16,7 +16,8 @@ import {
 import AppCodeScanner from "components/AppCodeScanner";
 import AppPerkCard from "components/AppPerkCard";
 import { useRouter } from "next/router";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import api from "config/api";
 import useSWR from "swr";
 import { showNotification } from "@mantine/notifications";
 import { useState, useEffect } from "react";
@@ -28,7 +29,6 @@ import {
   Hash,
 } from "tabler-icons-react";
 import formatDate from "helpers/formatDate";
-import { useUserInterfaceContext } from "helpers/useUserInterfaceContext";
 import AppHeaderTitle from "components/AppHeaderTitle";
 
 type ClaimWithRelations = Claim & {
@@ -37,7 +37,7 @@ type ClaimWithRelations = Claim & {
   supplier: Business;
 };
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
 interface UseFetchClaim {
   loadingClaim: boolean;
@@ -123,7 +123,7 @@ const ScanClaimView: NextPage<Props> = ({ user }) => {
     if (!claimId) return;
     try {
       setLoadingConfirm(true);
-      const updated = await axios
+      const updated = await api
         .patch("/api/claim/" + claimId, {
           approvedAt: new Date(),
         })

@@ -1,11 +1,11 @@
 import { Select } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
-import axios from "axios";
+import api from "config/api";
 import useSWR from "swr";
 
 const fetcher = (url: string, searchString: string) =>
-  axios.get(url, {
+  api.get(url, {
     params: {
       searchString,
     },
