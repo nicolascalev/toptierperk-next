@@ -3,6 +3,7 @@ import { getSession } from "@auth0/nextjs-auth0";
 import Benefit, { BenefitCreateParams } from "prisma/models/Benefit";
 import Joi from "joi";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import parseFormData from "helpers/parse-form-data";
 import uploadFile from "helpers/upload-file";
 
@@ -40,6 +41,7 @@ export default async function userHandler(
       await isAuthenticated(req, res);
       await parseFormData(req, res);
       const { body, files } = req;
+      await refreshSessionUser(req, res);
       const session = getSession(req, res);
 
       if (!session!.user.adminOf) {
