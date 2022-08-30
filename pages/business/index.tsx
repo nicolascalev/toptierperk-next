@@ -23,7 +23,6 @@ import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
 // @ts-ignore
 import NumericLabel from "react-pretty-numbers";
-import refreshSessionUser from "helpers/refreshSessionUser";
 
 interface Props {
   user: any;
@@ -250,15 +249,6 @@ export default BusinessView;
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx: any) {
     try {
-      const errorRedirectUrl = await refreshSessionUser(ctx.req, ctx.res);
-      if (errorRedirectUrl) {
-        return {
-          redirect: {
-            destination: "/email-verify",
-            permanent: false,
-          },
-        };
-      }
       const session = getSession(ctx.req, ctx.res);
       const businessId = session!.user.business?.id;
       if (!businessId) {
