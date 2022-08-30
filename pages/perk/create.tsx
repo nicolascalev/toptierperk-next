@@ -4,7 +4,6 @@ import { Text, Box, Anchor, Paper } from "@mantine/core";
 import AppPerkForm from "components/AppPerkForm";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import refreshSessionUser from "helpers/refreshSessionUser";
 import AppHeaderTitle from "components/AppHeaderTitle";
 
 interface Props {
@@ -55,17 +54,4 @@ const CreatePerkPage: NextPage<Props> = ({ user }) => {
 
 export default CreatePerkPage;
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(ctx: any) {
-    const errorRedirectUrl = await refreshSessionUser(ctx.req, ctx.res);
-    if (errorRedirectUrl) {
-      return {
-        redirect: {
-          destination: "/email-verify",
-          permanent: false,
-        },
-      };
-    }
-    return { props: {} };
-  },
-});
+export const getServerSideProps = withPageAuthRequired();
