@@ -3,7 +3,7 @@ import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { Box, NavLink } from "@mantine/core";
 import { ChevronRight } from "tabler-icons-react";
 import Link from "next/link";
-import Error from "next/error";
+import AppError from "components/AppError";
 import AppHeaderTitle from "components/AppHeaderTitle";
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 
 const BusinessAdmin: NextPage<Props> = ({ user, serverError }) => {
   if (serverError) {
-    return <Error statusCode={serverError} />;
+    return <AppError status={serverError} message="Unauthorized" />;
   }
 
   const links: any[] = [
