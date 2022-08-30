@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import { getSession } from "@auth0/nextjs-auth0";
 import Claim from "prisma/models/Claim";
 import type { User } from "@prisma/client";
@@ -11,6 +12,7 @@ export default async function claimHandler(
   if (req.method === "GET") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       let session = getSession(req, res);
       const user: User = session!.user as User;
 
@@ -38,6 +40,7 @@ export default async function claimHandler(
   if (req.method === "PATCH") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       let session = getSession(req, res);
       const user: User = session!.user as User;
 

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import User from "prisma/models/User";
 
 export default async function checkUserSavedBenefitHandler(
@@ -10,6 +11,7 @@ export default async function checkUserSavedBenefitHandler(
   if (req.method == "GET") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       const session = getSession(req, res);
       const userId = Number(req.query.userId);
       if (session!.user.id !== userId) {
@@ -28,6 +30,7 @@ export default async function checkUserSavedBenefitHandler(
   if (req.method == "POST") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       const session = getSession(req, res);
       const userId = Number(req.query.userId);
       if (session!.user.id !== userId) {
@@ -46,6 +49,7 @@ export default async function checkUserSavedBenefitHandler(
   if (req.method == "DELETE") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       const session = getSession(req, res);
       const userId = Number(req.query.userId);
       if (session!.user.id !== userId) {

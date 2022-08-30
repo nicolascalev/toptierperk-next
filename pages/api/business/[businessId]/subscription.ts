@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Business from "prisma/models/Business";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 
 export default async function findBusinessByNameHandler(
   req: NextApiRequest,
@@ -9,6 +10,7 @@ export default async function findBusinessByNameHandler(
 ) {
   if (req.method === "PATCH") {
     await isAuthenticated(req, res);
+    await refreshSessionUser(req, res);
     let session = getSession(req, res);
 
     // TODO: if necessary integrate last payment date

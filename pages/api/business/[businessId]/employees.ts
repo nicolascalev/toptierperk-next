@@ -13,6 +13,7 @@ export default async function businessHandler(
       await isAuthenticated(req, res);
       // in backend we can check if user permission has changed
       await refreshSessionUser(req, res);
+      await refreshSessionUser(req, res);
       let session = getSession(req, res);
       const businessId = Number(req.query.businessId);
       if (session!.user.adminOfId !== businessId) {

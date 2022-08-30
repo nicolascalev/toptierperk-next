@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import Benefit, { BenefitStatus } from "../../../../prisma/models/Benefit"
+import Benefit, { BenefitStatus } from "prisma/models/Benefit"
 import { getSession } from "@auth0/nextjs-auth0";
-import isAuthenticated from "../../../../helpers/isAuthenticated";
+import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 
 export default async function findBusinessOffers(
   req: NextApiRequest,
@@ -10,6 +11,7 @@ export default async function findBusinessOffers(
   if (req.method === "GET") {
     // TODO decide wether this endpoint should be isAuthenticated
     await isAuthenticated(req, res);
+    await refreshSessionUser(req, res);
     let session = getSession(req, res);
 
     // TODO: if necessary integrate last payment date

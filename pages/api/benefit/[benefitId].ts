@@ -5,6 +5,7 @@ import Category from "prisma/models/Category";
 import Joi from "joi";
 import isAuthenticated from "helpers/isAuthenticated";
 import parseFormData from "helpers/parse-form-data";
+import refreshSessionUser from "helpers/refreshSessionUser";
 
 export const config = {
   api: {
@@ -54,6 +55,7 @@ export default async function singleBenefitHandler(
       await isAuthenticated(req, res);
       await parseFormData(req, res);
       const { body, query } = req;
+      await refreshSessionUser(req, res);
       const session = getSession(req, res);
       if (!session!.user.adminOf) {
         return res.status(401).send("Unauthorized");

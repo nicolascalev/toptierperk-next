@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
 import Joi from "joi";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import parseFormData from "helpers/parse-form-data";
 import uploadFile from "helpers/upload-file";
 import User from "prisma/models/User";
@@ -31,6 +32,7 @@ export default async function singleBenefitHandler(
     try {
       await isAuthenticated(req, res);
       await parseFormData(req, res);
+      await refreshSessionUser(req, res);
       const session = getSession(req, res);
       const userId = Number(req.query.userId);
       if (session!.user.id !== userId) {

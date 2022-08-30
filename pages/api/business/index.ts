@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
-import isAuthenticated from "../../../helpers/isAuthenticated";
-import Business from "../../../prisma/models/Business";
+import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
+import Business from "prisma/models/Business";
 import Joi from "joi";
-import parseFormData from "../../../helpers/parse-form-data";
-import uploadFile from "../../../helpers/upload-file";
+import parseFormData from "helpers/parse-form-data";
+import uploadFile from "helpers/upload-file";
 
 const createBusinessSchema = Joi.object({
   name: Joi.string().required().max(30),
@@ -43,6 +44,7 @@ export default async function businessHandler(
       // add guard so route is protected for authenticated users
       await isAuthenticated(req, res);
       await parseFormData(req, res);
+      await refreshSessionUser(req, res);
       let session = getSession(req, res);
       const { body, files } = req;
 

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import Benefit from "prisma/models/Benefit";
 
 export default async function availableForHandler(
@@ -9,6 +10,7 @@ export default async function availableForHandler(
 ) {
   if (req.method === "GET") {
     await isAuthenticated(req, res);
+    await refreshSessionUser(req, res);
     const session = getSession(req, res);
 
     try {

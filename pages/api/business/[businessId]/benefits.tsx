@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Benefit, { BenefitSearchParams } from "prisma/models/Benefit";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 
 export default async function findBusinessBenfits(
   req: NextApiRequest,
@@ -9,6 +10,7 @@ export default async function findBusinessBenfits(
 ) {
   if (req.method === "GET") {
     await isAuthenticated(req, res);
+    await refreshSessionUser(req, res);
     let session = getSession(req, res);
 
     // TODO: move the employee query to another endpoint, leave this for admin only
