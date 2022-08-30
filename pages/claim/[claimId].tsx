@@ -31,6 +31,7 @@ import {
 } from "tabler-icons-react";
 import { useEffect, useState } from "react";
 import AppHeaderTitle from "components/AppHeaderTitle";
+import AppFeedbackDrawer from "components/AppFeedbackDrawer";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -55,6 +56,7 @@ const ClaimView: NextPage<Props> = ({ user }) => {
   }, [claim]);
 
   const [openedOptionsDrawer, setOpenedOptionsDrawer] = useState(false);
+  const [openedFeedbackDrawer, setOpenedFeedbackDrawer] = useState(false);
 
   return (
     <Box p="md" mb={49}>
@@ -244,12 +246,31 @@ const ClaimView: NextPage<Props> = ({ user }) => {
         size="sm"
       >
         <Stack spacing="xs">
-          <Button variant="default">Report issue</Button>
+          <Button
+            variant="default"
+            onClick={() => setOpenedFeedbackDrawer(true)}
+          >
+            Report issue
+          </Button>
           <Button variant="filled" color="red">
             Delete claim
           </Button>
         </Stack>
       </Drawer>
+      <AppFeedbackDrawer
+        opened={openedFeedbackDrawer}
+        onClose={() => setOpenedFeedbackDrawer(false)}
+        onFeedbackCreate={() => setOpenedFeedbackDrawer(false)}
+        size="full"
+        position="right"
+        issueTypes={[
+          "The supplier can't confirm my order",
+          "There should still be available offers",
+          "The product is not what it said to be",
+          "The supplier behaved inappropriately",
+        ]}
+        claimId={Number(router.query.claimId)}
+      />
     </Box>
   );
 };
