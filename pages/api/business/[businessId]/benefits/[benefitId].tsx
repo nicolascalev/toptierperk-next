@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Benefit from "prisma/models/Benefit";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import Business from "prisma/models/Business";
 
 export default async function findBusinessBenfits(
@@ -11,6 +12,7 @@ export default async function findBusinessBenfits(
   if (req.method === "GET") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       let session = getSession(req, res);
 
       // check the logged in user is the adming of the business acquiring the perk
@@ -35,6 +37,7 @@ export default async function findBusinessBenfits(
   if (req.method === "PUT") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       let session = getSession(req, res);
 
       // check the logged in user is the adming of the business acquiring the perk
@@ -82,6 +85,7 @@ export default async function findBusinessBenfits(
   if (req.method === "DELETE") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       let session = getSession(req, res);
 
       // check the logged in user is the adming of the business acquiring the perk

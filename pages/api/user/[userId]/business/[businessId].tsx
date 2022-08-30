@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import User from "prisma/models/User";
 import Business from "prisma/models/Business";
 
@@ -11,6 +12,7 @@ export default async function userBusinessHandler(
   if (req.method == "PATCH") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       const session = getSession(req, res);
       const userId = Number(req.query.userId);
       if (session!.user.id !== userId) {

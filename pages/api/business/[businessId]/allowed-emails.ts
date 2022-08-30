@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import Business from "prisma/models/Business";
 
 export default async function allowedEmailsHandler(
@@ -10,6 +11,7 @@ export default async function allowedEmailsHandler(
   if (req.method == "PATCH") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       let session = getSession(req, res);
       const businessId = Number(req.query.businessId);
       if (session!.user.adminOfId !== businessId) {

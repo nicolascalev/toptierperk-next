@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
+import refreshSessionUser from "helpers/refreshSessionUser";
 import Benefit from "prisma/models/Benefit";
 
 export default async function benefitStatsHandler(
@@ -11,6 +12,7 @@ export default async function benefitStatsHandler(
   if (req.method === "GET") {
     try {
       await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
       const session = getSession(req, res);
       const perkId = Number(req.query.benefitId);
       const perk = await Benefit.findById(perkId);
