@@ -116,8 +116,8 @@ model Feedback {
   mood       Int
   reporterId Int
   reporter   User     @relation(fields: [reporterId], references: [id])
-  benefitId  Int
+  benefitId  Int?
   benefit    Benefit? @relation(fields: [benefitId], references: [id])
-  claimId    Int
+  claimId    Int?
   claim      Claim?   @relation(fields: [claimId], references: [id])
 }
