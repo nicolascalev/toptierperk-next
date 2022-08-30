@@ -19,12 +19,12 @@ import {
 } from "tabler-icons-react";
 import { showNotification } from "@mantine/notifications";
 import { useRouter } from "next/router";
-import axios from "axios";
+import api from "config/api";
 import useSWR from "swr";
 import confetti from "canvas-confetti";
 import AppPerkViewActionsSave from "components/AppPerkViewActionsSave";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
 function useAcquiredStatus(businessId?: number, benefitId?: number) {
   const { data, error } = useSWR(
@@ -142,7 +142,7 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
   async function claimPerk(benefitId: number) {
     try {
       setLoadingClaim(true);
-      const claim = await axios
+      const claim = await api
         .post(`/api/benefit/${benefitId}/claim`)
         .then((res) => res.data);
       if (claim) {

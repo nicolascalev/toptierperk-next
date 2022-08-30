@@ -19,7 +19,7 @@ import AppLoadExcelEmailsButton from "components/AppLoadExcelEmailsButton";
 import { useCallback, useEffect, useState } from "react";
 import { showNotification } from "@mantine/notifications";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import axios from "axios";
+import api from "config/api";
 import { isEqual, sortBy } from "lodash";
 
 interface Props {
@@ -96,7 +96,7 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
   async function updateAllowedEmails() {
     try {
       setLoadingUpdateList(true);
-      const updated = await axios
+      const updated = await api
         .patch(`/api/business/${user.adminOfId}/allowed-emails`, {
           allowedEmails: JSON.stringify(sortBy(allowedEmails)),
         })

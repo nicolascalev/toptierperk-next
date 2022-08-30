@@ -4,7 +4,7 @@ import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/router";
 import { useMantineTheme, Text, Box, Loader, Center } from "@mantine/core";
 import AppPerkForm from "components/AppPerkForm";
-import axios from "axios";
+import api from "config/api";
 import Benefit from "prisma/models/Benefit";
 import AppHeaderTitle from "components/AppHeaderTitle";
 
@@ -21,7 +21,7 @@ function useFetchPerk(perkId: string) {
       setLoadingPerk(true);
       setLoadPerkError(null);
       try {
-        const { data } = await axios.get("/api/benefit/" + perkId);
+        const { data } = await api.get("/api/benefit/" + perkId);
         setPerk(data);
       } catch (err) {
         setLoadPerkError((err as any).response);

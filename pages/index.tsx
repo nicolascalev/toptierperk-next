@@ -22,7 +22,7 @@ import AppMainLoader from "components/AppMainLoader";
 import { useState, useEffect, useMemo } from "react";
 import { DatePicker } from "@mantine/dates";
 import useSWR from "swr";
-import axios from "axios";
+import api from "config/api";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useDebouncedValue } from "@mantine/hooks";
 import { isNull, pick } from "lodash";
@@ -32,7 +32,7 @@ import AppHeaderTitle from "components/AppHeaderTitle";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const fetcher = (url: string, params: any) =>
-  axios
+  api
     .get(url, {
       params,
     })

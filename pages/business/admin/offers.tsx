@@ -14,7 +14,7 @@ import {
   ActionIcon,
 } from "@mantine/core";
 import AppPerkCard from "components/AppPerkCard";
-import axios from "axios";
+import api from "config/api";
 import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
 import { SquarePlus } from "tabler-icons-react";
@@ -35,7 +35,7 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
     async function loadOffers() {
       setLoadingOffers(true);
       try {
-        const { data } = await axios.get(
+        const { data } = await api.get(
           `/api/business/${user.business.id}/offers`,
           { params: { status: "ALL" } }
         );

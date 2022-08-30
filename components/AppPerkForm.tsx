@@ -26,7 +26,7 @@ import { useForm, joiResolver } from "@mantine/form";
 import AppDropzone from "./AppDropzone";
 import { ChevronLeft, ChevronRight, Photo } from "tabler-icons-react";
 import Joi from "joi";
-import axios from "axios";
+import api from "config/api";
 import AppAvailableForInput from "./AppAvailableForInput";
 import { showNotification } from "@mantine/notifications";
 
@@ -51,7 +51,7 @@ function useFetchAvailableFor(action: string) {
       setLoadingAvailableFor(true);
       setLoadAvailableForError(null);
       try {
-        const { data } = await axios.get(`/api/benefit/${perkId}/availableFor`);
+        const { data } = await api.get(`/api/benefit/${perkId}/availableFor`);
         setAvailableFor(data);
       } catch (err) {
         setLoadAvailableForError((err as any).response);
@@ -220,7 +220,7 @@ export default function AppPerkForm(props: any) {
   async function createPerk(formData: FormData) {
     try {
       setLoading(true);
-      const { data: createdPerk } = await axios.post("/api/benefit", formData);
+      const { data: createdPerk } = await api.post("/api/benefit", formData);
       router.push("/perk/" + createdPerk.id);
       showNotification({
         title: "Created",
@@ -244,7 +244,7 @@ export default function AppPerkForm(props: any) {
   async function updatePerk(formData: FormData) {
     try {
       setLoading(true);
-      const { data: updatedPerk } = await axios.patch(
+      const { data: updatedPerk } = await api.patch(
         "/api/benefit/" + perk.id,
         formData
       );

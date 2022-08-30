@@ -19,13 +19,13 @@ import AppHeaderTitle from "components/AppHeaderTitle";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { showNotification } from "@mantine/notifications";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import axios from "axios";
+import api from "config/api";
 import useSWR from "swr";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useRouter } from "next/router";
 
 const fetcher = (url: string, params: any) =>
-  axios.get(url, { params }).then((res) => res.data);
+  api.get(url, { params }).then((res) => res.data);
 
 interface Props {
   user: any;
@@ -105,7 +105,7 @@ const JoinBusinessView: NextPage<Props> = ({ user }) => {
     try {
       setJoiningBusinessId(businessId);
       setLoadingJoin(true);
-      await axios
+      await api
         .patch(`/api/user/${user.id}/business/${businessId}`)
         .then((res) => res.data);
       showNotification({
