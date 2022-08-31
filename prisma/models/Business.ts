@@ -16,6 +16,12 @@ export type BusinessFindPublicSearchParams = {
   cursor?: number;
 };
 
+type BusinessPublicOfferParams = {
+  supplierId: number;
+  skip?: number;
+  cursor?: number;
+};
+
 const Business = {
   create: async ({
     name,
@@ -227,6 +233,63 @@ const Business = {
         },
       });
       return business;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  findPublicOffers: async ({
+    supplierId,
+    skip,
+    cursor,
+  }: BusinessPublicOfferParams) => {
+    try {
+      const queryDateTime = new Date();
+
+      const offers = await prisma.benefit.findMany<Prisma.BenefitFindManyArgs>({
+        where: {
+          isActive: true,
+          supplier: {
+            id: supplierId,
+            paidMembership: true,
+          },
+          startsAt: {
+            // where it started before now
+            lt: queryDateTime,
+          },
+          // where it hasn't finished or there isn't finish date
+          OR: [
+            { finishesAt: null },
+            {
+              finishesAt: {
+                gte: queryDateTime,
+              },
+            },
+          ],
+        },
+        take: 10,
+        skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        include: {
+          categories: true,
+          photos: true,
+          supplier: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return offers;
     } catch (err) {
       return Promise.reject(err);
     }
