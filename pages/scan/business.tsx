@@ -90,7 +90,9 @@ const ScanBusinessView: NextPage = () => {
   const [endpoint, setEndpoint] = useState("");
   useEffect(() => {
     if (user && businessId && user.businessId) {
-      setEndpoint(`/api/business/${businessId}/beneficiary/${user.businessId}/perks`);
+      setEndpoint(
+        `/api/business/${businessId}/beneficiary/${user.businessId}/perks`
+      );
     }
     if (!user && businessId) {
       setEndpoint(`/api/business/${businessId}/public-offers`);
@@ -136,7 +138,7 @@ const ScanBusinessView: NextPage = () => {
       )}
       {!userLoading && (
         <>
-          {user && !user.adminOfId && (
+          {user && !user.businessId && (
             <Paper withBorder p="md" m="md">
               <Text weight={500} mb="md">
                 No business set
@@ -147,10 +149,16 @@ const ScanBusinessView: NextPage = () => {
             </Paper>
           )}
           <Box p="md">
-            <AppSelectBusiness onChange={val => setBusinessId(val)} />
+            <AppSelectBusiness
+              onChange={(val) => setBusinessId(val)}
+              disabled={user && !user.businessId}
+            />
           </Box>
           <Box style={{ width: "100%" }}>
-            <AppCodeScanner onReadSuccess={onReadSuccess} />
+            <AppCodeScanner
+              onReadSuccess={onReadSuccess}
+              disabled={user && !user.businessId}
+            />
           </Box>
           <Drawer
             opened={businessId && endpoint ? true : false}

@@ -9,6 +9,7 @@ const fetcher = (url: string, params: any) =>
 
 type Props = {
   onChange: (value: number | null) => void;
+  disabled?: boolean;
 };
 
 function AppSelectBusiness(props: Props) {
@@ -75,6 +76,7 @@ function AppSelectBusiness(props: Props) {
       description="You can scan the qr code or search business here"
       value={businessId}
       onChange={onChange}
+      disabled={props.disabled}
       searchable
       clearable
       onInput={(e) => setSearchString(e.currentTarget.value)}

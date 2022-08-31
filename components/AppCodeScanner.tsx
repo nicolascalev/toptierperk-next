@@ -20,8 +20,9 @@ type Camera = {
 
 interface Props {
   onReadSuccess: (result: any) => void;
+  disabled?: boolean;
 }
-function AppCodeScanner({ onReadSuccess }: Props) {
+function AppCodeScanner({ onReadSuccess, disabled }: Props) {
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
   const backgroundColor = isDark ? theme.colors.dark[6] : theme.colors.gray[0];
@@ -110,7 +111,7 @@ function AppCodeScanner({ onReadSuccess }: Props) {
           <Group position="center">
             <Button
               onClick={startScan}
-              disabled={!hasCamera}
+              disabled={!hasCamera || disabled}
               leftIcon={<Scan size={16} />}
             >
               {hasCamera ? scanButtonText : "No camera available"}
