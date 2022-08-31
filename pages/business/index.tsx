@@ -3,7 +3,7 @@ import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import Business from "prisma/models/Business";
 import {
   useMantineTheme,
-  Image,
+  Drawer,
   Text,
   Paper,
   Tabs,
@@ -13,16 +13,18 @@ import {
   Box,
   Anchor,
   Button,
+  ActionIcon,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useWindowScroll } from "react-use";
-import { AlertCircle } from "tabler-icons-react";
+import { AlertCircle, Qrcode } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
 // @ts-ignore
 import NumericLabel from "react-pretty-numbers";
+import AppCodeBox from "components/AppCodeBox";
 
 interface Props {
   user: any;
@@ -76,6 +78,8 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
     tabPanelStyles.backgroundColor = theme.colors.gray[1];
   }
 
+  const [showBusinessQr, setShowBusinessQr] = useState(false);
+
   if (!user.business) {
     return (
       <Box p="md">
@@ -100,8 +104,23 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
   }
 
   return (
-    <div style={{ position: "relative", marginBottom: "49px" }}>
+    <div style={{ marginBottom: "49px" }}>
       <AppHeaderTitle title={business.name} />
+      <ActionIcon
+        component="a"
+        color="dark"
+        size="md"
+        title="Business QR"
+        onClick={() => setShowBusinessQr(true)}
+        style={{
+          position: "fixed",
+          right: "10px",
+          top: "10px",
+          zIndex: 101,
+        }}
+      >
+        <Qrcode />
+      </ActionIcon>
       <Center
         p="xs"
         sx={{
@@ -240,6 +259,26 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
           <Text style={{ whiteSpace: "pre-wrap" }}>{user.business.about}</Text>
         </Tabs.Panel>
       </Tabs>
+      <Drawer
+        opened={showBusinessQr}
+        onClose={() => setShowBusinessQr(false)}
+        title="Business QR code"
+        padding="md"
+        size="xl"
+        position="bottom"
+      >
+        <Box pt="xl">
+          <AppCodeBox
+            imageUrl={
+              business.logo?.url ||
+              "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+            }
+            title={business.name}
+            description="Show this qr to costumers to find your perk offers"
+            qrValue={`${process.env.NEXT_PUBLIC_BASE_URL}/scan/business?businessId=${business.id}`}
+          />
+        </Box>
+      </Drawer>
     </div>
   );
 };
