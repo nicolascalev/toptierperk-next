@@ -53,6 +53,7 @@ function AppSelectBusiness(props: Props) {
         return {
           value: bus.id,
           label: bus.name,
+          group: "Showing up to 10 results",
         };
       })
     );

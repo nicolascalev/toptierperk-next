@@ -98,6 +98,9 @@ const ScanBusinessView: NextPage = () => {
     if (user && businessId && !user.businessId) {
       setEndpoint("");
     }
+    if (!businessId) {
+      setEndpoint("");
+    }
   }, [user, businessId]);
 
   const { data: offersData, error: offersLoadingError } = useSWR(
