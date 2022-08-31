@@ -38,7 +38,7 @@ function AppWelcomeGuestModal() {
           <Button variant="default" onClick={() => setOpened(false)}>
             Close
           </Button>
-          <Button component="a" href="/api/auth/login">Singup</Button>
+          <Button component="a" href="/api/auth/login">Sign up</Button>
         </Group>
       </Modal>
     </>
