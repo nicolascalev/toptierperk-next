@@ -4,6 +4,7 @@ import { useMantineTheme, Text } from "@mantine/core";
 import AppBusinessForm from "components/AppBusinessForm";
 import confetti from "canvas-confetti";
 import { showNotification } from "@mantine/notifications";
+import AppHeaderTitle from "components/AppHeaderTitle";
 
 interface Props {
   user: any;
@@ -44,9 +45,7 @@ const BusinessCreate: NextPage<Props> = ({ user }) => {
 
   return (
     <div style={{ marginBottom: "49px", padding: theme.spacing.md }}>
-      <Text weight={500} size="xl" mb="md">
-        Create business
-      </Text>
+      <AppHeaderTitle title="Create business" />
       <AppBusinessForm
         action="create"
         onSuccess={handleOnSuccess}
