@@ -7,15 +7,19 @@ export default async function meHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  let session = getSession(req, res);
-  if (!session) {
-    return res.status(204).end();
+  if (req.method === "GET") {
+    let session = getSession(req, res);
+    if (!session) {
+      return res.status(204).end();
+    }
+    const user = await User.findById(session.user.id);
+    session.user = JSON.parse(JSON.stringify(user));
+    const redirect = req.query.redirect as string;
+    if (redirect) {
+      return res.redirect(redirect);
+    }
+    return res.status(200).json(user);
   }
-  const user = await User.findById(session.user.id);
-  session.user = JSON.parse(JSON.stringify(user));
-  const redirect = req.query.redirect as string;
-  if (redirect) {
-    return res.redirect(redirect);
-  }
-  return res.status(200).json(user);
+
+  res.status(405).json({ error: "Method or endpoint not implemented." });
 }
