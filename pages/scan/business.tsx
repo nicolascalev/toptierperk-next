@@ -20,6 +20,7 @@ import AppWelcomeGuestModal from "components/AppWelcomeGuestModal";
 import { showNotification } from "@mantine/notifications";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import AppPerkCard from "components/AppPerkCard";
+import AppSelectBusiness from "components/AppSelectBusiness";
 
 const fetcher = (url: string) => api.get(url);
 const perkFetcher = (url: string, params: any) => {
@@ -73,6 +74,12 @@ const ScanBusinessView: NextPage = () => {
     setSkip(0);
   }, []);
 
+  useEffect(() => {
+    setOffers([]);
+    setCursor(undefined);
+    setSkip(0);
+  }, [businessId]);
+
   const params = useMemo(() => {
     return {
       skip,
@@ -82,8 +89,8 @@ const ScanBusinessView: NextPage = () => {
 
   const [endpoint, setEndpoint] = useState("");
   useEffect(() => {
-    if (user && businessId) {
-      setEndpoint(`/api/business/${businessId}/customer/[customerId]/perks`);
+    if (user && businessId && user.businessId) {
+      setEndpoint(`/api/business/${businessId}/beneficiary/${user.businessId}/perks`);
     }
     if (!user && businessId) {
       setEndpoint(`/api/business/${businessId}/public-offers`);
@@ -136,6 +143,9 @@ const ScanBusinessView: NextPage = () => {
               </Text>
             </Paper>
           )}
+          <Box p="md">
+            <AppSelectBusiness onChange={val => setBusinessId(val)} />
+          </Box>
           <Box style={{ width: "100%" }}>
             <AppCodeScanner onReadSuccess={onReadSuccess} />
           </Box>
