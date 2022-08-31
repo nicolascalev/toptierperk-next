@@ -52,7 +52,7 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
   const isDark = theme.colorScheme === "dark";
   // TODO IMPORTANT prevent requests from being sent everytime this is rendered, it goes for actions save too
   const { acquireStatus, loadingAcquireStatus } = useAcquiredStatus(
-    user?.business.id,
+    user?.businessId,
     perk.id
   );
 
