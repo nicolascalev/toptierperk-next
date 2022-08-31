@@ -274,7 +274,7 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
               "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
             }
             title={business.name}
-            description="Show this qr to costumers to find your perk offers"
+            description={`Show this qr to costumers to find ${business.name} perk offers`}
             qrValue={`${process.env.NEXT_PUBLIC_BASE_URL}/scan/business?businessId=${business.id}`}
           />
         </Box>
