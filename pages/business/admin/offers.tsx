@@ -68,7 +68,7 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
             size="md"
             title="Create perk"
             style={{
-              position: "absolute",
+              position: "fixed",
               right: "10px",
               top: "10px",
               zIndex: 101,

@@ -158,7 +158,7 @@ const AllowedEmailsView: NextPage<Props> = ({ user, serverError }) => {
               size="md"
               title="Add email"
               style={{
-                position: "absolute",
+                position: "fixed",
                 right: "10px",
                 top: "10px",
                 zIndex: 101,
