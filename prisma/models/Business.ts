@@ -295,6 +295,70 @@ const Business = {
     }
   },
 
+  // find acquired perks of a business provided by a specific supplier
+  findBenefitsFromSupplier: async ({
+    beneficiaryId,
+    supplierId,
+    skip,
+    cursor,
+  }: BusinessPublicOfferParams & { beneficiaryId: number }) => {
+    try {
+      const queryDateTime = new Date();
+
+      const offers = await prisma.benefit.findMany<Prisma.BenefitFindManyArgs>({
+        where: {
+          isActive: true,
+          supplier: {
+            id: supplierId,
+            paidMembership: true,
+          },
+          beneficiaries: {
+            some: {
+              id: beneficiaryId,
+            },
+          },
+          startsAt: {
+            // where it started before now
+            lt: queryDateTime,
+          },
+          // where it hasn't finished or there isn't finish date
+          OR: [
+            { finishesAt: null },
+            {
+              finishesAt: {
+                gte: queryDateTime,
+              },
+            },
+          ],
+        },
+        take: 10,
+        skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        include: {
+          categories: true,
+          photos: true,
+          supplier: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return offers;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
   // check with perk id if that perk is available for business or if it has been acquired
   checkAvailableBenefit: async (
     businessId: number,
