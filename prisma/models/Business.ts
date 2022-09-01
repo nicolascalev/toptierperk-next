@@ -249,6 +249,7 @@ const Business = {
       const offers = await prisma.benefit.findMany<Prisma.BenefitFindManyArgs>({
         where: {
           isActive: true,
+          isPrivate: false,
           supplier: {
             id: supplierId,
             paidMembership: true,
