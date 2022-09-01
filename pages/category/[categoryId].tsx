@@ -1,4 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
+import Head from "next/head";
 import {
   useMantineTheme,
   Text,
@@ -113,6 +114,9 @@ const CategoryView: NextPage<Props> = ({ category }) => {
 
   return (
     <Box mb={49}>
+      <Head>
+        <title>Toptierperk - {category.name}</title>
+      </Head>
       <AppHeaderTitle title="Category" />
       <Text
         size="sm"
