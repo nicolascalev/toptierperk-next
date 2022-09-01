@@ -21,6 +21,7 @@ import {
   Badge,
   Loader,
   Box,
+  Anchor,
 } from "@mantine/core";
 import AppAcquirePerkButton from "components/AppAcquirePerkButton";
 import AppWelcomeGuestModal from "components/AppWelcomeGuestModal";
@@ -179,8 +180,12 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
             {benefit.name}
           </Text>
           <Text>
-            Offer by{" "}
-            <span style={{ fontWeight: 500 }}>{benefit.supplier.name}</span>
+            Offer by
+            <Link href={"/business/" + benefit.supplier.id} passHref>
+              <Anchor component="a" weight={500} color="blue" ml="5px">
+                {benefit.supplier.name}
+              </Anchor>
+            </Link>
           </Text>
           <Group mt="md">
             {user?.adminOfId && (
@@ -258,9 +263,15 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
               <Text>No categories for this perk</Text>
             )}
             {benefit.categories.map((category: any) => (
-              <Text key={category.id} weight={500} component="span">
-                {category.name}
-              </Text>
+              <Link
+                key={category.id}
+                href={`/category/${category.id}`}
+                passHref
+              >
+                <Anchor component="a" weight={500} color="blue">
+                  {category.name}
+                </Anchor>
+              </Link>
             ))}
           </Group>
           {/* SUPPLIER */}
