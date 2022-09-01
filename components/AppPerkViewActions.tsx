@@ -23,6 +23,7 @@ import api from "config/api";
 import useSWR from "swr";
 import confetti from "canvas-confetti";
 import AppPerkViewActionsSave from "components/AppPerkViewActionsSave";
+import AppFeedbackDrawer from "components/AppFeedbackDrawer";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -50,6 +51,13 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
   const router = useRouter();
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
+  const componentRef = useRef<any>(null);
+  const [actionsHeight, setActionsHeight] = useState(49);
+  useEffect(() => {
+    if (componentRef.current?.offsetHeight) {
+      setActionsHeight(componentRef.current.offsetHeight);
+    }
+  }, []);
   // TODO IMPORTANT prevent requests from being sent everytime this is rendered, it goes for actions save too
   const { acquireStatus, loadingAcquireStatus } = useAcquiredStatus(
     user?.businessId,
@@ -57,6 +65,7 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
   );
 
   const [openedActions, setOpenedActions] = useState(false);
+  const [openedFeedbackDrawer, setOpenedFeedbackDrawer] = useState(false);
 
   function clickShare() {
     const shareData = {
@@ -179,10 +188,11 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
     }
   }
 
-  // TODO: get errors or validations from props, and disable claim or actions
   return (
     <>
+      <div style={{ height: actionsHeight }}></div>
       <Box
+        ref={componentRef}
         sx={{
           width: "100%",
           position: "fixed",
@@ -239,9 +249,27 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
             icon={<LinkIcon size={16} />}
             onClick={clickCopyUrl}
           />
-          <NavLink label="Report abuse" icon={<MessageReport size={16} />} />
+          <NavLink
+            label="Report abuse"
+            icon={<MessageReport size={16} />}
+            onClick={() => setOpenedFeedbackDrawer(true)}
+          />
         </Box>
       </Drawer>
+
+      <AppFeedbackDrawer
+        opened={openedFeedbackDrawer}
+        onClose={() => setOpenedFeedbackDrawer(false)}
+        onFeedbackCreate={() => setOpenedFeedbackDrawer(false)}
+        size="full"
+        position="right"
+        issueTypes={[
+          "I should be able to claim a perk",
+          "Claim perk keeps failing",
+          "The dates on this perk are off",
+        ]}
+        perkId={perk.id}
+      />
     </>
   );
 }
