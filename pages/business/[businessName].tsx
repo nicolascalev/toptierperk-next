@@ -16,7 +16,7 @@ import {
   ActionIcon,
   Loader,
 } from "@mantine/core";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useWindowScroll } from "react-use";
 import { Qrcode } from "tabler-icons-react";
 import { useRouter } from "next/router";
@@ -28,12 +28,82 @@ import NumericLabel from "react-pretty-numbers";
 import AppCodeBox from "components/AppCodeBox";
 import api from "config/api";
 import useSWR from "swr";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const fetcher = (url: string) => api.get(url);
 const perkFetcher = (url: string, params: any) => {
   if (!url) return;
   return api.get(url, { params }).then((res) => res.data);
 };
+
+function useFetchOffers(user: any, userLoading: boolean, businessId: number) {
+  const [offers, setOffers] = useState<any[]>([]);
+  const [cursor, setCursor] = useState<undefined | number>(undefined);
+  const [skip, setSkip] = useState(0);
+
+  useEffect(() => {
+    setOffers([]);
+    setCursor(undefined);
+    setSkip(0);
+  }, []);
+
+  useEffect(() => {
+    setOffers([]);
+    setCursor(undefined);
+    setSkip(0);
+  }, [businessId]);
+
+  const params = useMemo(() => {
+    return {
+      skip,
+      cursor,
+    };
+  }, [skip, cursor]);
+
+  const [endpoint, setEndpoint] = useState("");
+  useEffect(() => {
+    if (!userLoading) {
+      if (!user) {
+        setEndpoint(`/api/business/${businessId}/public-offers`);
+      }
+      if (user && user.businessId) {
+        setEndpoint(
+          `/api/business/${businessId}/beneficiary/${user.businessId}/available-offers`
+        );
+      }
+    }
+  }, [user, userLoading, businessId]);
+
+  const { data: offersData, error: offersLoadingError } = useSWR(
+    [endpoint, params],
+    perkFetcher
+  );
+  const loadingOffers = !offersData && !offersLoadingError;
+  const [theresMore, setTheresMore] = useState(true);
+
+  useEffect(() => {
+    if (offersData) {
+      if (offersData.length == 0) {
+        setTheresMore(false);
+      } else {
+        setTheresMore(true);
+      }
+      setOffers((offers) => [...offers, ...offersData]);
+    }
+  }, [offersData]);
+
+  function loadMore() {
+    setCursor(offers[offers.length - 1]?.id || undefined);
+    setSkip(1);
+  }
+
+  return {
+    offers,
+    loadingOffers,
+    theresMoreOffers: theresMore,
+    loadMoreOffers: loadMore,
+  };
+}
 
 function useUser() {
   const { data: res, error } = useSWR("/api/me", fetcher);
@@ -97,7 +167,24 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
     tabPanelStyles.backgroundColor = theme.colors.gray[1];
   }
 
+  const [animationParentOffers] = useAutoAnimate<HTMLDivElement>();
+  const [animationParentPerks] = useAutoAnimate<HTMLDivElement>();
+
+  function offersTitle() {
+    if (user && user.businessId) {
+      return "Available offers for " + user.business.name;
+    }
+    if (user && !user.businessId) {
+      return "Join business";
+    }
+    return "Public offers";
+  }
   const [showBusinessQr, setShowBusinessQr] = useState(false);
+
+  // domain
+  const { offers, loadingOffers, theresMoreOffers, loadMoreOffers } =
+    useFetchOffers(user, userLoading, business.id);
+  const [perks, setPerks] = useState<any[]>([]);
 
   return (
     <div style={{ marginBottom: "49px" }}>
@@ -219,8 +306,61 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
           {!userLoading && (
             <>
               <Text color="dimmed" px="md" size="sm">
-                {user ? "Available offers for you" : "Public offers"}
+                {offersTitle()}
               </Text>
+              <Box px="md" pb="md">
+                <div ref={animationParentOffers}>
+                  {offers.map((offer: any) => (
+                    <div key={offer.id}>
+                      <AppPerkCard perk={offer} />
+                    </div>
+                  ))}
+                </div>
+                {/* loader for initial offer load */}
+                {loadingOffers && offers.length === 0 && (
+                  <Center>
+                    <Loader size="sm" variant="bars"></Loader>
+                  </Center>
+                )}
+                {!loadingOffers &&
+                  offers.length === 0 &&
+                  user &&
+                  user.businessId && (
+                    <Paper withBorder p="md" mb="md">
+                      <Text weight={500} mb="sm">
+                        No results
+                      </Text>
+                      <Text color="dimmed" size="sm">
+                        When there are offers available they will be shown here
+                      </Text>
+                    </Paper>
+                  )}
+                {!loadingOffers &&
+                  offers.length === 0 &&
+                  user &&
+                  !user.businessId && (
+                    <Paper withBorder p="md" mb="md">
+                      <Text weight={500} mb="sm">
+                        You need to belong to a business
+                      </Text>
+                      <Text color="dimmed" size="sm">
+                        When you belong to a business you will see custom offers
+                        from this supplier here
+                      </Text>
+                    </Paper>
+                  )}
+                {offers.length > 0 && (
+                  <Button
+                    mt="md"
+                    fullWidth
+                    loading={loadingOffers}
+                    disabled={!theresMoreOffers}
+                    onClick={loadMoreOffers}
+                  >
+                    {theresMoreOffers ? "Load more" : "Up to date"}
+                  </Button>
+                )}
+              </Box>
             </>
           )}
         </Tabs.Panel>
@@ -271,7 +411,6 @@ export default SingleBusinessView;
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const businessName = ctx.params!.businessName as string;
   const business: any = await Business.getPublicProfile(businessName);
-  console.log(business);
 
   return { props: { business: JSON.parse(JSON.stringify(business)) } };
 };

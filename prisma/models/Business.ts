@@ -22,6 +22,13 @@ type BusinessPublicOfferParams = {
   cursor?: number;
 };
 
+type BusinessOffersWhereAcquiredBy = {
+  businessA: number;
+  businessB: number;
+  skip?: number;
+  cursor?: number;
+};
+
 const Business = {
   create: async ({
     name,
@@ -374,6 +381,150 @@ const Business = {
               finishesAt: {
                 gte: queryDateTime,
               },
+            },
+          ],
+        },
+        take: 10,
+        skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        include: {
+          categories: true,
+          photos: true,
+          supplier: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return offers;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  // Fetch business A's offers where offers are public or acquired by business B
+  findBusinessOffersWherePublicOrAcquiredByBeneficiary: async ({
+    businessA,
+    businessB,
+    skip,
+    cursor,
+  }: BusinessOffersWhereAcquiredBy) => {
+    try {
+      const queryDateTime = new Date();
+
+      const offers = await prisma.benefit.findMany<Prisma.BenefitFindManyArgs>({
+        where: {
+          isActive: true,
+          supplier: {
+            id: businessA,
+            paidMembership: true,
+          },
+          startsAt: {
+            // where it started before now
+            lt: queryDateTime,
+          },
+          AND: [
+            {
+              OR: [
+                { isPrivate: false },
+                { beneficiaries: { some: { id: businessB } } },
+              ],
+            },
+            {
+              // where it hasn't finished or there isn't finish date
+              OR: [
+                { finishesAt: null },
+                {
+                  finishesAt: {
+                    gte: queryDateTime,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        take: 10,
+        skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        include: {
+          categories: true,
+          photos: true,
+          supplier: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return offers;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  // Fetch business A's offers where offers are public or acquired by business B
+  inCommonOrPublicPerks: async ({
+    businessA,
+    businessB,
+    skip,
+    cursor,
+  }: BusinessOffersWhereAcquiredBy) => {
+    try {
+      const queryDateTime = new Date();
+
+      const offers = await prisma.benefit.findMany<Prisma.BenefitFindManyArgs>({
+        where: {
+          isActive: true,
+          supplier: {
+            paidMembership: true,
+          },
+          startsAt: {
+            // where it started before now
+            lt: queryDateTime,
+          },
+          AND: [
+            {
+              // select where is public, or beneficiaries contain both business A and B
+              OR: [
+                { isPrivate: false },
+                {
+                  beneficiaries: {
+                    some: {
+                      AND: [{ id: businessA }, { id: businessB }],
+                    },
+                  },
+                },
+              ],
+            },
+            {
+              // where it hasn't finished or there isn't finish date
+              OR: [
+                { finishesAt: null },
+                {
+                  finishesAt: {
+                    gte: queryDateTime,
+                  },
+                },
+              ],
             },
           ],
         },
