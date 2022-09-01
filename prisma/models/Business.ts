@@ -209,6 +209,51 @@ const Business = {
     }
   },
 
+  getPublicProfile: async (businessName: string) => {
+    try {
+      const queryDateTime = new Date();
+      const perkInclude = {
+        id: true,
+        name: true,
+        createdAt: true,
+        startsAt: false,
+        finishesAt: false,
+        supplier: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+          },
+        },
+        photos: true,
+        categories: {
+          select: { id: true, name: true },
+        },
+      };
+      const business =
+        await prisma.business.findFirst<Prisma.BusinessFindFirstArgs>({
+          where: { name: businessName },
+          select: {
+            id: true,
+            name: true,
+            about: true,
+            logo: true,
+            paidMembership: true,
+            claimAmount: true,
+            _count: {
+              select: {
+                benefits: true,
+                benefitsFrom: true,
+              },
+            },
+          },
+        });
+      return business;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
   findOneByName: async (name: string) => {
     try {
       const business = await prisma.business.findUnique(<
