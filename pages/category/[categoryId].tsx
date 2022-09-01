@@ -17,6 +17,7 @@ import AppWelcomeGuestModal from "components/AppWelcomeGuestModal";
 import { useEffect, useMemo, useState } from "react";
 import AppPerkCard from "components/AppPerkCard";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useRouter } from "next/router";
 
 const fetcher = (url: string) => api.get(url);
 const perkFetcher = (url: string, params: any) => {
@@ -50,6 +51,7 @@ const CategoryView: NextPage<Props> = ({ category }) => {
 
   // domain logic
   const { user, userLoading } = useUser();
+  const router = useRouter();
 
   const [perks, setPerks] = useState<any[]>([]);
   const [cursor, setCursor] = useState<undefined | number>(undefined);
@@ -60,6 +62,12 @@ const CategoryView: NextPage<Props> = ({ category }) => {
     setCursor(undefined);
     setSkip(0);
   }, []);
+
+  useEffect(() => {
+    setPerks([]);
+    setCursor(undefined);
+    setSkip(0);
+  }, [router.query.categoryId]);
 
   const params = useMemo(() => {
     return {
