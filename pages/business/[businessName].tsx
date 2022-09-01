@@ -78,7 +78,7 @@ function useFetchOffers(user: any, userLoading: boolean, businessId: number) {
     [endpoint, params],
     perkFetcher
   );
-  const loadingOffers = !offersData && !offersLoadingError;
+  const loadingOffers = !offersData && !offersLoadingError && (!user || user && user.businessId);;
   const [theresMore, setTheresMore] = useState(true);
 
   useEffect(() => {
@@ -147,7 +147,7 @@ function useFetchPerks(user: any, userLoading: boolean, businessId: number) {
     [endpoint, params],
     perkFetcher
   );
-  const loadingPerks = !perksData && !perksLoadingError;
+  const loadingPerks = !perksData && !perksLoadingError && (!user || user && user.businessId);
   const [theresMore, setTheresMore] = useState(true);
 
   useEffect(() => {
@@ -242,9 +242,6 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
   function offersTitle() {
     if (user && user.businessId) {
       return "Available offers for " + user.business.name;
-    }
-    if (user && !user.businessId) {
-      return "Join business";
     }
     return "Public offers";
   }
@@ -409,7 +406,7 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
                   offers.length === 0 &&
                   user &&
                   !user.businessId && (
-                    <Paper withBorder p="md" mb="md">
+                    <Paper withBorder p="md" my="md">
                       <Text weight={500} mb="sm">
                         You need to belong to a business
                       </Text>
@@ -476,12 +473,12 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
                   perks.length === 0 &&
                   user &&
                   !user.businessId && (
-                    <Paper withBorder p="md" mb="md">
+                    <Paper withBorder p="md" my="md">
                       <Text weight={500} mb="sm">
                         You need to belong to a business
                       </Text>
                       <Text color="dimmed" size="sm">
-                        When you belong to a business you will see perks that this business has acquired here
+                        When you belong to a business you will see perks that &quot;{business.name}&quot; has acquired here
                       </Text>
                     </Paper>
                   )}
