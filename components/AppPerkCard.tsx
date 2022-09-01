@@ -81,21 +81,25 @@ export default function AppPerkCard(props: Props) {
     >
       {props.disableTopBar !== true && (
         <Group position="apart" align="center" py="sm">
-          <Group align="center" spacing={4}>
-            <Image
-              width={25}
-              height={25}
-              radius={100}
-              src={
-                props.perk.supplier.logo?.url ||
-                "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
-              }
-              alt={"Toptierperk " + props.perk.supplier.name}
-            />
-            <Text size="sm" color="dimmed">
-              {props.perk.supplier.name}
-            </Text>
-          </Group>
+          <Link href={`/business/${props.perk.supplier.name}`} passHref>
+            <Anchor component="a">
+              <Group align="center" spacing={4}>
+                <Image
+                  width={25}
+                  height={25}
+                  radius={100}
+                  src={
+                    props.perk.supplier.logo?.url ||
+                    "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+                  }
+                  alt={"Toptierperk " + props.perk.supplier.name}
+                />
+                <Text size="sm" color="dimmed">
+                  {props.perk.supplier.name}
+                </Text>
+              </Group>
+            </Anchor>
+          </Link>
           <Text size="sm" color="dimmed">
             {timeAgo(props.perk.createdAt)}
           </Text>
