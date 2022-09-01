@@ -105,6 +105,75 @@ function useFetchOffers(user: any, userLoading: boolean, businessId: number) {
   };
 }
 
+function useFetchPerks(user: any, userLoading: boolean, businessId: number) {
+  const [perks, setPerks] = useState<any[]>([]);
+  const [cursor, setCursor] = useState<undefined | number>(undefined);
+  const [skip, setSkip] = useState(0);
+
+  useEffect(() => {
+    setPerks([]);
+    setCursor(undefined);
+    setSkip(0);
+  }, []);
+
+  useEffect(() => {
+    setPerks([]);
+    setCursor(undefined);
+    setSkip(0);
+  }, [businessId]);
+
+  const params = useMemo(() => {
+    return {
+      skip,
+      cursor,
+    };
+  }, [skip, cursor]);
+
+  const [endpoint, setEndpoint] = useState("");
+  useEffect(() => {
+    if (!userLoading) {
+      if (!user) {
+        setEndpoint(`/api/business/${businessId}/public-perks`);
+      }
+      if (user && user.businessId) {
+        setEndpoint(
+          `/api/business/${businessId}/beneficiary/${user.businessId}/common-perks`
+        );
+      }
+    }
+  }, [user, userLoading, businessId]);
+
+  const { data: perksData, error: perksLoadingError } = useSWR(
+    [endpoint, params],
+    perkFetcher
+  );
+  const loadingPerks = !perksData && !perksLoadingError;
+  const [theresMore, setTheresMore] = useState(true);
+
+  useEffect(() => {
+    if (perksData) {
+      if (perksData.length == 0) {
+        setTheresMore(false);
+      } else {
+        setTheresMore(true);
+      }
+      setPerks((offers) => [...offers, ...perksData]);
+    }
+  }, [perksData]);
+
+  function loadMore() {
+    setCursor(perks[perks.length - 1]?.id || undefined);
+    setSkip(1);
+  }
+
+  return {
+    perks: perks,
+    loadingPerks,
+    theresMorePerks: theresMore,
+    loadMorePerks: loadMore,
+  };
+}
+
 function useUser() {
   const { data: res, error } = useSWR("/api/me", fetcher);
   const userLoading = !res && !error;
@@ -184,7 +253,8 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
   // domain
   const { offers, loadingOffers, theresMoreOffers, loadMoreOffers } =
     useFetchOffers(user, userLoading, business.id);
-  const [perks, setPerks] = useState<any[]>([]);
+  const { perks, loadingPerks, theresMorePerks, loadMorePerks } =
+    useFetchPerks(user, userLoading, business.id);
 
   return (
     <div style={{ marginBottom: "49px" }}>
@@ -375,6 +445,58 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
               <Text color="dimmed" px="md" size="sm">
                 {user ? "Perks in common and public" : "Public perks"}
               </Text>
+              <Box px="md" pb="md">
+                <div ref={animationParentPerks}>
+                  {perks.map((perk: any) => (
+                    <div key={perk.id}>
+                      <AppPerkCard perk={perk} />
+                    </div>
+                  ))}
+                </div>
+                {/* loader for initial offer load */}
+                {loadingPerks && perks.length === 0 && (
+                  <Center>
+                    <Loader size="sm" variant="bars"></Loader>
+                  </Center>
+                )}
+                {!loadingPerks &&
+                  perks.length === 0 &&
+                  user &&
+                  user.businessId && (
+                    <Paper withBorder p="md" mb="md">
+                      <Text weight={500} mb="sm">
+                        No results
+                      </Text>
+                      <Text color="dimmed" size="sm">
+                        When there are perks available they will be shown here
+                      </Text>
+                    </Paper>
+                  )}
+                {!loadingPerks &&
+                  perks.length === 0 &&
+                  user &&
+                  !user.businessId && (
+                    <Paper withBorder p="md" mb="md">
+                      <Text weight={500} mb="sm">
+                        You need to belong to a business
+                      </Text>
+                      <Text color="dimmed" size="sm">
+                        When you belong to a business you will see perks that this business has acquired here
+                      </Text>
+                    </Paper>
+                  )}
+                {perks.length > 0 && (
+                  <Button
+                    mt="md"
+                    fullWidth
+                    loading={loadingPerks}
+                    disabled={!loadingPerks}
+                    onClick={loadMorePerks}
+                  >
+                    {theresMorePerks ? "Load more" : "Up to date"}
+                  </Button>
+                )}
+              </Box>
             </>
           )}
         </Tabs.Panel>

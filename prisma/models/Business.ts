@@ -22,6 +22,12 @@ type BusinessPublicOfferParams = {
   cursor?: number;
 };
 
+type BusinessPublicPerksParams = {
+  business: number;
+  skip?: number;
+  cursor?: number;
+};
+
 type BusinessOffersWhereAcquiredBy = {
   businessA: number;
   businessB: number;
@@ -348,6 +354,66 @@ const Business = {
     }
   },
 
+  findPublicPerks: async ({
+    business,
+    skip,
+    cursor,
+  }: BusinessPublicPerksParams) => {
+    try {
+      const queryDateTime = new Date();
+
+      const offers = await prisma.benefit.findMany<Prisma.BenefitFindManyArgs>({
+        where: {
+          isActive: true,
+          isPrivate: false,
+          supplier: {
+            paidMembership: true,
+          },
+          beneficiaries: {
+            some: { id: business },
+          },
+          startsAt: {
+            // where it started before now
+            lt: queryDateTime,
+          },
+          // where it hasn't finished or there isn't finish date
+          OR: [
+            { finishesAt: null },
+            {
+              finishesAt: {
+                gte: queryDateTime,
+              },
+            },
+          ],
+        },
+        take: 10,
+        skip,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+        include: {
+          categories: true,
+          photos: true,
+          supplier: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return offers;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
   // find acquired perks of a business provided by a specific supplier
   findBenefitsFromSupplier: async ({
     beneficiaryId,
@@ -505,13 +571,17 @@ const Business = {
             {
               // select where is public, or beneficiaries contain both business A and B
               OR: [
-                { isPrivate: false },
                 {
-                  beneficiaries: {
-                    some: {
-                      AND: [{ id: businessA }, { id: businessB }],
-                    },
-                  },
+                  AND: [
+                    { isPrivate: false },
+                    { beneficiaries: { some: { id: businessA } } },
+                  ],
+                },
+                {
+                  AND: [
+                    { beneficiaries: { some: { id: businessA } } },
+                    { beneficiaries: { some: { id: businessB } } },
+                  ],
                 },
               ],
             },
