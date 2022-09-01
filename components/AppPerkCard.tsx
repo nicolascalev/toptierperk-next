@@ -7,16 +7,18 @@ import {
   AspectRatio,
   Badge,
   Image,
+  Anchor,
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Upload } from "tabler-icons-react";
 import { timeAgo } from "helpers/formatDate";
+import Link from "next/link";
 
 interface Props {
-  perk: any,
-  disableTopBar?: boolean,
+  perk: any;
+  disableTopBar?: boolean;
 }
 
 export default function AppPerkCard(props: Props) {
@@ -45,7 +47,6 @@ export default function AppPerkCard(props: Props) {
 
   function clickShare(e: any) {
     e.stopPropagation();
-    // TODO: add drawer, use native share or copy url, or get qr...
     const shareData = {
       title: props.perk.name,
       text: "Toptierperk, making B2B perks available for everyone",
@@ -120,7 +121,11 @@ export default function AppPerkCard(props: Props) {
                     right: theme.spacing.md,
                   }}
                 >
-                  <ActionIcon color="dark" variant="light" onClick={carouselLeft}>
+                  <ActionIcon
+                    color="dark"
+                    variant="light"
+                    onClick={carouselLeft}
+                  >
                     <ChevronLeft></ChevronLeft>
                   </ActionIcon>
                   <ActionIcon
@@ -146,7 +151,6 @@ export default function AppPerkCard(props: Props) {
           )}
         </Card.Section>
 
-        {/* TODO: add functionality like links and save button */}
         <Group position="apart" py="sm" noWrap>
           <Text>{props.perk.name}</Text>
           <ActionIcon
@@ -158,17 +162,23 @@ export default function AppPerkCard(props: Props) {
           </ActionIcon>
         </Group>
 
-        {/* <Text size="sm" style={{ color: secondaryColor, lineHeight: 1.5 }}>
-          With Fjord Tours you can explore more of the magical fjord landscapes
-          with tours and activities on and around the fjords of Norway
-        </Text> */}
-
         {props.perk.categories.length > 0 && (
           <Group>
             {props.perk.categories.map((category: any) => (
-              <Text key={category.id} color="blue" size="sm" component="span">
-                {category.name}
-              </Text>
+              <Link
+                key={category.id}
+                href={`/category/${category.id}`}
+                passHref
+              >
+                <Anchor
+                  component="a"
+                  color="blue"
+                  size="sm"
+                  onClick={(e: any) => e.stopPropagation()}
+                >
+                  {category.name}
+                </Anchor>
+              </Link>
             ))}
           </Group>
         )}
