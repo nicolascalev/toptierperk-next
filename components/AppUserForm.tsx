@@ -59,29 +59,26 @@ const updateUserSchema = Joi.object({
   email: Joi.string(),
 });
 
-const debFindUsername = debounce(
-  async (username: string, setFieldError) => {
-    try {
-      const data = await api
-        .get("/api/user", {
-          params: {
-            username,
-          },
-        })
-        .then((res) => res.data);
-      if (data) {
-        setFieldError("username", "That username has been taken already");
-      }
-    } catch (err) {
-      showNotification({
-        title: "Could not verify availability",
-        color: "red",
-        message: "Please try again",
-      });
+const debFindUsername = debounce(async (username: string, setFieldError) => {
+  try {
+    const data = await api
+      .get("/api/user", {
+        params: {
+          username,
+        },
+      })
+      .then((res) => res.data);
+    if (data) {
+      setFieldError("username", "That username has been taken already");
     }
-  },
-  500
-);
+  } catch (err) {
+    showNotification({
+      title: "Could not verify availability",
+      color: "red",
+      message: "Please try again",
+    });
+  }
+}, 500);
 
 interface Props {
   user: any;
@@ -100,14 +97,19 @@ function AppUserForm({ user }: Props) {
 
   useEffect(() => {
     if (
-      (!form.errors.username &&
-        form.errors.username !== "That username has been taken already") &&
+      !form.errors.username &&
+      form.errors.username !== "That username has been taken already" &&
       form.values.username &&
       form.values.username !== user.username
     ) {
       debFindUsername(form.values.username, form.setFieldError);
     }
-  }, [form.values.username, form.errors.username, form.setFieldError, user.username]);
+  }, [
+    form.values.username,
+    form.errors.username,
+    form.setFieldError,
+    user.username,
+  ]);
 
   const { fileInput, changeUploadFile, logo, parsedLogo, clickUploadfile } =
     useFileUpload();
@@ -148,6 +150,14 @@ function AppUserForm({ user }: Props) {
       setLoading(false);
     }
   }
+
+  const disableUpdate =
+    form.values.name === user.name &&
+    form.values.email === user.email &&
+    form.values.username === user.username &&
+    !logo
+      ? true
+      : false;
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -218,7 +228,7 @@ function AppUserForm({ user }: Props) {
         <Group position="right">
           <Button
             type="submit"
-            disabled={!isEmpty(form.errors)}
+            disabled={!isEmpty(form.errors) || disableUpdate}
             loading={loading}
           >
             Update profile

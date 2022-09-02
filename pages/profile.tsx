@@ -176,7 +176,7 @@ const Profile: NextPage<Props> = ({ user }) => {
           }
         />
       </Center>
-      <Tabs variant="pills" color="primary" defaultValue="saved">
+      <Tabs variant="pills" color="primary" defaultValue="claims">
         <Tabs.List grow p="sm" sx={tabListStyles}>
           <Tabs.Tab value="saved">Saved</Tabs.Tab>
           <Tabs.Tab value="claims">Claims</Tabs.Tab>
