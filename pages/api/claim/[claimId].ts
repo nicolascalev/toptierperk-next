@@ -123,6 +123,15 @@ export default async function claimHandler(
         return res.status(404).send("Not Found");
       }
 
+      if (claim.approvedAt) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "You can't delete this claim because it has already been approved",
+          });
+      }
+
       if (user.id !== claim.userId) {
         return res.status(403).send("Forbidden");
       }
