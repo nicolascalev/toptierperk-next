@@ -32,6 +32,7 @@ import {
 import { useEffect, useState } from "react";
 import AppHeaderTitle from "components/AppHeaderTitle";
 import AppFeedbackDrawer from "components/AppFeedbackDrawer";
+import { showNotification } from "@mantine/notifications";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -57,6 +58,32 @@ const ClaimView: NextPage<Props> = ({ user }) => {
 
   const [openedOptionsDrawer, setOpenedOptionsDrawer] = useState(false);
   const [openedFeedbackDrawer, setOpenedFeedbackDrawer] = useState(false);
+
+  const [loadingDeleteClaim, setLoadingDeleteClaim] = useState(false);
+  async function clickDeleteClaim() {
+    if (loadingClaim || !claim) return;
+    try {
+      setLoadingDeleteClaim(true);
+      await api.delete(`/api/claim/${claim.id}`);
+      showNotification({
+        title: "Claim deleted",
+        message: "You will be redirected to your profile",
+      });
+      setOpenedOptionsDrawer(false);
+      setTimeout(() => {
+        router.push("/profile");
+      }, 3000);
+    } catch (err) {
+      console.log(err);
+      showNotification({
+        title: "Please try again",
+        message: "Claim was not deleted",
+        color: "red",
+      });
+    } finally {
+      setLoadingDeleteClaim(false);
+    }
+  }
 
   return (
     <Box p="md" mb={49}>
@@ -252,9 +279,21 @@ const ClaimView: NextPage<Props> = ({ user }) => {
           >
             Report issue
           </Button>
-          <Button variant="filled" color="red">
+          <Button
+            variant="filled"
+            color="red"
+            disabled={!loadingClaim && claim && claim.approvedAt ? true : false}
+            onClick={clickDeleteClaim}
+            loading={loadingDeleteClaim}
+          >
             Delete claim
           </Button>
+          {!loadingClaim && claim && claim.approvedAt && (
+            <Text color="dimmed" size="sm">
+              You can&apos;t delete this claim because it has already been
+              approved
+            </Text>
+          )}
         </Stack>
       </Drawer>
       <AppFeedbackDrawer

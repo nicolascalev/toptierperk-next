@@ -111,6 +111,29 @@ export default async function claimHandler(
     }
   }
 
+  if (req.method === "DELETE") {
+    try {
+      await isAuthenticated(req, res);
+      let session = getSession(req, res);
+      const user: User = session!.user as User;
+
+      const claimId = Number(req.query.claimId);
+      const claim = await Claim.findById(claimId);
+      if (!claim) {
+        return res.status(404).send("Not Found");
+      }
+
+      if (user.id !== claim.userId) {
+        return res.status(403).send("Forbidden");
+      }
+
+      await Claim.delete(claimId);
+      return res.status(200).send("Claim deleted");
+    } catch (err) {
+      return res.status(500).json(err);
+    }
+  }
+
   return res
     .status(405)
     .json({ message: "Method or endpoint not implemented." });

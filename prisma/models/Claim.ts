@@ -1,4 +1,10 @@
-import { Prisma, Claim as ClaimType, Benefit, Business, User } from "@prisma/client";
+import {
+  Prisma,
+  Claim as ClaimType,
+  Benefit,
+  Business,
+  User,
+} from "@prisma/client";
 import prisma from "prisma/prisma.client";
 
 type ClaimWithRelations = ClaimType & {
@@ -6,7 +12,7 @@ type ClaimWithRelations = ClaimType & {
   user?: User;
   supplier?: Business;
   business?: Business;
-}
+};
 
 const Claim = {
   async create(
@@ -38,7 +44,7 @@ const Claim = {
     }
   },
 
-  async findById(claimId: number) : Promise<ClaimWithRelations | null> {
+  async findById(claimId: number): Promise<ClaimWithRelations | null> {
     try {
       const claim = await prisma.claim.findFirst<Prisma.ClaimFindFirstArgs>({
         where: {
@@ -99,6 +105,17 @@ const Claim = {
         },
       });
       return updatedClaim;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  async delete(claimId: number) {
+    try {
+      const deleted = await prisma.claim.delete({
+        where: { id: claimId },
+      });
+      return deleted;
     } catch (err) {
       return Promise.reject(err);
     }
