@@ -176,7 +176,8 @@ function AppBusinessForm({
       action === "update" &&
       form.values.name === initialvalues.name &&
       form.values.email === initialvalues.email &&
-      form.values.about === initialvalues.about
+      form.values.about === initialvalues.about &&
+      !logo
     ) {
       return true;
     }
