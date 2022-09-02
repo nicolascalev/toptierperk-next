@@ -19,7 +19,9 @@ import Joi from "joi";
 
 const createBusinessSchema = Joi.object({
   name: Joi.string().required().max(30),
-  email: Joi.string().email({ tlds: { allow: false } }).required(),
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .required(),
   about: Joi.string().required().max(500),
 });
 
@@ -55,9 +57,10 @@ function useFileUpload() {
 }
 
 // Declare function outside of component so that its not redefined on update
-const debounceFindBusiness = debounce(async (name, form) => {
+const debounceFindBusiness = debounce(async (name, form, initialvalues) => {
   if (!name || !form) return;
   if (name.length > 30) return;
+  if (name === initialvalues.name) return;
   const { data } = await api.get("/api/business/findByName", {
     params: {
       searchString: name,
@@ -71,24 +74,33 @@ const debounceFindBusiness = debounce(async (name, form) => {
 }, 300);
 
 type PropTypes = {
-  action: "create";
+  action: "create" | "update";
+  businessId?: number;
   initialvalues?: any;
+  disableTermsAndConditions?: boolean;
   onSuccess: () => void;
   onError: (error: any) => void;
 };
 
 function AppBusinessForm({
   action,
+  businessId,
   initialvalues,
+  disableTermsAndConditions,
   onSuccess,
   onError,
 }: PropTypes) {
   const theme = useMantineTheme();
 
-  // TODO: add extra validations
+  const parsedInitialValues = initialvalues ? {
+    name: initialvalues.name,
+    email: initialvalues.email,
+    about: initialvalues.about,
+  } : undefined;
+
   const form = useForm({
     validate: joiResolver(createBusinessSchema),
-    initialValues: initialvalues || {
+    initialValues: {...parsedInitialValues} || {
       name: "",
       about: "",
       email: "",
@@ -110,6 +122,9 @@ function AppBusinessForm({
     if (action == "create") {
       submitBusiness(formData);
     }
+    if (action == "update") {
+      updateBusiness(formData);
+    }
   };
 
   const [loading, setLoading] = useState(false);
@@ -120,12 +135,52 @@ function AppBusinessForm({
       onSuccess();
     } catch (err: any) {
       if (err.response?.data?.error?.code == "P2002") {
-        form.setFieldError("email", "A business has been registered with that account before");
+        form.setFieldError(
+          "email",
+          "A business has been registered with that account before"
+        );
         onError(err.response?.data);
       }
     } finally {
       setLoading(false);
     }
+  }
+
+  async function updateBusiness(formData: FormData) {
+    if (!businessId) {
+      throw new Error(
+        "businessId must be provided if you want to update business"
+      );
+    }
+    setLoading(true);
+    try {
+      await api.patch("/api/business/" + businessId, formData);
+      onSuccess();
+    } catch (err: any) {
+      if (err.response?.data?.error?.code == "P2002") {
+        form.setFieldError(
+          "email",
+          "A business has been registered with that account before"
+        );
+        onError(err.response?.data);
+        return;
+      }
+      onError(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function disableSubmit(): boolean {
+    if (
+      action === "update" &&
+      form.values.name === initialvalues.name &&
+      form.values.email === initialvalues.email &&
+      form.values.about === initialvalues.about
+    ) {
+      return true;
+    }
+    return false;
   }
 
   return (
@@ -138,7 +193,7 @@ function AppBusinessForm({
             hidden
             onChange={(e) => changeUploadFile(e)}
           />
-          {logo ? (
+          {logo !== null && (
             <Image
               onClick={clickUploadfile}
               src={parsedLogo}
@@ -147,7 +202,18 @@ function AppBusinessForm({
               height={128}
               radius={150}
             ></Image>
-          ) : (
+          )}
+          {!logo && initialvalues.logo?.url && (
+            <Image
+              onClick={clickUploadfile}
+              src={initialvalues.logo.url}
+              alt="Business Logo"
+              width={128}
+              height={128}
+              radius={150}
+            ></Image>
+          )}
+          {!logo && !initialvalues.logo?.url && (
             <Center
               onClick={clickUploadfile}
               style={{
@@ -169,8 +235,10 @@ function AppBusinessForm({
         <TextInput
           required
           label="Name"
-          placeholder=""
-          onInput={(e: any) => debounceFindBusiness(e.target.value, form)}
+          placeholder="Name"
+          onInput={(e: any) =>
+            debounceFindBusiness(e.target.value, form, initialvalues)
+          }
           {...form.getInputProps("name")}
         />
         <TextInput
@@ -187,15 +255,19 @@ function AppBusinessForm({
           minRows={2}
           {...form.getInputProps("about")}
         />
-        {/* TODO: add actual terms and conditions */}
-        <Checkbox required label="I agree to Terms and Conditions" />
+        {!disableTermsAndConditions && (
+          <>
+            {/* TODO: add actual terms and conditions */}
+            <Checkbox required label="I agree to Terms and Conditions" />
+          </>
+        )}
         <Group position="right">
           <Button
             type="submit"
-            disabled={!isEmpty(form.errors)}
+            disabled={!isEmpty(form.errors) || disableSubmit()}
             loading={loading}
           >
-            Create
+            {action === "create" ? "Create" : "Update"}
           </Button>
         </Group>
       </Stack>
