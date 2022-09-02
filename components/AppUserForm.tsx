@@ -210,7 +210,7 @@ function AppUserForm({ user }: Props) {
         />
         <TextInput
           placeholder="Email"
-          label="email"
+          label="Email"
           disabled
           required
           {...form.getInputProps("email")}
