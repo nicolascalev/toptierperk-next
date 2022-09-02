@@ -33,7 +33,7 @@ type Props = {
   onFeedbackCreate: () => void;
 } & DrawerProps;
 
-function AppFeedbackDrawer({ claimId, perkId, ...rest }: Props) {
+function AppFeedbackDrawer({ claimId, perkId, onFeedbackCreate, ...rest }: Props) {
   const [mood, setMood] = useState("5");
   const [location, setLocation] = useState("");
   useEffect(() => {
@@ -83,7 +83,7 @@ function AppFeedbackDrawer({ claimId, perkId, ...rest }: Props) {
         message: "Come back to see Toptierperk updates",
       });
       form.setFieldValue("feedback", "");
-      rest.onFeedbackCreate();
+      onFeedbackCreate();
     } catch (err) {
       showNotification({
         title: "Please try again",
