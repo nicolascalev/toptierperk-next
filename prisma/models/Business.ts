@@ -180,6 +180,7 @@ const Business = {
           select: {
             id: true,
             name: true,
+            email: true,
             about: true,
             logo: true,
             paidMembership: true,
@@ -249,6 +250,7 @@ const Business = {
           select: {
             id: true,
             name: true,
+            email: true,
             about: true,
             logo: true,
             paidMembership: true,

@@ -18,7 +18,7 @@ import {
 } from "@mantine/core";
 import { useState, useEffect, useMemo } from "react";
 import { useWindowScroll } from "react-use";
-import { Qrcode } from "tabler-icons-react";
+import { ExternalLink, Qrcode } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
@@ -78,7 +78,8 @@ function useFetchOffers(user: any, userLoading: boolean, businessId: number) {
     [endpoint, params],
     perkFetcher
   );
-  const loadingOffers = !offersData && !offersLoadingError && (!user || user && user.businessId);;
+  const loadingOffers =
+    !offersData && !offersLoadingError && (!user || (user && user.businessId));
   const [theresMore, setTheresMore] = useState(true);
 
   useEffect(() => {
@@ -147,7 +148,8 @@ function useFetchPerks(user: any, userLoading: boolean, businessId: number) {
     [endpoint, params],
     perkFetcher
   );
-  const loadingPerks = !perksData && !perksLoadingError && (!user || user && user.businessId);
+  const loadingPerks =
+    !perksData && !perksLoadingError && (!user || (user && user.businessId));
   const [theresMore, setTheresMore] = useState(true);
 
   useEffect(() => {
@@ -250,8 +252,11 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
   // domain
   const { offers, loadingOffers, theresMoreOffers, loadMoreOffers } =
     useFetchOffers(user, userLoading, business.id);
-  const { perks, loadingPerks, theresMorePerks, loadMorePerks } =
-    useFetchPerks(user, userLoading, business.id);
+  const { perks, loadingPerks, theresMorePerks, loadMorePerks } = useFetchPerks(
+    user,
+    userLoading,
+    business.id
+  );
 
   return (
     <div style={{ marginBottom: "49px" }}>
@@ -478,7 +483,8 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
                         You need to belong to a business
                       </Text>
                       <Text color="dimmed" size="sm">
-                        When you belong to a business you will see perks that &quot;{business.name}&quot; has acquired here
+                        When you belong to a business you will see perks that
+                        &quot;{business.name}&quot; has acquired here
                       </Text>
                     </Paper>
                   )}
@@ -498,7 +504,28 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
           )}
         </Tabs.Panel>
         <Tabs.Panel value="about" p="md" sx={tabPanelStyles}>
-          <Text style={{ whiteSpace: "pre-wrap" }}>{business.about}</Text>
+          <Text weight={500} size="sm">
+            Email
+          </Text>
+          <Text
+            color="dimmed"
+            size="sm"
+            mb="sm"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            {business.email}
+            <Link href={`mailto:${business.email}`} passHref>
+              <ActionIcon component="a" color="blue" size="sm">
+                <ExternalLink size={14} />
+              </ActionIcon>
+            </Link>
+          </Text>
+          <Text weight={500} size="sm">
+            About
+          </Text>
+          <Text color="dimmed" size="sm" style={{ whiteSpace: "pre-wrap" }}>
+            {business.about}
+          </Text>
         </Tabs.Panel>
       </Tabs>
       <Drawer

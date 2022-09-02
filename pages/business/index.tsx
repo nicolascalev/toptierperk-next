@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useWindowScroll } from "react-use";
-import { AlertCircle, Qrcode } from "tabler-icons-react";
+import { AlertCircle, ExternalLink, Qrcode } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
@@ -228,7 +228,12 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
           <Tabs.Tab value="offers">Offers</Tabs.Tab>
           <Tabs.Tab value="about">About</Tabs.Tab>
         </Tabs.List>
-        <Tabs.Panel value="newest" pt="md" sx={tabPanelStyles}>
+        <Tabs.Panel
+          value="newest"
+          py="md"
+          style={{ width: "100%" }}
+          sx={tabPanelStyles}
+        >
           <Text color="dimmed" px="md" size="sm">
             10 Newest Perks
           </Text>
@@ -239,9 +244,13 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
             <AppPerkCard key={perk.id} perk={perk}></AppPerkCard>
           ))}
           {business.benefitsFrom.length < business._count.benefitsFrom && (
-            <Link href="/" passHref>
-              <Button component="a">More</Button>
-            </Link>
+            <Box px="md">
+              <Link href="/" passHref>
+                <Button component="a" fullWidth>
+                  More perks
+                </Button>
+              </Link>
+            </Box>
           )}
         </Tabs.Panel>
         <Tabs.Panel value="offers" pt="md" sx={tabPanelStyles}>
@@ -256,7 +265,28 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
           ))}
         </Tabs.Panel>
         <Tabs.Panel value="about" p="md" sx={tabPanelStyles}>
-          <Text style={{ whiteSpace: "pre-wrap" }}>{user.business.about}</Text>
+          <Text weight={500} size="sm">
+            Email
+          </Text>
+          <Text
+            color="dimmed"
+            size="sm"
+            mb="sm"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            {business.email}
+            <Link href={`mailto:${business.email}`} passHref>
+              <ActionIcon component="a" color="blue" size="sm">
+                <ExternalLink size={14} />
+              </ActionIcon>
+            </Link>
+          </Text>
+          <Text weight={500} size="sm">
+            About
+          </Text>
+          <Text color="dimmed" size="sm" style={{ whiteSpace: "pre-wrap" }}>
+            {business.about}
+          </Text>
         </Tabs.Panel>
       </Tabs>
       <Drawer
