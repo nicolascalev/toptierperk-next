@@ -685,7 +685,11 @@ const Business = {
     }
   },
 
-  updateSubscription: async (businessId: number, subscriptionId: string) => {
+  updateSubscription: async (
+    businessId: number,
+    subscriptionId: string,
+    lastPaymentDate: string
+  ) => {
     if (businessId === undefined || subscriptionId === undefined) {
       throw new Error(
         "Business.updateSubscription() required businessId and subscriptionId in the params"
@@ -696,7 +700,11 @@ const Business = {
       const updatedBusiness = await prisma.business.update(<
         Prisma.BusinessUpdateArgs
       >{
-        data: { paypalSubscriptionId: subscriptionId, paidMembership: true },
+        data: {
+          paypalSubscriptionId: subscriptionId,
+          paidMembership: true,
+          lastPaymentDate,
+        },
         where: { id: businessId },
         include: {
           logo: true,

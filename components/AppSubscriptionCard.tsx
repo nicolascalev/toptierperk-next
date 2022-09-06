@@ -12,7 +12,7 @@ function AppSubscriptionCard(props: any) {
     return (
       <div>
         There has been a third party error to display your subscription, if the
-        error persists please let us know
+        error persists please <a href="mailto:hello@toptierperk.com">let us know</a>
       </div>
     );
   }
@@ -29,6 +29,7 @@ function AppSubscriptionCard(props: any) {
         `/api/business/${props.businessid}/subscription`,
         {
           subscriptionId: data.subscriptionID,
+          lastPaymentDate: data.start_time,
         }
       );
       if (updateData) {
@@ -45,7 +46,7 @@ function AppSubscriptionCard(props: any) {
   return (
     <Card shadow="md">
       <Title order={1} align="center">
-        $2.00
+        $19.99
       </Title>
       <Text size="lg" weight={500} align="center">
         Basic Plan
