@@ -3,18 +3,45 @@ import Business from "prisma/models/Business";
 import { getSession } from "@auth0/nextjs-auth0";
 import isAuthenticated from "helpers/isAuthenticated";
 import refreshSessionUser from "helpers/refreshSessionUser";
+import paypal from "helpers/paypal";
 
 export default async function findBusinessByNameHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method === "GET") {
+    try {
+      await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
+      const session = getSession(req, res);
+
+      const businessId = Number(req.query.businessId);
+      // The user can't be trying to update a business who does not belong to them
+      if (businessId !== session!.user.adminOfId) {
+        return res.status(403).send("Forbidden");
+      }
+
+      const subscriptionId = session!.user.adminOf.paypalSubscriptionId;
+      if (!subscriptionId) {
+        return res
+          .status(400)
+          .json({ message: "This business does not have a subscription." });
+      }
+
+      const subscription = await paypal.getSubscriptionById(subscriptionId);
+      return res.status(200).json(subscription);
+    } catch (err) {
+      return res.status(500).json(err);
+    }
+  }
+
   if (req.method === "PATCH") {
     await isAuthenticated(req, res);
     await refreshSessionUser(req, res);
     let session = getSession(req, res);
 
-    // TODO: if necessary integrate last payment date
     const businessId = Number(req.query.businessId);
+    const lastPaymentDate = req.body.lastPaymentDate;
     const subscriptionId = req.body.subscriptionId;
     // The user can't be trying to update a business who does not belong to them
     if (businessId !== session!.user.adminOfId) {
@@ -23,7 +50,8 @@ export default async function findBusinessByNameHandler(
     try {
       const result = await Business.updateSubscription(
         businessId,
-        subscriptionId
+        subscriptionId,
+        lastPaymentDate
       );
       session!.user = {
         ...session!.user,
@@ -34,7 +62,7 @@ export default async function findBusinessByNameHandler(
       };
       return res.status(200).json(result);
     } catch (error) {
-      return res.status(400).json(error);
+      return res.status(500).json(error);
     }
   }
 
