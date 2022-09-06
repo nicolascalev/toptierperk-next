@@ -557,6 +557,9 @@ export default SingleBusinessView;
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const businessName = ctx.params!.businessName as string;
   const business: any = await Business.getPublicProfile(businessName);
+  if (!business) {
+    return { redirect: { destination: "/404", permanent: false } };
+  }
 
   return { props: { business: JSON.parse(JSON.stringify(business)) } };
 };

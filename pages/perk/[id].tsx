@@ -276,7 +276,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
           </Group>
           {/* SUPPLIER */}
           <Text color="dimmed">Supplier</Text>
-          <Link href={"/business/" + benefit.supplier.id} passHref>
+          <Link href={"/business/" + benefit.supplier.name} passHref>
             <Card
               component="a"
               style={{
