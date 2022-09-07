@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE `user` ADD COLUMN `authorizationChanged` BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE `User` ADD COLUMN `authorizationChanged` BOOLEAN NOT NULL DEFAULT false;

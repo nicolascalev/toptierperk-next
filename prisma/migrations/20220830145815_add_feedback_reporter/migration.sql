@@ -5,7 +5,7 @@
 
 */
 -- AlterTable
-ALTER TABLE `feedback` ADD COLUMN `reporterId` INTEGER NOT NULL;
+ALTER TABLE `Feedback` ADD COLUMN `reporterId` INTEGER NOT NULL;
 
 -- AddForeignKey
 ALTER TABLE `Feedback` ADD CONSTRAINT `Feedback_reporterId_fkey` FOREIGN KEY (`reporterId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

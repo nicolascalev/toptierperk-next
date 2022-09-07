@@ -5,5 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE `business` DROP COLUMN `lastPaymentDate`,
+ALTER TABLE `Business` DROP COLUMN `lastPaymentDate`,
     ADD COLUMN `subscriptionEndsAt` DATETIME(3) NULL;

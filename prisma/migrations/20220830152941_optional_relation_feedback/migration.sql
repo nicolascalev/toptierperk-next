@@ -1,11 +1,11 @@
 -- DropForeignKey
-ALTER TABLE `feedback` DROP FOREIGN KEY `Feedback_benefitId_fkey`;
+ALTER TABLE `Feedback` DROP FOREIGN KEY `Feedback_benefitId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `feedback` DROP FOREIGN KEY `Feedback_claimId_fkey`;
+ALTER TABLE `Feedback` DROP FOREIGN KEY `Feedback_claimId_fkey`;
 
 -- AlterTable
-ALTER TABLE `feedback` MODIFY `benefitId` INTEGER NULL,
+ALTER TABLE `Feedback` MODIFY `benefitId` INTEGER NULL,
     MODIFY `claimId` INTEGER NULL;
 
 -- AddForeignKey
