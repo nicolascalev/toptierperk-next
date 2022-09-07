@@ -1,4 +1,11 @@
-import { useMantineTheme, Card, Text, List, Title } from "@mantine/core";
+import {
+  useMantineTheme,
+  Card,
+  Text,
+  List,
+  Title,
+  Anchor,
+} from "@mantine/core";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import api from "config/api";
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
@@ -11,8 +18,11 @@ function AppSubscriptionCard(props: any) {
   if (!PAYPAL_CLIENT_ID) {
     return (
       <div>
-        There has been a third party error to display your subscription, if the
-        error persists please <a href="mailto:hello@toptierperk.com">let us know</a>
+        There has been a third party error to get a subscription, if the error
+        persists please{" "}
+        <Anchor color="blue" href="mailto:hello@toptierperk.com">
+          let us know
+        </Anchor>
       </div>
     );
   }
@@ -49,7 +59,7 @@ function AppSubscriptionCard(props: any) {
         $19.99
       </Title>
       <Text size="lg" weight={500} align="center">
-        Basic Plan
+        Full Plan Monthly
       </Text>
       <List
         style={{
@@ -57,10 +67,9 @@ function AppSubscriptionCard(props: any) {
           paddingBottom: theme.spacing.md,
         }}
       >
-        <List.Item>Offer unlimited perks</List.Item>
+        <List.Item>Publish unlimited offers</List.Item>
         <List.Item>Get unlimited perks</List.Item>
-        <List.Item>Have unlimited employees</List.Item>
-        <List.Item>Have access to experimental features</List.Item>
+        <List.Item>Allow unlimited employees</List.Item>
       </List>
       <PayPalButtons
         style={{
