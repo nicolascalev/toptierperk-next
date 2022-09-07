@@ -60,7 +60,7 @@ function useFileUpload() {
 const debounceFindBusiness = debounce(async (name, form, initialvalues) => {
   if (!name || !form) return;
   if (name.length > 30) return;
-  if (name === initialvalues.name) return;
+  if (name === initialvalues?.name) return;
   const { data } = await api.get("/api/business/findByName", {
     params: {
       searchString: name,
@@ -204,7 +204,7 @@ function AppBusinessForm({
               radius={150}
             ></Image>
           )}
-          {!logo && initialvalues.logo?.url && (
+          {!logo && initialvalues?.logo?.url && (
             <Image
               onClick={clickUploadfile}
               src={initialvalues.logo.url}
@@ -214,7 +214,7 @@ function AppBusinessForm({
               radius={150}
             ></Image>
           )}
-          {!logo && !initialvalues.logo?.url && (
+          {!logo && !initialvalues?.logo?.url && (
             <Center
               onClick={clickUploadfile}
               style={{
