@@ -38,8 +38,8 @@ model Business {
   about                    String?
   logo                     Photo?
   paidMembership           Boolean   @default(false)
-  lastPaymentDate          DateTime?
   paypalSubscriptionId     String?   @unique
+  subscriptionEndsAt       DateTime?
   employees                User[]    @relation(name: "Employees")
   admins                   User[]    @relation(name: "Admins")
   benefits                 Benefit[] @relation(name: "Suppliers")
