@@ -688,7 +688,8 @@ const Business = {
   updateSubscription: async (
     businessId: number,
     subscriptionId: string,
-    lastPaymentDate: string
+    paidMembership?: boolean,
+    subscriptionEndsAt?: string | null,
   ) => {
     if (businessId === undefined || subscriptionId === undefined) {
       throw new Error(
@@ -702,8 +703,8 @@ const Business = {
       >{
         data: {
           paypalSubscriptionId: subscriptionId,
-          paidMembership: true,
-          lastPaymentDate,
+          paidMembership,
+          subscriptionEndsAt,
         },
         where: { id: businessId },
         include: {
