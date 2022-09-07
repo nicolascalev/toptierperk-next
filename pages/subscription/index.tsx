@@ -240,7 +240,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
           </>
         )}
         {!user.adminOf?.paypalSubscriptionId ||
-          (subscription && subscription.status === "CANCELLED" && (
+          (subscription && subscription.status === "CANCELLED") && (
             <>
               <Text my="md">Get a subscription</Text>
               <PayPalScriptProvider
@@ -254,7 +254,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
                 />
               </PayPalScriptProvider>
             </>
-          ))}
+          )}
       </Container>
 
       <Modal
