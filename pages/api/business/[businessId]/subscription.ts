@@ -41,7 +41,6 @@ export default async function findBusinessByNameHandler(
     let session = getSession(req, res);
 
     const businessId = Number(req.query.businessId);
-    const lastPaymentDate = req.body.lastPaymentDate;
     const subscriptionId = req.body.subscriptionId;
     // The user can't be trying to update a business who does not belong to them
     if (businessId !== session!.user.adminOfId) {
@@ -51,7 +50,49 @@ export default async function findBusinessByNameHandler(
       const result = await Business.updateSubscription(
         businessId,
         subscriptionId,
-        lastPaymentDate
+        true,
+        null
+      );
+      session!.user = {
+        ...session!.user,
+        ...{
+          business: result,
+          adminOf: result,
+        },
+      };
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  }
+
+  if (req.method === "DELETE") {
+    try {
+      await isAuthenticated(req, res);
+      await refreshSessionUser(req, res);
+      let session = getSession(req, res);
+
+      const businessId = Number(req.query.businessId);
+      // The user can't be trying to update a business who does not belong to them
+      if (businessId !== session!.user.adminOfId) {
+        return res.status(403).send("Forbidden");
+      }
+
+      const paypalSubscriptionId = session!.user.adminOf.paypalSubscriptionId;
+      if (!paypalSubscriptionId) {
+        return res
+          .status(400)
+          .json({ message: "This business does not have a subscription." });
+      }
+
+      const paypalSub = await paypal.getSubscriptionById(paypalSubscriptionId);
+      const reason = req.body.reason || "";
+      await paypal.cancelSubscription(paypalSubscriptionId, reason);
+      const result = await Business.updateSubscription(
+        businessId,
+        paypalSubscriptionId,
+        undefined,
+        paypalSub.billing_info.next_billing_time
       );
       session!.user = {
         ...session!.user,
