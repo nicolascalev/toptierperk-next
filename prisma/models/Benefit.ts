@@ -699,7 +699,6 @@ const Benefit = {
           isActive: isActive,
           supplier: {
             id: supplierId,
-            paidMembership: true,
           },
           startsAt: {
             // where it started before now

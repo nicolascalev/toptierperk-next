@@ -18,12 +18,14 @@ import api from "config/api";
 import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
 import { SquarePlus } from "tabler-icons-react";
+import Business from "prisma/models/Business";
 
 interface Props {
   user: any;
+  business: any;
 }
 
-const BusinessOffers: NextPage<Props> = ({ user }) => {
+const BusinessOffers: NextPage<Props> = ({ user, business }) => {
   const theme = useMantineTheme();
   const [status, setStatus] = useState("active");
   const isDark = theme.colorScheme === "dark" ? true : false;
@@ -94,6 +96,12 @@ const BusinessOffers: NextPage<Props> = ({ user }) => {
         />
       </Box>
       <Box p="md" sx={{ minHeight: "calc(100vh - 173px)", backgroundColor }}>
+        {!business.paidMembership && (
+          <Paper p="md" mb="md" withBorder>
+            <Text mb="md" weight={500}>Subscription needed</Text>
+            <Text color="dimmed" size="sm">You need to get a subscription so that other businesses can find your offers</Text>
+          </Paper>
+        )}
         {loadingOffers && (
           <Center>
             <Loader ml="md" size="sm" variant="bars" />
@@ -141,6 +149,8 @@ export const getServerSideProps = withPageAuthRequired({
     if (!session?.user.adminOf) {
       return { redirect: { destination: "/401", permanent: false } };
     }
-    return { props: {} };
+    let business = await Business.findById(session!.user.adminOfId);
+    business = JSON.parse(JSON.stringify(business));
+    return { props: { business } };
   },
 });
