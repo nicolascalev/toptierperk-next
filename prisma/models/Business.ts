@@ -689,7 +689,7 @@ const Business = {
     businessId: number,
     subscriptionId: string,
     paidMembership?: boolean,
-    subscriptionEndsAt?: string | null,
+    subscriptionEndsAt?: string | null
   ) => {
     if (businessId === undefined || subscriptionId === undefined) {
       throw new Error(
@@ -714,6 +714,22 @@ const Business = {
         },
       });
       return updatedBusiness;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  paypalUpdateSubscription: async (
+    paypalSubscriptionId: string,
+    subscriptionEndsAt: string
+  ) => {
+    try {
+      await prisma.business.update({
+        where: { paypalSubscriptionId },
+        data: {
+          subscriptionEndsAt,
+        },
+      });
     } catch (err) {
       return Promise.reject(err);
     }

@@ -14,7 +14,7 @@ export default async function paypalHandler(
   ];
   if (req.method === "POST") {
     const paypalSubscriptionId = req.body.resource.id;
-    // TODO: i dont know if 
+    // TODO: i dont know if next billing time is correct on sub expiration yet
     const subscriptionEndsAt = req.body.resource.billing_info.next_billing_time;
     const eventType = req.body.event_type;
     if (!triggerCancelEvents.includes(eventType)) {
