@@ -114,11 +114,6 @@ export default function AppPerkCard(props: Props) {
             }}
           >
             {slides}
-            <Carousel.Slide style={{ maxHeight: "100%" }}>
-              <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
-                <Image fit="fill" src="https://stagingttp.nyc3.digitaloceanspaces.com/benefits/9-7-2022/1662581531898tacos.jpeg" alt={"Photo of " + props.perk.name} />
-              </AspectRatio>
-            </Carousel.Slide>
           </Carousel>
         </Card.Section>
 
