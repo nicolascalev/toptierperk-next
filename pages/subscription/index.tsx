@@ -2,30 +2,35 @@ import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import {
-  useMantineTheme,
   Text,
   Card,
   Group,
   Button,
   Box,
-  LoadingOverlay,
   Center,
   Loader,
   Container,
   Modal,
+  Textarea,
 } from "@mantine/core";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import AppSubscriptionCard from "components/AppSubscriptionCard";
 import confetti from "canvas-confetti";
 import { showNotification } from "@mantine/notifications";
 import AppHeaderTitle from "components/AppHeaderTitle";
-import { Calendar } from "tabler-icons-react";
+import { Calendar, CheckupList } from "tabler-icons-react";
 import api from "config/api";
 import useSWR from "swr";
 import formatDate from "helpers/formatDate";
 import Link from "next/link";
+import Joi from "joi";
+import { useForm, joiResolver } from "@mantine/form";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
+
+const schema = Joi.object({
+  reason: Joi.string().min(35).max(124).required(),
+});
 
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
@@ -34,8 +39,13 @@ interface Props {
 }
 
 const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
-  const theme = useMantineTheme();
   const [user, setUser] = useState(sessionUser);
+  const form = useForm({
+    validate: joiResolver(schema),
+    initialValues: {
+      reason: "",
+    },
+  });
   const { data: subscription, error: subscriptionError } = useSWR(
     user.adminOf?.paypalSubscriptionId
       ? `/api/business/${user.adminOfId}/subscription`
@@ -47,20 +57,52 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
   const [openedCancelSubscription, setOpenedCancelSubscription] =
     useState(false);
 
+  const [loadindCancelSubscription, setLoadingCancelSubscription] =
+    useState(false);
+  async function onSubmit(e: any) {
+    e.preventDefault();
+    const errors = form.validate();
+    if (errors.hasErrors === true) return;
+    const formData = form.values;
+    try {
+      setLoadingCancelSubscription(true);
+      await api.delete(`/api/business/${user.adminOfId}/subscription`, {
+        data: formData,
+      });
+      showNotification({
+        title: "You are welcome to come back",
+        message: "This window will refresh in 3s",
+      });
+      form.setFieldValue("reason", "");
+      setOpenedCancelSubscription(false);
+      setTimeout(() => {
+        window.location.href = window.location.href;
+      }, 3000);
+    } catch (err) {
+      showNotification({
+        title: "Please try again",
+        message: "We could not process your request",
+        color: "red",
+      });
+    } finally {
+      setLoadingCancelSubscription(false);
+    }
+  }
+
   // TODO: do other validations
   if (user.adminOf == null) {
     return (
       <>
         <AppHeaderTitle title="Subscription" />
-        <div>
+        <Text mx="md">
           You have to be the admin of a business to manage your subscription
-        </div>
+        </Text>
       </>
     );
   }
 
   function onSubscriptionApprove(business: any) {
-    setUser({ ...user, ...{ business } });
+    setUser({ ...user, ...{ business, adminOf: business } });
     showNotification({
       title: "Subscribed!",
       message: "Congratulations on your new subscription.",
@@ -84,11 +126,11 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
   }
 
   return (
-    <div style={{ minHeight: "calc(100vh - 100px)", marginBottom: "49px" }}>
+    <div style={{ minHeight: "calc(100vh - 100px)", marginBottom: "100px" }}>
       <Container>
         <AppHeaderTitle title="Subscription" />
 
-        {user.adminOf?.paypalSubscriptionId ? (
+        {user.adminOf?.paypalSubscriptionId && (
           <>
             {loadingSubscription && (
               <Center>
@@ -105,6 +147,17 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
                     size="sm"
                     style={{ display: "flex", alignItems: "center", gap: 3 }}
                   >
+                    <CheckupList size={12} />
+                    Status
+                  </Text>
+                  <Text size="sm">{subscription.status}</Text>
+                </Box>
+                <Box mt="md">
+                  <Text
+                    color="dimmed"
+                    size="sm"
+                    style={{ display: "flex", alignItems: "center", gap: 3 }}
+                  >
                     <Calendar size={12} />
                     Last payment date
                   </Text>
@@ -115,64 +168,93 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
                     )}
                   </Text>
                 </Box>
-                <Box mt="md">
-                  <Text
-                    color="dimmed"
-                    size="sm"
-                    style={{ display: "flex", alignItems: "center", gap: 3 }}
-                  >
-                    <Calendar size={12} />
-                    Next payment date
-                  </Text>
-                  <Text size="sm">
-                    {formatDate(
-                      subscription.billing_info.next_billing_time,
-                      "SHORT_TEXT"
-                    )}
-                  </Text>
-                </Box>
-                <Box mt="md">
-                  <Text
-                    color="dimmed"
-                    size="sm"
-                    style={{ display: "flex", alignItems: "center", gap: 3 }}
-                  >
-                    <Calendar size={12} />
-                    Final payment date
-                  </Text>
-                  <Text size="sm">
-                    {formatDate(
-                      subscription.billing_info.final_payment_time,
-                      "SHORT_TEXT"
-                    )}
-                  </Text>
-                </Box>
-                <Group mt="md">
-                  <Button
-                    variant="default"
-                    onClick={() => setOpenedCancelSubscription(true)}
-                  >
-                    Cancel subscription
-                  </Button>
-                  <Link href="/business/admin/perks" passHref>
-                    <Button component="a">Find perks</Button>
-                  </Link>
-                </Group>
+                {subscription.billing_info.next_billing_time && (
+                  <Box mt="md">
+                    <Text
+                      color="dimmed"
+                      size="sm"
+                      style={{ display: "flex", alignItems: "center", gap: 3 }}
+                    >
+                      <Calendar size={12} />
+                      Next payment date
+                    </Text>
+                    <Text size="sm">
+                      {formatDate(
+                        subscription.billing_info.next_billing_time,
+                        "SHORT_TEXT"
+                      )}
+                    </Text>
+                  </Box>
+                )}
+                {subscription.billing_info.final_payment_time && (
+                  <Box mt="md">
+                    <Text
+                      color="dimmed"
+                      size="sm"
+                      style={{ display: "flex", alignItems: "center", gap: 3 }}
+                    >
+                      <Calendar size={12} />
+                      Final payment date
+                    </Text>
+                    <Text size="sm">
+                      {formatDate(
+                        subscription.billing_info.final_payment_time,
+                        "SHORT_TEXT"
+                      )}
+                    </Text>
+                  </Box>
+                )}
+                {user.adminOf.subscriptionEndsAt && (
+                  <Box mt="md">
+                    <Text
+                      color="dimmed"
+                      size="sm"
+                      style={{ display: "flex", alignItems: "center", gap: 3 }}
+                    >
+                      <Calendar size={12} />
+                      Active By
+                    </Text>
+                    <Text size="sm">
+                      {formatDate(
+                        user.adminOf.subscriptionEndsAt,
+                        "SHORT_TEXT"
+                      )}
+                    </Text>
+                  </Box>
+                )}
+                {subscription.status !== "CANCELLED" && (
+                  <Group mt="md">
+                    <Button
+                      variant="default"
+                      onClick={() => setOpenedCancelSubscription(true)}
+                    >
+                      Cancel subscription
+                    </Button>
+                    <Link href="/business/admin/perks" passHref>
+                      <Button component="a">Find perks</Button>
+                    </Link>
+                  </Group>
+                )}
               </Card>
             )}
           </>
-        ) : (
-          <PayPalScriptProvider
-            options={{ "client-id": PAYPAL_CLIENT_ID!, vault: true }}
-          >
-            <AppSubscriptionCard
-              planid="P-8AT92407XR393120UMLGLXXI"
-              businessid={user.adminOf.id}
-              onSubscriptionApprove={onSubscriptionApprove}
-              onSubscriptionError={onSubscriptionError}
-            />
-          </PayPalScriptProvider>
         )}
+        {!user.adminOf?.paypalSubscriptionId ||
+          (subscription && subscription.status === "CANCELLED" && (
+            <>
+              <Text my="md">Get a subscription</Text>
+              <PayPalScriptProvider
+                options={{ "client-id": PAYPAL_CLIENT_ID!, vault: true }}
+              >
+                <AppSubscriptionCard
+                  planid="P-8AT92407XR393120UMLGLXXI"
+                  businessid={user.adminOf.id}
+                  onSubscriptionApprove={onSubscriptionApprove}
+                  onSubscriptionError={onSubscriptionError}
+                />
+              </PayPalScriptProvider>
+            </>
+          ))}
       </Container>
 
       <Modal
@@ -185,23 +267,35 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
           out for support, or get a new subscription.
         </Text>
         <Text mb="sm">
-          If you still have time left on your subscription, it will still be
-          disabled in the system and you will have to reach out to us in order
-          to give you access for the days you had left.
-        </Text>
-        <Text>
           We are sorry to see you leave, are you sure you want to cancel your
           subscription?
         </Text>
-        <Group grow mt="md">
-          <Button
-            variant="default"
-            onClick={() => setOpenedCancelSubscription(false)}
-          >
-            Cancel
-          </Button>
-          <Button color="red">Confirm</Button>
-        </Group>
+        <form onSubmit={onSubmit}>
+          <Textarea
+            mt="md"
+            placeholder="Tell us what we can do better"
+            label="Reason"
+            autosize
+            minRows={2}
+            maxRows={10}
+            {...form.getInputProps("reason")}
+          />
+          <Group grow mt="md">
+            <Button
+              variant="default"
+              onClick={() => setOpenedCancelSubscription(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="red"
+              type="submit"
+              loading={loadindCancelSubscription}
+            >
+              Confirm
+            </Button>
+          </Group>
+        </form>
       </Modal>
     </div>
   );
