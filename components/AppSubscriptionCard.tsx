@@ -67,6 +67,7 @@ function AppSubscriptionCard(props: any) {
           paddingBottom: theme.spacing.md,
         }}
       >
+        <List.Item>First month free</List.Item>
         <List.Item>Publish unlimited offers</List.Item>
         <List.Item>Get unlimited perks</List.Item>
         <List.Item>Allow unlimited employees</List.Item>
