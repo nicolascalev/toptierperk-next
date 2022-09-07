@@ -82,13 +82,6 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
           autoClose: 3000,
         });
       })
-      .catch(() => {
-        showNotification({
-          title: "Not available",
-          message: "Sharing is not available for your browser",
-          autoClose: 3000,
-        });
-      })
       .finally(() => setOpenedActions(false));
   }
 
