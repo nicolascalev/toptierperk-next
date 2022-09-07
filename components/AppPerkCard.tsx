@@ -5,7 +5,6 @@ import {
   ActionIcon,
   useMantineTheme,
   AspectRatio,
-  Badge,
   Image,
   Anchor,
 } from "@mantine/core";
@@ -15,6 +14,8 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Upload } from "tabler-icons-react";
 import { timeAgo } from "helpers/formatDate";
 import Link from "next/link";
+import { Carousel } from "@mantine/carousel";
+import { Photo } from "@prisma/client";
 
 interface Props {
   perk: any;
@@ -27,22 +28,6 @@ export default function AppPerkCard(props: Props) {
 
   if (!props.perk) {
     throw new Error("perk prop must be provided");
-  }
-
-  const [displayPhoto, setDisplayPhoto] = useState(0);
-  function carouselLeft(e: any) {
-    e.stopPropagation();
-    if (displayPhoto == 0) {
-      return;
-    }
-    setDisplayPhoto(displayPhoto - 1);
-  }
-  function carouselRight(e: any) {
-    e.stopPropagation();
-    if (displayPhoto == props.perk.photos.length - 1) {
-      return;
-    }
-    setDisplayPhoto(displayPhoto + 1);
   }
 
   function clickShare(e: any) {
@@ -60,15 +45,16 @@ export default function AppPerkCard(props: Props) {
           message: "Thanks for sharing this perk!",
           autoClose: 5000,
         });
-      })
-      .catch(() => {
-        showNotification({
-          title: "Not available",
-          message: "Sharing is not available for your device",
-          autoClose: 5000,
-        });
       });
   }
+
+  const slides = props.perk.photos.map((photo: Photo) => (
+    <Carousel.Slide key={photo.url} style={{ maxHeight: "100%" }}>
+      <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
+        <Image fit="fill" src={photo.url} alt={"Photo of " + props.perk.name} />
+      </AspectRatio>
+    </Carousel.Slide>
+  ));
 
   return (
     <div
@@ -105,87 +91,70 @@ export default function AppPerkCard(props: Props) {
           </Text>
         </Group>
       )}
-      <Card p="sm" onClick={() => router.push("/perk/" + props.perk.id)}>
+      <Card p="sm">
         <Card.Section>
-          {props.perk.photos.length > 0 && (
-            <div style={{ width: "100%", position: "relative" }}>
+          <Carousel
+            sx={{ maxWidth: "100%" }}
+            mx="auto"
+            withIndicators
+            loop
+            nextControlIcon={<ChevronRight size={16} />}
+            previousControlIcon={<ChevronLeft size={16} />}
+            breakpoints={[
+              { maxWidth: "md", slideSize: "50%" },
+              { maxWidth: "sm", slideSize: "100%", slideGap: 0 },
+            ]}
+            styles={{
+              control: {
+                "&[data-inactive]": {
+                  opacity: 0,
+                  cursor: "default",
+                },
+              },
+            }}
+          >
+            {slides}
+            <Carousel.Slide style={{ maxHeight: "100%" }}>
               <AspectRatio ratio={16 / 9} sx={{ width: "100%" }}>
-                <Image
-                  src={props.perk.photos[displayPhoto].url}
-                  alt={"Photo of " + props.perk.name}
-                />
+                <Image fit="fill" src="https://stagingttp.nyc3.digitaloceanspaces.com/benefits/9-7-2022/1662581531898tacos.jpeg" alt={"Photo of " + props.perk.name} />
               </AspectRatio>
-              {props.perk.photos > 1 && (
-                <Group
-                  position="right"
-                  spacing="xs"
-                  style={{
-                    position: "absolute",
-                    bottom: theme.spacing.md,
-                    right: theme.spacing.md,
-                  }}
-                >
-                  <ActionIcon
-                    color="dark"
-                    variant="light"
-                    onClick={carouselLeft}
-                  >
-                    <ChevronLeft></ChevronLeft>
-                  </ActionIcon>
-                  <ActionIcon
-                    color="dark"
-                    variant="light"
-                    onClick={carouselRight}
-                  >
-                    <ChevronRight></ChevronRight>
-                  </ActionIcon>
-                </Group>
-              )}
-              <Badge
-                color="gray"
-                style={{
-                  position: "absolute",
-                  bottom: theme.spacing.md,
-                  left: theme.spacing.md,
-                }}
-              >
-                {displayPhoto + 1} / {props.perk.photos.length}
-              </Badge>
-            </div>
-          )}
+            </Carousel.Slide>
+          </Carousel>
         </Card.Section>
 
-        <Group position="apart" py="sm" noWrap>
-          <Text>{props.perk.name}</Text>
-          <ActionIcon
-            style={{ alignSelf: "start" }}
-            size="sm"
-            onClick={clickShare}
-          >
-            <Upload />
-          </ActionIcon>
-        </Group>
-
-        {props.perk.categories.length > 0 && (
-          <Group>
-            {props.perk.categories.map((category: any) => (
-              <Link
-                key={category.id}
-                href={`/category/${category.id}`}
-                passHref
-              >
-                <Anchor
-                  component="a"
-                  color="blue"
-                  size="sm"
-                  onClick={(e: any) => e.stopPropagation()}
-                >
-                  {category.name}
-                </Anchor>
-              </Link>
-            ))}
+        <div onClick={() => router.push("/perk/" + props.perk.id)}>
+          <Group position="apart" py="sm" noWrap>
+            <Text>{props.perk.name}</Text>
+            <ActionIcon
+              style={{ alignSelf: "start" }}
+              size="sm"
+              onClick={clickShare}
+            >
+              <Upload />
+            </ActionIcon>
           </Group>
-        )}
+
+          {props.perk.categories.length > 0 && (
+            <Group>
+              {props.perk.categories.map((category: any) => (
+                <Link
+                  key={category.id}
+                  href={`/category/${category.id}`}
+                  passHref
+                >
+                  <Anchor
+                    component="a"
+                    color="blue"
+                    size="sm"
+                    onClick={(e: any) => e.stopPropagation()}
+                  >
+                    {category.name}
+                  </Anchor>
+                </Link>
+              ))}
+            </Group>
+          )}
+        </div>
       </Card>
     </div>
   );
