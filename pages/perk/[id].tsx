@@ -370,12 +370,8 @@ export async function getServerSideProps(ctx: any) {
     if (!benefit) {
       return { redirect: { destination: "/404", permanent: false } };
     }
-
-    benefit.createdAt = benefit.createdAt?.getTime() || null;
-    benefit.startsAt = benefit.startsAt?.getTime() || null;
-    benefit.finishesAt = benefit.finishesAt?.getTime() || null;
-    benefit.supplier.createdAt = benefit.supplier.createdAt?.getTime() || null;
     delete benefit.supplier.paypalSubscriptionId;
+    benefit = JSON.parse(JSON.stringify(benefit));
 
     return { props: { benefit } };
   } catch (err) {
