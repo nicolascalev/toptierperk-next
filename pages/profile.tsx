@@ -28,7 +28,7 @@ function UserPicture(props: any) {
   const { y } = useWindowScroll();
   const [logoSize, setLogoSize] = useState(64);
   useEffect(() => {
-    if (y < 300) {
+    if (y < 500) {
       setLogoSize(64 - y);
     }
   }, [y]);

@@ -3,6 +3,8 @@
 .logo__container {
   min-height: 34px;
   min-width: 34px;
+  max-height: 64px;
+  max-width: 64px;
   height: 64px;
   width: 64px;
   resize: both;
