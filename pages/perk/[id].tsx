@@ -181,7 +181,7 @@ const PerkDetailsPage: NextPage<Props> = ({ benefit }) => {
           </Text>
           <Text>
             Offer by
-            <Link href={"/business/" + benefit.supplier.id} passHref>
+            <Link href={"/business/" + benefit.supplier.name} passHref>
               <Anchor component="a" weight={500} color="blue" ml="5px">
                 {benefit.supplier.name}
               </Anchor>
