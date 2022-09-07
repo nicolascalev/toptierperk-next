@@ -9,5 +9,5 @@ export default function AppLogo({ height = 25 }: { height?: number }) {
   const source = isLight ? logo.src : logoLight.src;
   const alt = isLight ? "Toptierperk logo" : "Toptierperk light logo";
 
-  return <Image height={height} src={source} alt={alt} />;
+  return <Image height={height} width={height} fit="contain" src={source} alt={alt} />;
 }

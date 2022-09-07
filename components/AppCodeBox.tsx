@@ -37,6 +37,7 @@ function AppCodeBox({ imageUrl, title, description, qrValue }: Props) {
         <Image
           src={imageUrl}
           alt="QR code"
+          style={{ width: "auto" }}
           imageProps={{
             style: {
               objectFit: "cover",
