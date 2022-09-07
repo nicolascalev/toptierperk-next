@@ -23,8 +23,7 @@ import { useRouter } from "next/router";
 import AppPerkCard from "components/AppPerkCard";
 import Link from "next/link";
 import AppHeaderTitle from "components/AppHeaderTitle";
-// @ts-ignore
-import NumericLabel from "react-pretty-numbers";
+import pretty from "helpers/prettyNumber";
 import AppCodeBox from "components/AppCodeBox";
 import api from "config/api";
 import useSWR from "swr";
@@ -309,52 +308,19 @@ const SingleBusinessView: NextPage<Props> = ({ business }) => {
           <Paper radius="md" p="md">
             <SimpleGrid cols={3}>
               <div>
-                <Text size="lg">
-                  <NumericLabel
-                    params={{
-                      currency: false,
-                      commafy: true,
-                      shortFormat: true,
-                      justification: "L",
-                    }}
-                  >
-                    {business._count.benefitsFrom}
-                  </NumericLabel>
-                </Text>
+                <Text size="lg">{pretty(business._count.benefitsFrom)}</Text>
                 <Text size="sm" color="dimmed">
                   Perks
                 </Text>
               </div>
               <div>
-                <Text size="lg">
-                  <NumericLabel
-                    params={{
-                      currency: false,
-                      commafy: true,
-                      shortFormat: true,
-                      justification: "L",
-                    }}
-                  >
-                    {business._count.benefits}
-                  </NumericLabel>
-                </Text>
+                <Text size="lg">{pretty(business._count.benefits)}</Text>
                 <Text size="sm" color="dimmed">
                   Offers
                 </Text>
               </div>
               <div>
-                <Text size="lg">
-                  <NumericLabel
-                    params={{
-                      currency: false,
-                      commafy: true,
-                      shortFormat: true,
-                      justification: "L",
-                    }}
-                  >
-                    {business.claimAmount}
-                  </NumericLabel>
-                </Text>
+                <Text size="lg">{pretty(business.claimAmount)}</Text>
                 <Text size="sm" color="dimmed">
                   Claims
                 </Text>
