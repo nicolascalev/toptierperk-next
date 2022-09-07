@@ -66,7 +66,7 @@ export default function App(props: AppProps) {
           <title>Toptierperk, B2B perks available for all size business</title>
           <meta
             name="viewport"
-            content="minimum-scale=1, initial-scale=1, width=device-width"
+            content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
           />
         </Head>
 
