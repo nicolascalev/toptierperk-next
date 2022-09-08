@@ -1,6 +1,6 @@
 {
+  "explorer.compactFolders": false,
   "files.exclude": {
     "node_modules": true
-  },
-  "explorer.compactFolders": false
+  }
 }
