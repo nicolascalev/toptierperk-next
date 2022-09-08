@@ -4,6 +4,7 @@ import isAuthenticated from "helpers/isAuthenticated";
 import refreshSessionUser from "helpers/refreshSessionUser";
 import Business from "prisma/models/Business";
 import User, { UpdateRole } from "prisma/models/User";
+import { sendOneEmail } from "helpers/sendMail";
 
 export default async function findBusinessBenfits(
   req: NextApiRequest,
@@ -71,6 +72,12 @@ export default async function findBusinessBenfits(
       }
 
       const updated = await User.updateRole(params);
+      await sendOneEmail({
+        to: updated.email,
+        subject: "Your authorized role changed",
+        text: `Hi ${updated.name}, your role has been set to ${role}, please log in to Toptierperk again to see the changes`,
+        html: `Hi ${updated.name}, your role has been set to ${role}, please <a href="${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/logout">login again</a> to see the changes`,
+      });
       return res.status(200).json(updated);
     } catch (error) {
       return res.status(500).json(error);

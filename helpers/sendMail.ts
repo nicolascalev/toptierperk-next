@@ -6,12 +6,19 @@ if (!process.env.SENDGRID_API_KEY) {
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
-export async function sendOneEmail(email: MailDataRequired) {
+type Email = {
+  to: string;
+  from?: string;
+  subject: string;
+  text: string;
+  html: string;
+};
+export async function sendOneEmail(email: Email) {
   if (!email.from) {
     email.from = "hello@toptierperk.com";
   }
   try {
-    await sgMail.send(email);
+    await sgMail.send(email as MailDataRequired);
     return;
   } catch (err) {
     console.error("Failed to send email ", email);
