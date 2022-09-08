@@ -114,7 +114,7 @@ const JoinBusinessView: NextPage<Props> = ({ user }) => {
         autoClose: 3000,
       });
       setTimeout(() => {
-        router.push("/business");
+        router.push("/me?redirect=/business");
       }, 3000);
     } catch (err) {
       showNotification({

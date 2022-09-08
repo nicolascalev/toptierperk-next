@@ -15,10 +15,10 @@ import {
   Indicator,
   Button,
   Paper,
+  Anchor,
 } from "@mantine/core";
 import { Filter } from "tabler-icons-react";
 import AppPerkCard from "components/AppPerkCard";
-import AppMainLoader from "components/AppMainLoader";
 import { useState, useEffect, useMemo } from "react";
 import { DatePicker } from "@mantine/dates";
 import useSWR from "swr";
@@ -30,6 +30,7 @@ import AppPrivacySelect from "components/AppPrivacySelect";
 import AppCategorySelect from "components/AppCategorySelect";
 import AppHeaderTitle from "components/AppHeaderTitle";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import Link from "next/link";
 
 const fetcher = (url: string, params: any) =>
   api
@@ -191,8 +192,14 @@ const Home: NextPage<Props> = ({ user }) => {
               No set business
             </Text>
             <Text size="sm" color="dimmed">
-              When you join or create a business, the acquired perks will show
-              here
+              You are not a part of a business yet, you can either
+              <Link href="/business/join" passHref>
+                <Anchor component="a"> join a business </Anchor>
+              </Link>
+              or
+              <Link href="/business/create" passHref>
+                <Anchor component="a"> create one</Anchor>
+              </Link>
             </Text>
           </Paper>
         )}
