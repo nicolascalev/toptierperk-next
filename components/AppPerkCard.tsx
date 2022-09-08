@@ -180,10 +180,12 @@ export default function AppPerkCard(props: Props) {
               }
               label={props.perk.isPrivate ? "Private" : "Public"}
             />
-            <Attribute
-              icon={<Calendar size={12} />}
-              label={"Starts " + formatDate(props.perk.startsAt, "SHORT_TEXT")}
-            />
+            {props.perk.startsAt && (
+              <Attribute
+                icon={<Calendar size={12} />}
+                label={"Starts " + formatDate(props.perk.startsAt, "SHORT_TEXT")}
+              />
+            )}
             {/* {props.perk.useLimit && (
               <Attribute
                 icon={<Fence size={12} />}
