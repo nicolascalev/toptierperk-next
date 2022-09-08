@@ -21,6 +21,7 @@
     "@mantine/notifications": "^5.2.6",
     "@paypal/react-paypal-js": "^7.8.1",
     "@prisma/client": "^4.2.1",
+    "@sendgrid/mail": "^7.7.0",
     "@tiptap/react": "^2.0.0-beta.109",
     "@tiptap/starter-kit": "^2.0.0-beta.185",
     "aws-sdk": "^2.1161.0",
