@@ -239,8 +239,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
             )}
           </>
         )}
-        {!user.adminOf?.paypalSubscriptionId ||
-          (subscription && subscription.status === "CANCELLED") && (
+        {!user.adminOf?.paypalSubscriptionId && (
             <>
               <Text my="md">Get a subscription</Text>
               <PayPalScriptProvider
