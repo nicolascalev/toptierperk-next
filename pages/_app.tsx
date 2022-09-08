@@ -14,7 +14,7 @@ import {
   Group,
   Button,
 } from "@mantine/core";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import { NotificationsProvider } from "@mantine/notifications";
 import { UserInterfaceProvider } from "helpers/useUserInterfaceContext";
 import { Sun, MoonStars } from "tabler-icons-react";
@@ -24,6 +24,13 @@ import AppLogo from "components/AppLogo";
 import AppNavigation from "components/AppNavigation";
 import AppHeader from "components/AppHeader";
 import { SWRConfig } from "swr";
+import NProgress from 'nprogress';
+import '../styles/nprogress.css';
+
+NProgress.configure({ showSpinner: false });
+Router.events.on('routeChangeStart', () => NProgress.start()); 
+Router.events.on('routeChangeComplete', () => NProgress.done()); 
+Router.events.on('routeChangeError', () => NProgress.done());
 
 export default function App(props: AppProps) {
   const router = useRouter();
