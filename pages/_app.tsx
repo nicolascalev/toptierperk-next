@@ -25,7 +25,7 @@ import AppNavigation from "components/AppNavigation";
 import AppHeader from "components/AppHeader";
 import { SWRConfig } from "swr";
 import NProgress from 'nprogress';
-import '../styles/nprogress.css';
+import 'styles/Nprogress.css';
 
 NProgress.configure({ showSpinner: false });
 Router.events.on('routeChangeStart', () => NProgress.start()); 
