@@ -10,12 +10,34 @@ import {
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, Upload } from "tabler-icons-react";
-import { timeAgo } from "helpers/formatDate";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Upload,
+  Fence,
+  Lock,
+  LockOpen,
+  Calendar,
+} from "tabler-icons-react";
+import formatDate, { timeAgo } from "helpers/formatDate";
 import Link from "next/link";
 import { Carousel } from "@mantine/carousel";
 import { Photo } from "@prisma/client";
+import { ReactNode } from "react";
+import pretty from "helpers/prettyNumber";
+
+function Attribute({ icon, label }: { icon: ReactNode; label: string }) {
+  return (
+    <Text
+      size="sm"
+      color="dimmed"
+      style={{ display: "flex", alignItems: "center", gap: 3 }}
+    >
+      {icon}
+      {label}
+    </Text>
+  );
+}
 
 interface Props {
   perk: any;
@@ -37,15 +59,13 @@ export default function AppPerkCard(props: Props) {
       text: "Toptierperk, making B2B perks available for everyone",
       url: window.location.origin + `/perk${props.perk.id}`,
     };
-    navigator
-      .share(shareData)
-      .then(() => {
-        showNotification({
-          title: "Shared",
-          message: "Thanks for sharing this perk!",
-          autoClose: 5000,
-        });
+    navigator.share(shareData).then(() => {
+      showNotification({
+        title: "Shared",
+        message: "Thanks for sharing this perk!",
+        autoClose: 5000,
       });
+    });
   }
 
   const slides = props.perk.photos.map((photo: Photo) => (
@@ -125,7 +145,7 @@ export default function AppPerkCard(props: Props) {
               size="sm"
               onClick={clickShare}
             >
-              <Upload />
+              <Upload size={16} />
             </ActionIcon>
           </Group>
 
@@ -149,6 +169,34 @@ export default function AppPerkCard(props: Props) {
               ))}
             </Group>
           )}
+          <Group pt="sm">
+            <Attribute
+              icon={
+                props.perk.isPrivate ? (
+                  <Lock size={12} />
+                ) : (
+                  <LockOpen size={12} />
+                )
+              }
+              label={props.perk.isPrivate ? "Private" : "Public"}
+            />
+            <Attribute
+              icon={<Calendar size={12} />}
+              label={"Starts " + formatDate(props.perk.startsAt, "SHORT_TEXT")}
+            />
+            {/* {props.perk.useLimit && (
+              <Attribute
+                icon={<Fence size={12} />}
+                label={"Total limit " + pretty(props.perk.useLimit)}
+              />
+            )}
+            {props.perk.useLimitPerUser && (
+              <Attribute
+                icon={<Fence size={12} />}
+                label={"Limit per user " + pretty(props.perk.useLimitPerUser)}
+              />
+            )} */}
+          </Group>
         </div>
       </Card>
     </div>
