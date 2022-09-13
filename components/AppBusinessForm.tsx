@@ -10,6 +10,8 @@ import {
   Image,
   ActionIcon,
   Checkbox,
+  Text,
+  Anchor,
 } from "@mantine/core";
 import { useForm, joiResolver } from "@mantine/form";
 import { Photo } from "tabler-icons-react";
@@ -92,15 +94,17 @@ function AppBusinessForm({
 }: PropTypes) {
   const theme = useMantineTheme();
 
-  const parsedInitialValues = initialvalues ? {
-    name: initialvalues.name,
-    email: initialvalues.email,
-    about: initialvalues.about,
-  } : undefined;
+  const parsedInitialValues = initialvalues
+    ? {
+        name: initialvalues.name,
+        email: initialvalues.email,
+        about: initialvalues.about,
+      }
+    : undefined;
 
   const form = useForm({
     validate: joiResolver(createBusinessSchema),
-    initialValues: {...parsedInitialValues} || {
+    initialValues: { ...parsedInitialValues } || {
       name: "",
       about: "",
       email: "",
@@ -259,7 +263,21 @@ function AppBusinessForm({
         {!disableTermsAndConditions && (
           <>
             {/* TODO: add actual terms and conditions */}
-            <Checkbox required label="I agree to Terms and Conditions" />
+            <Checkbox
+              required
+              label={
+                <Text>
+                  I have read and agree with{" "}
+                  <Anchor href="https://about.toptierperk.com/privacy-policy" target="_blank">
+                    Privacy Policy
+                  </Anchor>{" "}
+                  and{" "}
+                  <Anchor href="https://about.toptierperk.com/terms" target="_blank">
+                    Terms and Conditions
+                  </Anchor>
+                </Text>
+              }
+            />
           </>
         )}
         <Group position="right">
