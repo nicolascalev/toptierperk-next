@@ -62,6 +62,44 @@ const paypal = {
       return Promise.reject(err);
     }
   },
+
+  async suspendSubscription(subscriptionId: string, reason?: string) {
+    try {
+      const accessToken = await this.getAccessToken();
+
+      await axiosPaypal.post(
+        `/v1/billing/subscriptions/${subscriptionId}/suspend`,
+        { reason: reason || "" },
+        {
+          headers: {
+            Authorization: "Bearer " + accessToken,
+          },
+        }
+      );
+      return;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
+
+  async activateSubscription(subscriptionId: string, reason?: string) {
+    try {
+      const accessToken = await this.getAccessToken();
+
+      await axiosPaypal.post(
+        `/v1/billing/subscriptions/${subscriptionId}/activate`,
+        { reason: reason || "User wants to activate subscription" },
+        {
+          headers: {
+            Authorization: "Bearer " + accessToken,
+          },
+        }
+      );
+      return;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  },
 };
 
 export default paypal;

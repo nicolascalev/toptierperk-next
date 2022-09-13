@@ -66,7 +66,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
     const formData = form.values;
     try {
       setLoadingCancelSubscription(true);
-      await api.delete(`/api/business/${user.adminOfId}/subscription`, {
+      await api.post(`/api/business/${user.adminOfId}/subscription/suspend`, {
         data: formData,
       });
       showNotification({
@@ -86,6 +86,30 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
       });
     } finally {
       setLoadingCancelSubscription(false);
+    }
+  }
+
+  const [loadingActivate, setLoadingActivate] = useState(false);
+  async function activateSubscription() {
+    try {
+      setLoadingActivate(true);
+      await api.post(`/api/business/${user.adminOfId}/subscription/activate`);
+      showNotification({
+        title: "Your subscription has been activated",
+        message: "This window will refresh in 3s",
+      });
+      setTimeout(() => {
+        window.location.href = window.location.href;
+      }, 3000);
+    } catch (err) {
+      console.log(err);
+      showNotification({
+        title: "Please try again",
+        message: "We could not process your request",
+        color: "red",
+      });
+    } finally {
+      setLoadingActivate(false);
     }
   }
 
@@ -222,17 +246,27 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
                     </Text>
                   </Box>
                 )}
-                {subscription.status !== "CANCELLED" && (
-                  <Group mt="md">
+                {subscription.status !== "SUSPENDED" && (
+                  <Group mt="md" position="right">
                     <Button
                       variant="default"
                       onClick={() => setOpenedCancelSubscription(true)}
                     >
-                      Cancel subscription
+                      Suspend subscription
                     </Button>
                     <Link href="/business/admin/perks" passHref>
                       <Button component="a">Find perks</Button>
                     </Link>
+                  </Group>
+                )}
+                {subscription.status === "SUSPENDED" && (
+                  <Group mt="md" position="right">
+                    <Button
+                      onClick={activateSubscription}
+                      loading={loadingActivate}
+                    >
+                      Activate
+                    </Button>
                   </Group>
                 )}
               </Card>
@@ -240,20 +274,20 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
           </>
         )}
         {!user.adminOf?.paypalSubscriptionId && (
-            <>
-              <Text my="md">Get a subscription</Text>
-              <PayPalScriptProvider
-                options={{ "client-id": PAYPAL_CLIENT_ID!, vault: true }}
-              >
-                <AppSubscriptionCard
-                  planid="P-8AT92407XR393120UMLGLXXI"
-                  businessid={user.adminOf.id}
-                  onSubscriptionApprove={onSubscriptionApprove}
-                  onSubscriptionError={onSubscriptionError}
-                />
-              </PayPalScriptProvider>
-            </>
-          )}
+          <>
+            <Text my="md">Get a subscription</Text>
+            <PayPalScriptProvider
+              options={{ "client-id": PAYPAL_CLIENT_ID!, vault: true }}
+            >
+              <AppSubscriptionCard
+                planid="P-8AT92407XR393120UMLGLXXI"
+                businessid={user.adminOf.id}
+                onSubscriptionApprove={onSubscriptionApprove}
+                onSubscriptionError={onSubscriptionError}
+              />
+            </PayPalScriptProvider>
+          </>
+        )}
       </Container>
 
       <Modal
