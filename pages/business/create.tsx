@@ -29,7 +29,7 @@ const BusinessCreate: NextPage<Props> = ({ user }) => {
     // router.push("/business");
     // not using router because this will help refresh session
     setTimeout(() => {
-      window.location.href = "/business";
+      window.location.href = "/api/me?redirect=/business";
     }, 3000);
   }
 

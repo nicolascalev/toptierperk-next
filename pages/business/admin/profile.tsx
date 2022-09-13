@@ -5,7 +5,6 @@ import AppError from "components/AppError";
 import AppHeaderTitle from "components/AppHeaderTitle";
 import AppBusinessForm from "components/AppBusinessForm";
 import { showNotification } from "@mantine/notifications";
-import { useRouter } from "next/router";
 import Business from "prisma/models/Business";
 
 interface Props {
@@ -15,14 +14,13 @@ interface Props {
 }
 
 const EditBusinessView: NextPage<Props> = ({ user, serverError, business }) => {
-  const router = useRouter();
   function onSuccess() {
     showNotification({
       title: "Business updated",
-      message: "It may take a second to populate around the app",
+      message: "You will be redirected in 3s",
     });
     setTimeout(() => {
-      router.push("/business");
+      window.location.href = "/api/me?redirect=/business"
     }, 5000);
   }
   function onError() {
