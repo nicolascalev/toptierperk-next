@@ -26,6 +26,7 @@ import AppHeader from "components/AppHeader";
 import { SWRConfig } from "swr";
 import NProgress from 'nprogress';
 import 'styles/Nprogress.css';
+import AppDesktopAlertModal from "components/AppDesktopAlertModal";
 
 NProgress.configure({ showSpinner: false });
 Router.events.on('routeChangeStart', () => NProgress.start()); 
@@ -165,6 +166,8 @@ export default function App(props: AppProps) {
                     </Button>
                   </AppNavigation>
                 </Drawer>
+
+                <AppDesktopAlertModal />
               </NotificationsProvider>
             </UserInterfaceProvider>
           </SWRConfig>
