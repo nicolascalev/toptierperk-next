@@ -76,7 +76,12 @@ function AppCodeScanner({ onReadSuccess, disabled }: Props) {
       label: cam.label,
     }));
     if (listedCameras.length > 0) {
-      scanner.current.setCamera(listedCameras[0].id);
+      const backCamera = listedCameras.find(cam => cam.label === "Back Camera")
+      if (backCamera) {
+        scanner.current.setCamera(backCamera.id);
+      } else {
+        scanner.current.setCamera(listedCameras[0].id);
+      }
     }
     setCameras(foundCameras);
     setscanStarted(true);
