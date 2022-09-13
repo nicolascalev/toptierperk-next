@@ -79,7 +79,8 @@ export default function AppPerkCard(props: Props) {
   return (
     <div
       style={{
-        width: 340,
+        maxWidth: 340,
+        width: "100%",
         margin: "auto",
         paddingBottom: theme.spacing.md,
         zIndex: 1,
