@@ -70,8 +70,8 @@ function AppPerkViewActions({ perk, user, initialError }: Props) {
   function clickShare() {
     const shareData = {
       title: perk.name,
-      text: "Toptierperk, making B2B perks available for everyone",
-      url: window.location.origin + `/perk${perk.id}`,
+      text: `${perk.supplier.name} - ${perk.name}`,
+      url: window.location.origin + `/perk/${perk.id}`,
     };
     navigator
       .share(shareData)
