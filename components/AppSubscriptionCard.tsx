@@ -5,9 +5,13 @@ import {
   List,
   Title,
   Anchor,
+  ThemeIcon,
+  Divider,
+  Box,
 } from "@mantine/core";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import api from "config/api";
+import { CircleCheck } from "tabler-icons-react";
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
 function AppSubscriptionCard(props: any) {
@@ -54,33 +58,47 @@ function AppSubscriptionCard(props: any) {
   // TODO: get plan info from props
 
   return (
-    <Card shadow="md">
-      <Title order={1} align="center">
-        $19.99
-      </Title>
-      <Text size="lg" weight={500} align="center">
-        Full Plan Monthly
-      </Text>
-      <List
+    <>
+      <Card
         style={{
-          paddingTop: theme.spacing.md,
-          paddingBottom: theme.spacing.md,
+          width: "100%",
+          maxWidth: 400,
         }}
+        withBorder
       >
-        <List.Item>First month free</List.Item>
-        <List.Item>Publish unlimited offers</List.Item>
-        <List.Item>Get unlimited perks</List.Item>
-        <List.Item>Allow unlimited employees</List.Item>
-      </List>
-      <PayPalButtons
-        style={{
-          layout: "vertical",
-          color: "blue",
-        }}
-        createSubscription={paypalCreateSubscription}
-        onApprove={onPaypalApprove}
-      />
-    </Card>
+        <Card.Section>
+          <Box my="xl" px="md">
+            <Title order={2}>Full Plan</Title>
+            <Text weight={500}>$19.99 plus 13% taxes a month</Text>
+          </Box>
+          <Divider />
+        </Card.Section>
+        <List
+          spacing="xs"
+          size="sm"
+          center
+          my="3rem"
+          icon={
+            <ThemeIcon size={24} radius="xl">
+              <CircleCheck size={16} />
+            </ThemeIcon>
+          }
+        >
+          <List.Item>First month free</List.Item>
+          <List.Item>Publish unlimited offers</List.Item>
+          <List.Item>Get unlimited perks</List.Item>
+          <List.Item>Allow unlimited employees</List.Item>
+        </List>
+        <PayPalButtons
+          style={{
+            layout: "vertical",
+            color: "blue",
+          }}
+          createSubscription={paypalCreateSubscription}
+          onApprove={onPaypalApprove}
+        />
+      </Card>
+    </>
   );
 }
 
