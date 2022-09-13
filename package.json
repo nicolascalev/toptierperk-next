@@ -33,7 +33,7 @@
     "joi": "^17.6.0",
     "lodash": "^4.17.21",
     "moment-timezone": "^0.5.34",
-    "next": "12.1.4",
+    "next": "^12.3.0",
     "nprogress": "^0.2.0",
     "qr-scanner": "^1.4.1",
     "react": "^18.1.0",
