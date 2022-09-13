@@ -172,20 +172,23 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
         </div>
 
         {user.adminOf && user.business?.paidMembership == false && (
-          <Alert
-            icon={<AlertCircle size={16} />}
-            title="Subscription"
-            color="yellow"
-            radius="md"
-            style={{ marginTop: theme.spacing.md, position: "initial" }}
-            onClick={() => router.push("/subscription")}
-          >
-            You need to
-            <Link href="/subscription" passHref>
-              <Anchor component="a"> get a subscription </Anchor>
-            </Link>
-            to show offers and get perks.
-          </Alert>
+          <Paper p="md" withBorder>
+            <Text
+              weight={500}
+              mb="md"
+              size="sm"
+              style={{ display: "flex", alignItems: "center", gap: 5 }}
+            >
+              <AlertCircle size={16} /> Subscription needed
+            </Text>
+            <Text color="dimmed" size="sm">
+              You need to
+              <Link href="/subscription" passHref>
+                <Anchor component="a"> get a subscription </Anchor>
+              </Link>
+              to show offers and get perks.
+            </Text>
+          </Paper>
         )}
       </div>
       <Tabs variant="pills" color="primary" defaultValue="newest">
@@ -204,7 +207,14 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
             10 Newest Perks
           </Text>
           {business.benefitsFrom.length === 0 && (
-            <Text align="center">0 results found</Text>
+            <Paper p="md" m="md" withBorder>
+              <Text weight={500} mb="md">
+                No results
+              </Text>
+              <Text color="dimmed">
+                When you get new benefits they will be displayed here
+              </Text>
+            </Paper>
           )}
           {business.benefitsFrom.map((perk: any) => (
             <AppPerkCard key={perk.id} perk={perk}></AppPerkCard>
@@ -224,7 +234,14 @@ const BusinessView: NextPage<Props> = ({ user, business }) => {
             All Business Offers
           </Text>
           {business.benefits.length === 0 && (
-            <Text align="center">0 results found</Text>
+            <Paper p="md" m="md" withBorder>
+              <Text weight={500} mb="md">
+                No results
+              </Text>
+              <Text color="dimmed">
+                When you create benefit offers they will be displayed here
+              </Text>
+            </Paper>
           )}
           {business.benefits.map((offer: any) => (
             <AppPerkCard key={offer.id} perk={offer}></AppPerkCard>
