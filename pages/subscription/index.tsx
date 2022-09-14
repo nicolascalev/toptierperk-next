@@ -26,6 +26,11 @@ import Link from "next/link";
 import Joi from "joi";
 import { useForm, joiResolver } from "@mantine/form";
 
+const NEXT_PUBLIC_PLAN_ID = process.env.NEXT_PUBLIC_PLAN_ID;
+if (!NEXT_PUBLIC_PLAN_ID) {
+  throw new Error("NEXT_PUBLIC_PLAN_ID env variable is required");
+}
+
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
 const schema = Joi.object({
@@ -280,7 +285,7 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
               options={{ "client-id": PAYPAL_CLIENT_ID!, vault: true }}
             >
               <AppSubscriptionCard
-                planid="P-8AT92407XR393120UMLGLXXI"
+                planid={NEXT_PUBLIC_PLAN_ID}
                 businessid={user.adminOf.id}
                 onSubscriptionApprove={onSubscriptionApprove}
                 onSubscriptionError={onSubscriptionError}

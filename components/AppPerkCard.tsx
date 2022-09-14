@@ -56,8 +56,8 @@ export default function AppPerkCard(props: Props) {
     e.stopPropagation();
     const shareData = {
       title: props.perk.name,
-      text: "Toptierperk, making B2B perks available for everyone",
-      url: window.location.origin + `/perk${props.perk.id}`,
+      text: `${props.perk.supplier.name} - ${props.perk.name}`,
+      url: window.location.origin + `/perk/${props.perk.id}`,
     };
     navigator.share(shareData).then(() => {
       showNotification({
