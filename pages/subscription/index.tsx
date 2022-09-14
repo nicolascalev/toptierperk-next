@@ -191,10 +191,10 @@ const Subscription: NextPage<Props> = ({ user: sessionUser }) => {
                     Last payment date
                   </Text>
                   <Text size="sm">
-                    {formatDate(
+                    {subscription.billing_info.last_payment?.time ? formatDate(
                       subscription.billing_info.last_payment.time,
                       "SHORT_TEXT"
-                    )}
+                    ) : "Still in trial"}
                   </Text>
                 </Box>
                 {subscription.billing_info.next_billing_time && (
