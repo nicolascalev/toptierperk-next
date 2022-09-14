@@ -1,3 +1,4 @@
+SET SESSION sql_require_primary_key = 0;
 -- CreateTable
 CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
