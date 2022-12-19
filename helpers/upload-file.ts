@@ -1,5 +1,5 @@
-import fs from "fs"
-import AWS from "aws-sdk"
+import fs from "fs";
+import AWS from "aws-sdk";
 
 const s3 = new AWS.S3({
   endpoint: process.env.DO_SPACES_URL,
@@ -7,8 +7,8 @@ const s3 = new AWS.S3({
   credentials: {
     accessKeyId: process.env.DO_SPACES_ID!,
     secretAccessKey: process.env.DO_SPACES_SECRET!,
-  }
-})
+  },
+});
 
 type CustomFile = {
   lastModifiedDate?: Date;
@@ -18,21 +18,24 @@ type CustomFile = {
   mimetype?: string;
   hashAlgorithm?: boolean;
   size?: number;
-}
+};
 
 type Uploads = {
-  errors: Error[],
-  success: any[]
-}
+  errors: Error[];
+  success: any[];
+};
 
-async function uploadFile(files: CustomFile[], folder = '') : Promise<Uploads> {
+async function uploadFile(files: CustomFile[], folder = ""): Promise<Uploads> {
+  const rootEnvFolder =
+    process.env.NODE_ENV === "production" ? "production/" : "development/";
+  folder = rootEnvFolder + folder;
   // creamos uuna promesa ya que vamos a ejecutar un callback varias veces
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     s3.createBucket(() => {
       // definimos la variable que va a tener la respuesta
       var awsUpload: Uploads = {
         errors: [],
-        success: []
+        success: [],
       };
 
       let times = 0;
@@ -55,7 +58,7 @@ async function uploadFile(files: CustomFile[], folder = '') : Promise<Uploads> {
             awsUpload.success.push(data);
           }
 
-          times++
+          times++;
           // si ya se recorrio todo el arreglo entonces devuelva el resultado
           if (times === files.length) {
             resolve(awsUpload);
@@ -66,4 +69,4 @@ async function uploadFile(files: CustomFile[], folder = '') : Promise<Uploads> {
   });
 }
 
-export default uploadFile
+export default uploadFile;
